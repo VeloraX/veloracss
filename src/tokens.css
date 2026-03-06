@@ -32,6 +32,16 @@
   --vel-color-info-light:      #cffafe;
   --vel-color-info-fg:         #ffffff;
 
+  /* ─── Surface / UI Tokens ───────────────────── */
+  --vel-surface-bg:  #060b17;
+  --vel-surface-0:   #060b17;
+  --vel-surface-1:   #0d1422;
+  --vel-surface-2:   #111827;
+  --vel-surface-3:   #1a2236;
+  --vel-border-base: #1e2d45;
+  --vel-text-base:   #e2e8f0;
+  --vel-text-muted:  #64748b;
+
   /* ─── Neutral Palette ───────────────────────── */
   --vel-neutral-50:  #f8fafc;
   --vel-neutral-100: #f1f5f9;

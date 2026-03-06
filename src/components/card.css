@@ -1,19 +1,19 @@
 /* VeloraCSS — Card Component */
 
 .vel-card {
-  background-color: #ffffff;
+  background-color: var(--vel-surface-2);
   border-radius: var(--vel-radius-xl);
-  border: 1px solid var(--vel-neutral-200);
-  box-shadow: var(--vel-shadow-sm);
+  border: 1px solid var(--vel-border-base);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
   overflow: hidden;
 }
 
 .vel-card-header {
   padding: var(--vel-space-4) var(--vel-space-6);
-  border-bottom: 1px solid var(--vel-neutral-200);
+  border-bottom: 1px solid var(--vel-border-base);
   font-weight: 600;
   font-size: var(--vel-text-base);
-  color: var(--vel-neutral-900);
+  color: var(--vel-text-base);
 }
 
 .vel-card-body {
@@ -22,8 +22,8 @@
 
 .vel-card-footer {
   padding: var(--vel-space-4) var(--vel-space-6);
-  border-top: 1px solid var(--vel-neutral-200);
-  background-color: var(--vel-neutral-50);
+  border-top: 1px solid var(--vel-border-base);
+  background-color: var(--vel-surface-1);
 }
 
 .vel-card-img-top {
@@ -43,25 +43,25 @@
 /* ─── Card variants ───────────────────────── */
 
 .vel-card-flat {
-  background-color: #ffffff;
+  background-color: var(--vel-surface-2);
   border-radius: var(--vel-radius-xl);
-  border: 1px solid var(--vel-neutral-200);
+  border: 1px solid var(--vel-border-base);
   box-shadow: none;
   overflow: hidden;
 }
 
 .vel-card-elevated {
-  background-color: #ffffff;
+  background-color: var(--vel-surface-2);
   border-radius: var(--vel-radius-xl);
   border: none;
-  box-shadow: var(--vel-shadow-lg);
+  box-shadow: 0 10px 30px -5px rgb(0 0 0 / 0.5), 0 4px 10px -4px rgb(0 0 0 / 0.4);
   overflow: hidden;
 }
 
 .vel-card-filled {
-  background-color: var(--vel-neutral-100);
+  background-color: var(--vel-surface-3);
   border-radius: var(--vel-radius-xl);
-  border: none;
+  border: 1px solid var(--vel-border-base);
   box-shadow: none;
   overflow: hidden;
 }
@@ -90,6 +90,6 @@
 }
 
 .vel-card-hover:hover {
-  box-shadow: var(--vel-shadow-lg);
+  box-shadow: 0 15px 35px -5px rgb(0 0 0 / 0.5), 0 6px 15px -4px rgb(0 0 0 / 0.4);
   transform: translateY(-2px);
 }
