@@ -22,7 +22,7 @@ const EXAMPLES: Record<string, string> = {
     <!-- Logo -->
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:32px">
       <img src="${LOGO_SMALL_URL}" style="height:48px;width:auto">
-      <img src="${LOGO_TITLE_URL}" style="height:32px;width:auto">
+      <img src="${LOGO_TITLE_URL}" style="height:38px;width:auto">
       <span style="background:#6366f120;color:#818cf8;font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px;border:1px solid #6366f140;margin-left:2px">v0.1.0</span>
     </div>
 
@@ -468,9 +468,9 @@ export default function App() {
               <div style={{ background: C.accent, color: '#fff', fontWeight: 900, fontSize: '15px', padding: '5px 12px', borderRadius: '8px' }}>vel</div>
             )}
             {LOGO_TITLE_URL ? (
-              <img src={LOGO_TITLE_URL} alt="VeloraCSS" style={{ height: '32px', width: 'auto' }} />
+              <img src={LOGO_TITLE_URL} alt="VeloraCSS" style={{ height: '38px', width: 'auto' }} />
             ) : (
-              <span style={{ fontWeight: 800, fontSize: '20px', color: C.text, letterSpacing: '-0.02em' }}>VeloraCSS</span>
+              <span style={{ fontWeight: 800, fontSize: '22px', color: C.text, letterSpacing: '-0.02em' }}>VeloraCSS</span>
             )}
           </div>
 

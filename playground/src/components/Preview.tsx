@@ -4,6 +4,15 @@ interface PreviewProps {
   veloraCss: string
 }
 
+const SCROLLBAR_CSS = `
+  ::-webkit-scrollbar             { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track       { background: #060b17; }
+  ::-webkit-scrollbar-thumb       { background: #1e2d45; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #2d4060; }
+  ::-webkit-scrollbar-corner      { background: #060b17; }
+  * { scrollbar-width: thin; scrollbar-color: #1e2d45 #060b17; }
+`
+
 export default function Preview({ html, customCss, veloraCss }: PreviewProps) {
   const doc = `<!DOCTYPE html>
 <html lang="en">
@@ -11,6 +20,7 @@ export default function Preview({ html, customCss, veloraCss }: PreviewProps) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>${veloraCss}</style>
+  <style>${SCROLLBAR_CSS}</style>
   <style>${customCss}</style>
 </head>
 <body>

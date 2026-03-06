@@ -8,6 +8,16 @@
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body, #root { height: 100%; overflow: hidden; }
       body { font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; }
+
+      /* ── Themed scrollbars (Webkit) ── */
+      ::-webkit-scrollbar              { width: 8px; height: 8px; }
+      ::-webkit-scrollbar-track        { background: #060b17; }
+      ::-webkit-scrollbar-thumb        { background: #1e2d45; border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover  { background: #2d4060; }
+      ::-webkit-scrollbar-corner       { background: #060b17; }
+
+      /* ── Themed scrollbars (Firefox) ── */
+      * { scrollbar-width: thin; scrollbar-color: #1e2d45 #060b17; }
     </style>
   </head>
   <body>
