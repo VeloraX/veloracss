@@ -1,12 +1,27 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import Image from 'next/image'
 
 // ─── Playground link helper ───────────────────────────────────────────────────
 
 function toPlaygroundUrl(html: string): string {
   const encoded = btoa(new TextEncoder().encode(html).reduce((s, b) => s + String.fromCharCode(b), ''))
   return `http://localhost:5173/#code=${encoded}`
+}
+
+// ─── Design tokens ────────────────────────────────────────────────────────────
+
+const C = {
+  page:      '#060b17',
+  header:    '#060b17',
+  surface:   '#0d1422',
+  surface2:  '#111827',
+  border:    '#1e2d45',
+  text:      '#e2e8f0',
+  muted:     '#64748b',
+  accent:    '#6366f1',
+  label:     '#818cf8',
 }
 
 // ─── Code block with Copy + Try in Playground ────────────────────────────────
@@ -21,24 +36,20 @@ function CodeBlock({ code }: { code: string }) {
   }, [code])
 
   return (
-    <div className="vel-mt-4 vel-rounded-xl vel-overflow-hidden" style={{ border: '1px solid #1e2d45' }}>
+    <div style={{ border: `1px solid ${C.border}`, borderRadius: '12px', overflow: 'hidden', marginTop: '12px' }}>
       {/* Toolbar */}
-      <div
-        className="vel-flex vel-items-center vel-justify-between vel-px-4 vel-py-2"
-        style={{ background: '#0a0f1e', borderBottom: '1px solid #1e2d45' }}
-      >
-        <span className="vel-text-xs vel-font-medium" style={{ color: '#64748b', letterSpacing: '0.05em' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 16px', background: C.surface, borderBottom: `1px solid ${C.border}` }}>
+        <span style={{ fontSize: '11px', fontWeight: 500, color: C.muted, letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>
           HTML
         </span>
-        <div className="vel-flex vel-gap-2">
+        <div style={{ display: 'flex', gap: '8px' }}>
           <button
             onClick={handleCopy}
-            className="vel-text-xs vel-font-medium vel-px-3 vel-py-1 vel-rounded-md"
             style={{
-              background: copied ? '#22c55e20' : '#1a2236',
+              fontSize: '11px', fontWeight: 500, padding: '4px 10px', borderRadius: '6px', cursor: 'pointer',
+              background: copied ? '#22c55e20' : C.surface2,
               color: copied ? '#22c55e' : '#94a3b8',
-              border: `1px solid ${copied ? '#22c55e40' : '#1e2d45'}`,
-              cursor: 'pointer',
+              border: `1px solid ${copied ? '#22c55e40' : C.border}`,
               transition: 'all .15s',
             }}
           >
@@ -48,12 +59,10 @@ function CodeBlock({ code }: { code: string }) {
             href={toPlaygroundUrl(code)}
             target="_blank"
             rel="noopener noreferrer"
-            className="vel-text-xs vel-font-medium vel-px-3 vel-py-1 vel-rounded-md"
             style={{
-              background: '#6366f120',
-              color: '#818cf8',
-              border: '1px solid #6366f140',
-              textDecoration: 'none',
+              fontSize: '11px', fontWeight: 500, padding: '4px 10px', borderRadius: '6px',
+              background: '#6366f120', color: C.label,
+              border: '1px solid #6366f140', textDecoration: 'none',
               transition: 'all .15s',
             }}
           >
@@ -62,22 +71,36 @@ function CodeBlock({ code }: { code: string }) {
         </div>
       </div>
       {/* Code */}
-      <pre
-        style={{
-          margin: 0,
-          padding: '16px',
-          background: '#060b17',
-          color: '#94a3b8',
-          fontSize: '12px',
-          lineHeight: '1.7',
-          overflowX: 'auto',
-          maxHeight: '260px',
-          overflowY: 'auto',
-          fontFamily: "'Fira Code', 'Cascadia Code', 'Consolas', monospace",
-        }}
-      >
+      <pre style={{
+        margin: 0, padding: '16px',
+        background: C.page,
+        color: '#94a3b8',
+        fontSize: '12px', lineHeight: '1.7',
+        overflowX: 'auto', maxHeight: '280px', overflowY: 'auto',
+        fontFamily: "'Fira Code', 'Cascadia Code', Consolas, monospace",
+      }}>
         <code>{code}</code>
       </pre>
+    </div>
+  )
+}
+
+// ─── Section heading ──────────────────────────────────────────────────────────
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p style={{ fontSize: '11px', fontWeight: 600, color: C.muted, letterSpacing: '0.08em', textTransform: 'uppercase' as const, marginBottom: '16px' }}>
+      {children}
+    </p>
+  )
+}
+
+// ─── Preview box (white bg for live component demos) ─────────────────────────
+
+function PreviewBox({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ background: '#ffffff', borderRadius: '12px', padding: '28px', border: `1px solid ${C.border}` }}>
+      {children}
     </div>
   )
 }
@@ -282,138 +305,152 @@ export default function Home() {
   const neutrals = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
 
   return (
-    <main className="vel-min-h-screen vel-bg-neutral-50 vel-p-8">
-      <div className="vel-max-w-5xl vel-mx-auto">
+    <main style={{ minHeight: '100vh', background: C.page, color: C.text, fontFamily: 'system-ui, sans-serif' }}>
 
-        {/* Header */}
-        <div className="vel-mb-12 vel-text-center">
-          <div className="vel-inline-flex vel-items-center vel-gap-3 vel-mb-4">
-            <span className="vel-bg-primary vel-text-white vel-font-bold vel-text-xl vel-px-3 vel-py-1 vel-rounded-lg">
-              vel
-            </span>
-            <h1 className="vel-text-4xl vel-font-bold vel-text-neutral-900 vel-tracking-tight">
-              VeloraCSS
-            </h1>
-          </div>
-          <p className="vel-text-lg vel-text-neutral-500 vel-max-w-xl vel-mx-auto">
-            A modern utility-first CSS framework — running in Next.js App Router.
-          </p>
-          <div className="vel-flex vel-gap-3 vel-justify-center vel-mt-6">
-            <span className="vel-bg-primary-light vel-text-primary vel-text-sm vel-font-medium vel-px-3 vel-py-1 vel-rounded-full">
-              v0.1.0
-            </span>
-            <span className="vel-bg-success-light vel-text-success vel-text-sm vel-font-medium vel-px-3 vel-py-1 vel-rounded-full">
-              Next.js ✓
-            </span>
-            <span className="vel-bg-neutral-100 vel-text-neutral-600 vel-text-sm vel-font-medium vel-px-3 vel-py-1 vel-rounded-full">
-              App Router
-            </span>
-          </div>
-          <div className="vel-mt-6">
-            <a
-              href="http://localhost:5173"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="vel-btn vel-btn-outline-primary vel-btn-sm"
-            >
-              Open Playground →
-            </a>
-          </div>
+      {/* ── Header ── */}
+      <header style={{
+        position: 'sticky', top: 0, zIndex: 50,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 32px', height: '56px',
+        background: C.header, borderBottom: `1px solid ${C.border}`,
+        backdropFilter: 'blur(8px)',
+      }}>
+        <Image src="/velora_actual.png" alt="VeloraCSS" width={122} height={28} priority />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span style={{
+            fontSize: '11px', color: C.muted, background: C.surface2,
+            padding: '2px 8px', borderRadius: '4px', border: `1px solid ${C.border}`,
+          }}>v0.1.0</span>
+          <a
+            href="http://localhost:5173"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              fontSize: '12px', fontWeight: 500, padding: '5px 14px', borderRadius: '7px',
+              background: C.accent, color: '#fff', textDecoration: 'none',
+              border: `1px solid ${C.accent}`,
+            }}
+          >
+            Open Playground →
+          </a>
         </div>
+      </header>
+
+      {/* ── Hero ── */}
+      <div style={{ textAlign: 'center', padding: '80px 32px 64px', borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
+          <span style={{
+            fontSize: '11px', fontWeight: 600, color: C.label,
+            background: '#6366f115', padding: '4px 12px', borderRadius: '99px',
+            border: '1px solid #6366f130',
+          }}>
+            Now in v0.1 — utility-first CSS
+          </span>
+        </div>
+        <h1 style={{ fontSize: '3rem', fontWeight: 900, color: C.text, letterSpacing: '-0.03em', margin: '0 0 16px', lineHeight: 1.1 }}>
+          Build fast.<br />Look great.
+        </h1>
+        <p style={{ fontSize: '1.125rem', color: C.muted, maxWidth: '520px', margin: '0 auto 36px', lineHeight: 1.7 }}>
+          VeloraCSS is a fully original utility-first CSS framework with rich components,
+          zero dependencies, and a consistent design system — running live in Next.js.
+        </p>
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' as const }}>
+          <a href="http://localhost:5173" target="_blank" rel="noopener noreferrer"
+            style={{ fontSize: '14px', fontWeight: 600, padding: '10px 24px', borderRadius: '8px', background: C.accent, color: '#fff', textDecoration: 'none' }}>
+            Open Playground
+          </a>
+          <a href="https://github.com/VeloraX/veloracss" target="_blank" rel="noopener noreferrer"
+            style={{ fontSize: '14px', fontWeight: 600, padding: '10px 24px', borderRadius: '8px', background: C.surface2, color: C.text, textDecoration: 'none', border: `1px solid ${C.border}` }}>
+            GitHub
+          </a>
+        </div>
+      </div>
+
+      {/* ── Content ── */}
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '64px 32px' }}>
 
         {/* Buttons */}
-        <section className="vel-mb-12">
-          <h2 className="vel-text-xs vel-font-semibold vel-text-neutral-400 vel-uppercase vel-tracking-widest vel-mb-4">Buttons</h2>
-          <div className="vel-card vel-card-flat">
-            <div className="vel-card-body">
-              <div className="vel-flex vel-flex-wrap vel-gap-3 vel-mb-3">
-                <button className="vel-btn vel-btn-primary">Primary</button>
-                <button className="vel-btn vel-btn-secondary">Secondary</button>
-                <button className="vel-btn vel-btn-success">Success</button>
-                <button className="vel-btn vel-btn-danger">Danger</button>
-                <button className="vel-btn vel-btn-warning">Warning</button>
-                <button className="vel-btn vel-btn-info">Info</button>
-              </div>
-              <div className="vel-flex vel-flex-wrap vel-gap-3">
-                <button className="vel-btn vel-btn-outline-primary">Outline</button>
-                <button className="vel-btn vel-btn-ghost">Ghost</button>
-                <button className="vel-btn vel-btn-link">Link</button>
-                <button className="vel-btn vel-btn-primary vel-btn-sm">Small</button>
-                <button className="vel-btn vel-btn-primary vel-btn-lg">Large</button>
-                <button className="vel-btn vel-btn-primary" disabled>Disabled</button>
-              </div>
+        <section style={{ marginBottom: '64px' }}>
+          <SectionLabel>Buttons</SectionLabel>
+          <PreviewBox>
+            <div className="vel-flex vel-flex-wrap vel-gap-3 vel-mb-4">
+              <button className="vel-btn vel-btn-primary">Primary</button>
+              <button className="vel-btn vel-btn-secondary">Secondary</button>
+              <button className="vel-btn vel-btn-success">Success</button>
+              <button className="vel-btn vel-btn-danger">Danger</button>
+              <button className="vel-btn vel-btn-warning">Warning</button>
+              <button className="vel-btn vel-btn-info">Info</button>
             </div>
-          </div>
+            <div className="vel-flex vel-flex-wrap vel-gap-3">
+              <button className="vel-btn vel-btn-outline-primary">Outline</button>
+              <button className="vel-btn vel-btn-ghost">Ghost</button>
+              <button className="vel-btn vel-btn-link">Link</button>
+              <button className="vel-btn vel-btn-primary vel-btn-sm">Small</button>
+              <button className="vel-btn vel-btn-primary vel-btn-lg">Large</button>
+              <button className="vel-btn vel-btn-primary" disabled>Disabled</button>
+            </div>
+          </PreviewBox>
           <CodeBlock code={BUTTON_CODE} />
         </section>
 
         {/* Cards */}
-        <section className="vel-mb-12">
-          <h2 className="vel-text-xs vel-font-semibold vel-text-neutral-400 vel-uppercase vel-tracking-widest vel-mb-4">Cards</h2>
-          <div className="vel-grid vel-grid-cols-3 vel-gap-6">
-            <div className="vel-card vel-card-hover">
-              <div className="vel-card-header">Default Card</div>
-              <div className="vel-card-body">
-                <p className="vel-text-neutral-500 vel-text-sm vel-mb-4">With shadow, border, and hover animation.</p>
-                <button className="vel-btn vel-btn-primary vel-btn-sm">Action</button>
+        <section style={{ marginBottom: '64px' }}>
+          <SectionLabel>Cards</SectionLabel>
+          <PreviewBox>
+            <div className="vel-grid vel-grid-cols-3 vel-gap-4">
+              <div className="vel-card vel-card-hover">
+                <div className="vel-card-header">Hover Card</div>
+                <div className="vel-card-body">
+                  <p className="vel-text-neutral-500 vel-text-sm vel-mb-3">Shadow lifts on hover.</p>
+                  <button className="vel-btn vel-btn-primary vel-btn-sm">Action</button>
+                </div>
               </div>
-              <div className="vel-card-footer">
-                <span className="vel-text-xs vel-text-neutral-400">vel-card vel-card-hover</span>
+              <div className="vel-card vel-card-elevated">
+                <div className="vel-card-header">Elevated</div>
+                <div className="vel-card-body">
+                  <p className="vel-text-neutral-500 vel-text-sm vel-mb-3">No border, large shadow.</p>
+                  <button className="vel-btn vel-btn-outline-primary vel-btn-sm">Action</button>
+                </div>
               </div>
-            </div>
-            <div className="vel-card vel-card-elevated">
-              <div className="vel-card-header">Elevated</div>
-              <div className="vel-card-body">
-                <p className="vel-text-neutral-500 vel-text-sm vel-mb-4">No border, large shadow.</p>
-                <button className="vel-btn vel-btn-outline-primary vel-btn-sm">Action</button>
-              </div>
-              <div className="vel-card-footer">
-                <span className="vel-text-xs vel-text-neutral-400">vel-card vel-card-elevated</span>
-              </div>
-            </div>
-            <div className="vel-card vel-card-filled">
-              <div className="vel-card-header">Filled</div>
-              <div className="vel-card-body">
-                <p className="vel-text-neutral-500 vel-text-sm vel-mb-4">Neutral background, no shadow.</p>
-                <button className="vel-btn vel-btn-ghost vel-btn-sm">Action</button>
-              </div>
-              <div className="vel-card-footer">
-                <span className="vel-text-xs vel-text-neutral-400">vel-card vel-card-filled</span>
+              <div className="vel-card vel-card-primary">
+                <div className="vel-card-body">
+                  <h3 className="vel-text-base vel-font-semibold vel-text-white vel-mb-2">Primary</h3>
+                  <p className="vel-text-sm" style={{ color: 'rgba(255,255,255,.75)' }}>Brand-colored card.</p>
+                </div>
               </div>
             </div>
-          </div>
+          </PreviewBox>
           <CodeBlock code={CARD_CODE} />
         </section>
 
         {/* Colors */}
-        <section className="vel-mb-12">
-          <h2 className="vel-text-xs vel-font-semibold vel-text-neutral-400 vel-uppercase vel-tracking-widest vel-mb-4">Colors</h2>
-          <div className="vel-grid vel-grid-cols-6 vel-gap-3 vel-mb-3">
-            {colors.map((c) => (
-              <div key={c} className={`vel-bg-${c} vel-text-white vel-p-4 vel-rounded-xl vel-text-center vel-text-sm vel-font-medium`}>
-                {c}
-              </div>
-            ))}
-          </div>
-          <div className="vel-grid vel-grid-cols-11 vel-gap-2">
-            {neutrals.map((n) => (
-              <div
-                key={n}
-                className={`vel-bg-neutral-${n} vel-p-3 vel-rounded-lg vel-text-center`}
-                style={{ fontSize: '10px', color: n >= 500 ? '#fff' : '#334155' }}
-              >
-                {n}
-              </div>
-            ))}
-          </div>
+        <section style={{ marginBottom: '64px' }}>
+          <SectionLabel>Colors</SectionLabel>
+          <PreviewBox>
+            <div className="vel-grid vel-grid-cols-6 vel-gap-3 vel-mb-4">
+              {colors.map((c) => (
+                <div key={c} className={`vel-bg-${c} vel-text-white vel-p-4 vel-rounded-xl vel-text-center vel-text-sm vel-font-medium`}>
+                  {c}
+                </div>
+              ))}
+            </div>
+            <div className="vel-grid vel-grid-cols-11 vel-gap-1">
+              {neutrals.map((n) => (
+                <div key={n} className={`vel-bg-neutral-${n} vel-py-3 vel-rounded-lg vel-text-center`}
+                  style={{ fontSize: '10px', color: n >= 500 ? '#fff' : '#334155' }}>
+                  {n}
+                </div>
+              ))}
+            </div>
+          </PreviewBox>
           <CodeBlock code={COLORS_CODE} />
         </section>
 
         {/* Typography */}
-        <section className="vel-mb-12">
-          <h2 className="vel-text-xs vel-font-semibold vel-text-neutral-400 vel-uppercase vel-tracking-widest vel-mb-4">Typography</h2>
-          <div className="vel-card vel-card-flat">
-            <div className="vel-card-body vel-space-y-3">
+        <section style={{ marginBottom: '64px' }}>
+          <SectionLabel>Typography</SectionLabel>
+          <PreviewBox>
+            <div className="vel-space-y-2">
               <p className="vel-text-5xl vel-font-black vel-text-neutral-900 vel-leading-none">Display</p>
               <p className="vel-text-3xl vel-font-bold vel-text-neutral-900">Heading 1</p>
               <p className="vel-text-2xl vel-font-semibold vel-text-neutral-800">Heading 2</p>
@@ -422,16 +459,21 @@ export default function Home() {
               <p className="vel-text-sm vel-text-neutral-500">Small — secondary information and captions.</p>
               <p className="vel-text-xs vel-text-neutral-400 vel-uppercase vel-tracking-wider vel-font-semibold">Label / Eyebrow</p>
             </div>
-          </div>
+          </PreviewBox>
           <CodeBlock code={TYPOGRAPHY_CODE} />
         </section>
 
-        {/* Footer */}
-        <footer className="vel-text-center vel-text-neutral-400 vel-text-sm vel-py-8 vel-border-t vel-border-neutral-200">
-          VeloraCSS v0.1.0 — Next.js Demo
-        </footer>
-
       </div>
+
+      {/* ── Footer ── */}
+      <footer style={{
+        textAlign: 'center', padding: '32px', borderTop: `1px solid ${C.border}`,
+        fontSize: '13px', color: C.muted,
+      }}>
+        VeloraCSS v0.1.0 — Next.js Demo ·{' '}
+        <a href="http://localhost:5173" style={{ color: C.label, textDecoration: 'none' }}>Open Playground</a>
+      </footer>
+
     </main>
   )
 }

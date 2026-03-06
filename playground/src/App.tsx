@@ -2,11 +2,9 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import CodeEditor from './components/Editor'
 import Preview from './components/Preview'
 import veloraCss from '../../dist/velora.css?raw'
-import logoIconUrl from './assets/logo-icon.png'
-import logoTitleUrl from './assets/logo-title.png'
+import logoUrl from './assets/velora_actual.png'
 
-const LOGO_SMALL_URL = logoIconUrl
-const LOGO_TITLE_URL = logoTitleUrl
+const LOGO_URL = logoUrl
 
 // ─── Example snippets ────────────────────────────────────────────────────────
 
@@ -20,10 +18,8 @@ const EXAMPLES: Record<string, string> = {
   <div style="background:#111827;border:1px solid #1e2d45;border-radius:20px;padding:44px 48px;max-width:540px;width:100%;box-shadow:0 32px 64px rgba(0,0,0,.6)">
 
     <!-- Logo -->
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:32px">
-      <img src="${LOGO_SMALL_URL}" style="height:48px;width:auto">
-      <img src="${LOGO_TITLE_URL}" style="height:38px;width:auto">
-      <span style="background:#6366f120;color:#818cf8;font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px;border:1px solid #6366f140;margin-left:2px">v0.1.0</span>
+    <div style="display:flex;justify-content:center;margin-bottom:32px">
+      <img src="${LOGO_URL}" style="height:32px;width:auto">
     </div>
 
     <!-- Heading -->
@@ -454,28 +450,17 @@ export default function App() {
       {/* ── Header ── */}
       <header style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 16px', height: '58px', flexShrink: 0,
+        padding: '0 16px', height: '48px', flexShrink: 0,
         background: C.header, borderBottom: `1px solid ${C.border}`,
       }}>
 
         {/* Left: Logo + Examples */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {/* Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            {LOGO_SMALL_URL ? (
-              <img src={LOGO_SMALL_URL} alt="VeloraCSS" style={{ height: '40px', width: 'auto' }} />
-            ) : (
-              <div style={{ background: C.accent, color: '#fff', fontWeight: 900, fontSize: '15px', padding: '5px 12px', borderRadius: '8px' }}>vel</div>
-            )}
-            {LOGO_TITLE_URL ? (
-              <img src={LOGO_TITLE_URL} alt="VeloraCSS" style={{ height: '38px', width: 'auto' }} />
-            ) : (
-              <span style={{ fontWeight: 800, fontSize: '22px', color: C.text, letterSpacing: '-0.02em' }}>VeloraCSS</span>
-            )}
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {/* Logo — single combined image */}
+          <img src={LOGO_URL} alt="VeloraCSS" style={{ height: '32px', width: 'auto' }} />
 
           {/* Divider */}
-          <div style={{ width: '1px', height: '24px', background: C.border }} />
+          <div style={{ width: '1px', height: '20px', background: C.border }} />
 
           {/* Version badge */}
           <span style={{
