@@ -2,9 +2,11 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import CodeEditor from './components/Editor'
 import Preview from './components/Preview'
 import veloraCss from '../../dist/velora.css?raw'
+import logoIconUrl from './assets/logo-icon.png'
+import logoTitleUrl from './assets/logo-title.png'
 
-const LOGO_SMALL_URL = 'https://i.imgur.com/ROa2Khd.png'
-const LOGO_TITLE_URL = 'https://i.imgur.com/zvEbOFE.png'
+const LOGO_SMALL_URL = logoIconUrl
+const LOGO_TITLE_URL = logoTitleUrl
 
 // ─── Example snippets ────────────────────────────────────────────────────────
 
@@ -19,8 +21,8 @@ const EXAMPLES: Record<string, string> = {
 
     <!-- Logo -->
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:32px">
-      <img src="https://i.imgur.com/ROa2Khd.png" style="height:48px;width:auto">
-      <img src="https://i.imgur.com/zvEbOFE.png" style="height:30px;width:auto">
+      <img src="${LOGO_SMALL_URL}" style="height:48px;width:auto">
+      <img src="${LOGO_TITLE_URL}" style="height:32px;width:auto">
       <span style="background:#6366f120;color:#818cf8;font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px;border:1px solid #6366f140;margin-left:2px">v0.1.0</span>
     </div>
 
@@ -466,9 +468,9 @@ export default function App() {
               <div style={{ background: C.accent, color: '#fff', fontWeight: 900, fontSize: '15px', padding: '5px 12px', borderRadius: '8px' }}>vel</div>
             )}
             {LOGO_TITLE_URL ? (
-              <img src={LOGO_TITLE_URL} alt="VeloraCSS" style={{ height: '26px', width: 'auto' }} />
+              <img src={LOGO_TITLE_URL} alt="VeloraCSS" style={{ height: '32px', width: 'auto' }} />
             ) : (
-              <span style={{ fontWeight: 800, fontSize: '17px', color: C.text, letterSpacing: '-0.02em' }}>VeloraCSS</span>
+              <span style={{ fontWeight: 800, fontSize: '20px', color: C.text, letterSpacing: '-0.02em' }}>VeloraCSS</span>
             )}
           </div>
 
