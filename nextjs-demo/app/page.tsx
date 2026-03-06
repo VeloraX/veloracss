@@ -95,11 +95,11 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   )
 }
 
-// ─── Preview box (white bg for live component demos) ─────────────────────────
+// ─── Preview box ─────────────────────────────────────────────────────────────
 
 function PreviewBox({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ background: '#ffffff', borderRadius: '12px', padding: '28px', border: `1px solid ${C.border}` }}>
+    <div style={{ background: C.surface2, borderRadius: '12px', padding: '28px', border: `1px solid ${C.border}` }}>
       {children}
     </div>
   )
