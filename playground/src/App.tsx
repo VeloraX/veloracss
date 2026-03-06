@@ -9,57 +9,134 @@ const LOGO_TITLE_URL = 'https://i.imgur.com/zvEbOFE.png'
 // ─── Example snippets ────────────────────────────────────────────────────────
 
 const EXAMPLES: Record<string, string> = {
-  Starter: `<div class="vel-min-h-screen vel-bg-neutral-50 vel-p-8">
-  <div class="vel-max-w-4xl vel-mx-auto">
+  Starter: `<!-- VeloraCSS — Welcome to the Playground -->
+<!-- Edit this HTML to try out the framework! -->
+<div class="vel-min-h-screen vel-bg-white">
 
-    <div class="vel-mb-10">
-      <h1 class="vel-text-4xl vel-font-bold vel-text-neutral-900 vel-mb-2 vel-tracking-tight">VeloraCSS</h1>
-      <p class="vel-text-lg vel-text-neutral-500">Edit this HTML to try out the framework.</p>
+  <!-- Hero -->
+  <div class="vel-bg-neutral-950 vel-px-8 vel-pt-14 vel-pb-12 vel-text-center">
+    <div class="vel-inline-flex vel-items-center vel-gap-3 vel-mb-5">
+      <div style="background:#6366f1;color:#fff;font-weight:900;font-size:18px;padding:6px 14px;border-radius:8px;letter-spacing:-0.02em">vel</div>
+      <span style="font-size:2rem;font-weight:800;color:#f1f5f9;letter-spacing:-0.03em">VeloraCSS</span>
+      <span class="vel-bg-primary-light vel-text-primary vel-text-xs vel-font-semibold vel-px-2 vel-py-1 vel-rounded-full">v0.1.0</span>
     </div>
+    <p class="vel-text-lg vel-text-neutral-400 vel-max-w-md vel-mx-auto vel-mb-8">
+      A modern utility-first CSS framework.<br>Edit this HTML and see changes live.
+    </p>
+    <div class="vel-flex vel-gap-3 vel-justify-center vel-flex-wrap">
+      <button class="vel-btn vel-btn-primary vel-btn-lg">Get Started</button>
+      <button class="vel-btn vel-btn-lg" style="background:#ffffff15;color:#f1f5f9;border:1px solid #ffffff20">View Docs</button>
+    </div>
+  </div>
 
-    <div class="vel-mb-8">
-      <h2 class="vel-text-xs vel-font-semibold vel-text-neutral-400 vel-uppercase vel-tracking-widest vel-mb-3">Buttons</h2>
-      <div class="vel-flex vel-flex-wrap vel-gap-3">
+  <!-- Feature strip -->
+  <div class="vel-bg-neutral-50 vel-border-b vel-border-neutral-200 vel-px-8 vel-py-4">
+    <div class="vel-flex vel-gap-6 vel-justify-center vel-flex-wrap">
+      <span class="vel-flex vel-items-center vel-gap-2 vel-text-sm vel-text-neutral-600 vel-font-medium">
+        <span class="vel-text-primary">✦</span> Utility-first
+      </span>
+      <span class="vel-flex vel-items-center vel-gap-2 vel-text-sm vel-text-neutral-600 vel-font-medium">
+        <span class="vel-text-success">✦</span> Rich components
+      </span>
+      <span class="vel-flex vel-items-center vel-gap-2 vel-text-sm vel-text-neutral-600 vel-font-medium">
+        <span class="vel-text-info">✦</span> Design tokens
+      </span>
+      <span class="vel-flex vel-items-center vel-gap-2 vel-text-sm vel-text-neutral-600 vel-font-medium">
+        <span class="vel-text-warning">✦</span> Dark mode
+      </span>
+      <span class="vel-flex vel-items-center vel-gap-2 vel-text-sm vel-text-neutral-600 vel-font-medium">
+        <span class="vel-text-danger">✦</span> Responsive
+      </span>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="vel-max-w-4xl vel-mx-auto vel-px-8 vel-py-10">
+
+    <!-- Buttons -->
+    <section class="vel-mb-10">
+      <h2 class="vel-text-xs vel-font-semibold vel-text-neutral-400 vel-uppercase vel-tracking-widest vel-mb-4">Buttons</h2>
+      <div class="vel-flex vel-flex-wrap vel-gap-3 vel-mb-3">
         <button class="vel-btn vel-btn-primary">Primary</button>
         <button class="vel-btn vel-btn-secondary">Secondary</button>
         <button class="vel-btn vel-btn-success">Success</button>
         <button class="vel-btn vel-btn-danger">Danger</button>
+        <button class="vel-btn vel-btn-warning">Warning</button>
+        <button class="vel-btn vel-btn-info">Info</button>
+      </div>
+      <div class="vel-flex vel-flex-wrap vel-gap-3">
         <button class="vel-btn vel-btn-outline-primary">Outline</button>
         <button class="vel-btn vel-btn-ghost">Ghost</button>
+        <button class="vel-btn vel-btn-link">Link</button>
+        <button class="vel-btn vel-btn-primary vel-btn-sm">Small</button>
+        <button class="vel-btn vel-btn-primary vel-btn-lg">Large</button>
+        <button class="vel-btn vel-btn-primary" disabled>Disabled</button>
       </div>
-    </div>
+    </section>
 
-    <div class="vel-grid vel-grid-cols-3 vel-gap-6 vel-mb-8">
-      <div class="vel-card vel-card-hover">
-        <div class="vel-card-body">
-          <h3 class="vel-text-lg vel-font-semibold vel-text-neutral-900 vel-mb-1">Hover Card</h3>
-          <p class="vel-text-neutral-500 vel-text-sm vel-mb-4">Hover to see the effect.</p>
-          <button class="vel-btn vel-btn-primary vel-btn-sm">Action</button>
+    <!-- Cards -->
+    <section class="vel-mb-10">
+      <h2 class="vel-text-xs vel-font-semibold vel-text-neutral-400 vel-uppercase vel-tracking-widest vel-mb-4">Cards</h2>
+      <div class="vel-grid vel-grid-cols-3 vel-gap-5">
+        <div class="vel-card vel-card-hover">
+          <div class="vel-card-body">
+            <h3 class="vel-text-base vel-font-semibold vel-text-neutral-900 vel-mb-1">Hover Card</h3>
+            <p class="vel-text-neutral-500 vel-text-sm vel-mb-3">Lifts on hover with shadow.</p>
+            <button class="vel-btn vel-btn-primary vel-btn-sm">Action</button>
+          </div>
+        </div>
+        <div class="vel-card vel-card-elevated">
+          <div class="vel-card-body">
+            <h3 class="vel-text-base vel-font-semibold vel-text-neutral-900 vel-mb-1">Elevated</h3>
+            <p class="vel-text-neutral-500 vel-text-sm vel-mb-3">No border, large shadow.</p>
+            <button class="vel-btn vel-btn-outline-primary vel-btn-sm">Action</button>
+          </div>
+        </div>
+        <div class="vel-card vel-card-primary">
+          <div class="vel-card-body">
+            <h3 class="vel-text-base vel-font-semibold vel-text-white vel-mb-1">Primary</h3>
+            <p class="vel-text-sm vel-mb-3" style="color:rgba(255,255,255,.75)">Brand-colored card.</p>
+            <button class="vel-btn vel-btn-sm" style="background:#ffffff25;color:#fff;border:1px solid #ffffff30">Action</button>
+          </div>
         </div>
       </div>
-      <div class="vel-card vel-card-elevated">
-        <div class="vel-card-body">
-          <h3 class="vel-text-lg vel-font-semibold vel-text-neutral-900 vel-mb-1">Elevated</h3>
-          <p class="vel-text-neutral-500 vel-text-sm vel-mb-4">Large shadow variant.</p>
-          <button class="vel-btn vel-btn-outline-primary vel-btn-sm">Action</button>
-        </div>
-      </div>
-      <div class="vel-card vel-card-filled">
-        <div class="vel-card-body">
-          <h3 class="vel-text-lg vel-font-semibold vel-text-neutral-900 vel-mb-1">Filled</h3>
-          <p class="vel-text-neutral-500 vel-text-sm vel-mb-4">Neutral fill variant.</p>
-          <button class="vel-btn vel-btn-ghost vel-btn-sm">Action</button>
-        </div>
-      </div>
-    </div>
+    </section>
 
-    <div class="vel-flex vel-gap-4">
-      <div class="vel-bg-primary vel-text-white vel-p-4 vel-rounded-xl vel-flex-1 vel-text-center vel-font-medium">primary</div>
-      <div class="vel-bg-success vel-text-white vel-p-4 vel-rounded-xl vel-flex-1 vel-text-center vel-font-medium">success</div>
-      <div class="vel-bg-danger vel-text-white vel-p-4 vel-rounded-xl vel-flex-1 vel-text-center vel-font-medium">danger</div>
-      <div class="vel-bg-warning vel-p-4 vel-rounded-xl vel-flex-1 vel-text-center vel-font-medium">warning</div>
-      <div class="vel-bg-info vel-text-white vel-p-4 vel-rounded-xl vel-flex-1 vel-text-center vel-font-medium">info</div>
-    </div>
+    <!-- Typography -->
+    <section class="vel-mb-10">
+      <h2 class="vel-text-xs vel-font-semibold vel-text-neutral-400 vel-uppercase vel-tracking-widest vel-mb-4">Typography</h2>
+      <div class="vel-card vel-card-flat vel-p-6">
+        <p class="vel-text-5xl vel-font-black vel-text-neutral-900 vel-leading-none vel-mb-3">Display</p>
+        <p class="vel-text-3xl vel-font-bold vel-text-neutral-900 vel-mb-2">Heading 1</p>
+        <p class="vel-text-xl vel-font-medium vel-text-neutral-700 vel-mb-2">Heading 2</p>
+        <p class="vel-text-base vel-text-neutral-600 vel-mb-1">Body — the quick brown fox jumps over the lazy dog.</p>
+        <p class="vel-text-sm vel-text-neutral-500">Small — secondary information and captions.</p>
+      </div>
+    </section>
+
+    <!-- Color palette -->
+    <section class="vel-mb-4">
+      <h2 class="vel-text-xs vel-font-semibold vel-text-neutral-400 vel-uppercase vel-tracking-widest vel-mb-4">Colors</h2>
+      <div class="vel-flex vel-gap-3 vel-mb-3">
+        <div class="vel-bg-primary vel-text-white vel-p-4 vel-rounded-xl vel-flex-1 vel-text-center vel-text-sm vel-font-medium">primary</div>
+        <div class="vel-bg-secondary vel-text-white vel-p-4 vel-rounded-xl vel-flex-1 vel-text-center vel-text-sm vel-font-medium">secondary</div>
+        <div class="vel-bg-success vel-text-white vel-p-4 vel-rounded-xl vel-flex-1 vel-text-center vel-text-sm vel-font-medium">success</div>
+        <div class="vel-bg-danger vel-text-white vel-p-4 vel-rounded-xl vel-flex-1 vel-text-center vel-text-sm vel-font-medium">danger</div>
+        <div class="vel-bg-warning vel-p-4 vel-rounded-xl vel-flex-1 vel-text-center vel-text-sm vel-font-medium">warning</div>
+        <div class="vel-bg-info vel-text-white vel-p-4 vel-rounded-xl vel-flex-1 vel-text-center vel-text-sm vel-font-medium">info</div>
+      </div>
+      <div class="vel-flex vel-gap-2">
+        <div class="vel-bg-neutral-100 vel-flex-1 vel-py-3 vel-rounded-lg vel-text-center" style="font-size:10px;color:#334155">100</div>
+        <div class="vel-bg-neutral-200 vel-flex-1 vel-py-3 vel-rounded-lg vel-text-center" style="font-size:10px;color:#334155">200</div>
+        <div class="vel-bg-neutral-300 vel-flex-1 vel-py-3 vel-rounded-lg vel-text-center" style="font-size:10px;color:#334155">300</div>
+        <div class="vel-bg-neutral-400 vel-flex-1 vel-py-3 vel-rounded-lg vel-text-center" style="font-size:10px;color:#fff">400</div>
+        <div class="vel-bg-neutral-500 vel-flex-1 vel-py-3 vel-rounded-lg vel-text-center" style="font-size:10px;color:#fff">500</div>
+        <div class="vel-bg-neutral-600 vel-flex-1 vel-py-3 vel-rounded-lg vel-text-center" style="font-size:10px;color:#fff">600</div>
+        <div class="vel-bg-neutral-700 vel-flex-1 vel-py-3 vel-rounded-lg vel-text-center" style="font-size:10px;color:#fff">700</div>
+        <div class="vel-bg-neutral-800 vel-flex-1 vel-py-3 vel-rounded-lg vel-text-center" style="font-size:10px;color:#fff">800</div>
+        <div class="vel-bg-neutral-900 vel-flex-1 vel-py-3 vel-rounded-lg vel-text-center" style="font-size:10px;color:#fff">900</div>
+      </div>
+    </section>
 
   </div>
 </div>`,
