@@ -198,6 +198,18 @@ export const navSections: NavSection[] = [
       { label: 'Steps', slug: 'steps' },
       { label: 'Divider', slug: 'divider' },
       { label: 'Kbd', slug: 'kbd' },
+      { label: 'Accordion', slug: 'accordion' },
+      { label: 'Code Block', slug: 'code-block' },
+      { label: 'Chat Bubble', slug: 'chat-bubble' },
+      { label: 'File Upload', slug: 'file-upload' },
+    ],
+  },
+  {
+    title: 'Blocks',
+    items: [
+      { label: 'Hero', slug: 'hero' },
+      { label: 'Feature List', slug: 'feature-list' },
+      { label: 'Pricing', slug: 'pricing' },
     ],
   },
 ]
