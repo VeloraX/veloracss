@@ -29,8 +29,8 @@ export default function AvatarPage() {
           html: `<div style="padding:24px;background:#060b17;border-radius:12px;font-family:system-ui,sans-serif;display:flex;gap:12px;align-items:center;">
   <div class="vel-avatar vel-avatar-primary" style="color:#fff;font-weight:600;">AB</div>
   <div class="vel-avatar vel-avatar-success" style="color:#fff;font-weight:600;">CD</div>
-  <div class="vel-avatar" style="background:linear-gradient(135deg,#f97316,#ec4899);color:#fff;font-weight:600;">EF</div>
-  <div class="vel-avatar" style="background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;font-weight:600;">GH</div>
+  <div class="vel-avatar" style="background:#f0416c;color:#fff;font-weight:600;">EF</div>
+  <div class="vel-avatar" style="background:#38bdf8;color:#fff;font-weight:600;">GH</div>
   <div class="vel-avatar vel-avatar-lg vel-avatar-primary" style="color:#fff;font-weight:600;">LG</div>
 </div>`,
         },
@@ -46,9 +46,9 @@ export default function AvatarPage() {
           label: 'Avatar group',
           html: `<div style="padding:24px;background:#060b17;border-radius:12px;font-family:system-ui,sans-serif;">
   <div class="vel-avatar-group">
-    <div class="vel-avatar vel-avatar-ring-primary" style="background:linear-gradient(135deg,#7c5cfc,#a87fff);color:#fff;font-weight:600;">A</div>
-    <div class="vel-avatar vel-avatar-ring-primary" style="background:linear-gradient(135deg,#0ecb81,#38bdf8);color:#fff;font-weight:600;">B</div>
-    <div class="vel-avatar vel-avatar-ring-primary" style="background:linear-gradient(135deg,#f97316,#ec4899);color:#fff;font-weight:600;">C</div>
+    <div class="vel-avatar vel-avatar-ring-primary" style="background:#7c5cfc;color:#fff;font-weight:600;">A</div>
+    <div class="vel-avatar vel-avatar-ring-primary" style="background:#0ecb81;color:#fff;font-weight:600;">B</div>
+    <div class="vel-avatar vel-avatar-ring-primary" style="background:#f0416c;color:#fff;font-weight:600;">C</div>
     <div class="vel-avatar vel-avatar-ring-primary" style="background:#1a2236;color:#94a3b8;font-weight:600;font-size:0.75rem;">+4</div>
   </div>
 </div>`,

@@ -45,7 +45,7 @@ export default function CardsPage() {
         },
         {
           label: 'Glass card',
-          html: `<div style="padding:24px;background:linear-gradient(135deg,#1a1040,#0d1a2e);border-radius:12px;font-family:system-ui,sans-serif;">
+          html: `<div style="padding:24px;background:#0d1422;border-radius:12px;font-family:system-ui,sans-serif;">
   <div class="vel-card vel-card-glass" style="max-width:360px;">
     <div class="vel-card-body">
       <p style="margin:0;color:#e2e8f0;">Glass card with blur and translucent background.</p>

@@ -31,7 +31,7 @@ export default function BackdropBlurPage() {
           label: 'Backdrop blur on a glassmorphism card',
           html: `<div style="padding:2rem;background:#060b17;position:relative;overflow:hidden;min-height:160px;">
   <!-- Colorful background to show backdrop effect -->
-  <div style="position:absolute;inset:0;background:linear-gradient(135deg,#7c5cfc,#38bdf8,#34d399);opacity:0.4;"></div>
+  <div style="position:absolute;inset:0;background:#1a2236;opacity:1;"></div>
   <div style="position:absolute;top:10px;left:10px;width:100px;height:100px;border-radius:50%;background:#ec4899;filter:blur(30px);opacity:0.6;"></div>
   <div style="position:absolute;bottom:10px;right:10px;width:80px;height:80px;border-radius:50%;background:#f97316;filter:blur(25px);opacity:0.6;"></div>
 
@@ -45,7 +45,7 @@ export default function BackdropBlurPage() {
         {
           label: 'Backdrop blur scale comparison',
           html: `<div style="display:flex;gap:12px;padding:2rem;flex-wrap:wrap;position:relative;overflow:hidden;min-height:120px;background:#060b17;">
-  <div style="position:absolute;inset:0;background:linear-gradient(135deg,#7c5cfc 0%,#ec4899 50%,#f97316 100%);opacity:0.5;"></div>
+  <div style="position:absolute;inset:0;background:#111827;opacity:1;"></div>
   <div class="vel-backdrop-blur-none vel-rounded-lg" style="position:relative;padding:12px 16px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:0.75rem;text-align:center;min-width:60px;">none</div>
   <div class="vel-backdrop-blur-sm vel-rounded-lg" style="position:relative;padding:12px 16px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:0.75rem;text-align:center;min-width:60px;">sm</div>
   <div class="vel-backdrop-blur vel-rounded-lg" style="position:relative;padding:12px 16px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:0.75rem;text-align:center;min-width:60px;">8px</div>

@@ -26,7 +26,7 @@ export default function HeroPage() {
   <div class="vel-hero vel-hero-bg-pattern" style="min-height:320px;padding:3rem 2rem;">
     <div class="vel-hero-content">
       <span class="vel-hero-eyebrow">✦ Now in v2.0</span>
-      <h1 class="vel-hero-title">Build UIs at<br><span style="background:linear-gradient(90deg,#7c5cfc,#a87fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Velora speed</span></h1>
+      <h1 class="vel-hero-title">Build UIs at<br><span style="color:#a87fff;">Velora speed</span></h1>
       <p class="vel-hero-subtitle">A fully original utility-first CSS framework with component richness and zero framework footprint.</p>
       <div class="vel-hero-actions">
         <button class="vel-btn vel-btn-primary vel-btn-lg">Get Started</button>

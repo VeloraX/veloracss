@@ -45,7 +45,7 @@ export default function ChatBubblePage() {
         </div>
         <div class="vel-chat-footer">Delivered ✓</div>
       </div>
-      <div class="vel-chat-avatar" style="background:linear-gradient(135deg,#7c5cfc,#a87fff);color:#fff;border:none;">Y</div>
+      <div class="vel-chat-avatar" style="background:#7c5cfc;color:#fff;border:none;">Y</div>
     </div>
 
     <!-- Received info bubble -->

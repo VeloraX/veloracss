@@ -17,11 +17,11 @@ export default function AspectRatioPage() {
           html: `<div class="vel-flex vel-gap-4 vel-items-end">
   <div>
     <p style="color:#64748b;font-size:11px;margin-bottom:4px">vel-aspect-square</p>
-    <div class="vel-aspect-square" style="width:80px;background:linear-gradient(135deg,#7c5cfc,#a87fff);border-radius:8px"></div>
+    <div class="vel-aspect-square" style="width:80px;background:#7c5cfc;border-radius:8px"></div>
   </div>
   <div>
     <p style="color:#64748b;font-size:11px;margin-bottom:4px">vel-aspect-video</p>
-    <div class="vel-aspect-video" style="width:160px;background:linear-gradient(135deg,#0ecb81,#2ebde5);border-radius:8px"></div>
+    <div class="vel-aspect-video" style="width:160px;background:#0ecb81;border-radius:8px"></div>
   </div>
 </div>`,
         },
