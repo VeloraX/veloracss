@@ -709,7 +709,47 @@ img, video {
 
 .vel-columns-4  { -moz-columns: 4; columns: 4; }
 
+.vel-columns-5  { -moz-columns: 5; columns: 5; }
+
+.vel-columns-6  { -moz-columns: 6; columns: 6; }
+
 .vel-columns-auto { -moz-columns: auto; columns: auto; }
+
+/* Break */
+
+.vel-break-after-auto    { -moz-column-break-after: auto; break-after: auto; }
+
+.vel-break-after-avoid   { -moz-column-break-after: avoid; break-after: avoid; }
+
+.vel-break-after-all     { -moz-column-break-after: all; break-after: all; }
+
+.vel-break-after-column  { -moz-column-break-after: column; break-after: column; }
+
+.vel-break-after-page    { -moz-column-break-after: page; break-after: page; }
+
+.vel-break-before-auto   { -moz-column-break-before: auto; break-before: auto; }
+
+.vel-break-before-avoid  { -moz-column-break-before: avoid; break-before: avoid; }
+
+.vel-break-before-all    { -moz-column-break-before: all; break-before: all; }
+
+.vel-break-before-column { -moz-column-break-before: column; break-before: column; }
+
+.vel-break-before-page   { -moz-column-break-before: page; break-before: page; }
+
+.vel-break-inside-auto         { -moz-column-break-inside: auto; break-inside: auto; }
+
+.vel-break-inside-avoid        { -moz-column-break-inside: avoid; break-inside: avoid; }
+
+.vel-break-inside-avoid-page   { break-inside: avoid-page; }
+
+.vel-break-inside-avoid-column { -moz-column-break-inside: avoid; break-inside: avoid-column; }
+
+/* Box decoration break */
+
+.vel-box-decoration-clone { -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+
+.vel-box-decoration-slice { -webkit-box-decoration-break: slice; box-decoration-break: slice; }
 
 /* Container */
 
@@ -5542,6 +5582,10 @@ img, video {
  }
  .vel-sm\:columns-4 { -moz-columns: 4; columns: 4
  }
+ .vel-sm\:columns-5 { -moz-columns: 5; columns: 5
+ }
+ .vel-sm\:columns-6 { -moz-columns: 6; columns: 6
+ }
  .vel-sm\:columns-auto { -moz-columns: auto; columns: auto
  }
  .vel-sm\:sr-only {
@@ -6707,6 +6751,10 @@ img, video {
  .vel-md\:columns-3 { -moz-columns: 3; columns: 3
  }
  .vel-md\:columns-4 { -moz-columns: 4; columns: 4
+ }
+ .vel-md\:columns-5 { -moz-columns: 5; columns: 5
+ }
+ .vel-md\:columns-6 { -moz-columns: 6; columns: 6
  }
  .vel-md\:columns-auto { -moz-columns: auto; columns: auto
  }
@@ -7874,6 +7922,10 @@ img, video {
  }
  .vel-lg\:columns-4 { -moz-columns: 4; columns: 4
  }
+ .vel-lg\:columns-5 { -moz-columns: 5; columns: 5
+ }
+ .vel-lg\:columns-6 { -moz-columns: 6; columns: 6
+ }
  .vel-lg\:columns-auto { -moz-columns: auto; columns: auto
  }
  .vel-lg\:sr-only {
@@ -9040,6 +9092,10 @@ img, video {
  }
  .vel-xl\:columns-4 { -moz-columns: 4; columns: 4
  }
+ .vel-xl\:columns-5 { -moz-columns: 5; columns: 5
+ }
+ .vel-xl\:columns-6 { -moz-columns: 6; columns: 6
+ }
  .vel-xl\:columns-auto { -moz-columns: auto; columns: auto
  }
  .vel-xl\:sr-only {
@@ -10205,6 +10261,10 @@ img, video {
  .vel-2xl\:columns-3 { -moz-columns: 3; columns: 3
  }
  .vel-2xl\:columns-4 { -moz-columns: 4; columns: 4
+ }
+ .vel-2xl\:columns-5 { -moz-columns: 5; columns: 5
+ }
+ .vel-2xl\:columns-6 { -moz-columns: 6; columns: 6
  }
  .vel-2xl\:columns-auto { -moz-columns: auto; columns: auto
  }

@@ -113,7 +113,29 @@
 .vel-columns-2  { columns: 2; }
 .vel-columns-3  { columns: 3; }
 .vel-columns-4  { columns: 4; }
+.vel-columns-5  { columns: 5; }
+.vel-columns-6  { columns: 6; }
 .vel-columns-auto { columns: auto; }
+
+/* Break */
+.vel-break-after-auto    { break-after: auto; }
+.vel-break-after-avoid   { break-after: avoid; }
+.vel-break-after-all     { break-after: all; }
+.vel-break-after-column  { break-after: column; }
+.vel-break-after-page    { break-after: page; }
+.vel-break-before-auto   { break-before: auto; }
+.vel-break-before-avoid  { break-before: avoid; }
+.vel-break-before-all    { break-before: all; }
+.vel-break-before-column { break-before: column; }
+.vel-break-before-page   { break-before: page; }
+.vel-break-inside-auto         { break-inside: auto; }
+.vel-break-inside-avoid        { break-inside: avoid; }
+.vel-break-inside-avoid-page   { break-inside: avoid-page; }
+.vel-break-inside-avoid-column { break-inside: avoid-column; }
+
+/* Box decoration break */
+.vel-box-decoration-clone { -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.vel-box-decoration-slice { -webkit-box-decoration-break: slice; box-decoration-break: slice; }
 
 /* Container */
 .vel-container {
