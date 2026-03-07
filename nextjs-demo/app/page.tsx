@@ -1,788 +1,1052 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import Link from 'next/link'
 
 // ─── Build-time constants ─────────────────────────────────────────────────────
+const IS_PROD       = process.env.NODE_ENV === 'production'
+const BASE_PATH     = IS_PROD ? '/veloracss' : ''
+const PLAYGROUND_URL = IS_PROD ? 'https://velorax.github.io/veloracss/playground' : 'http://localhost:5173'
+const DOCS_URL       = IS_PROD ? '/veloracss/docs' : '/docs'
 
-const IS_PROD = process.env.NODE_ENV === 'production'
-const BASE_PATH      = IS_PROD ? '/veloracss' : ''
-const PLAYGROUND_URL = IS_PROD
-  ? 'https://velorax.github.io/veloracss/playground'
-  : 'http://localhost:5173'
-const DOCS_URL = IS_PROD ? '/veloracss/docs' : '/docs'
+// ─── DNA Token CSS (scoped to #vel-home) ─────────────────────────────────────
+const DNA_CSS = `
+  #vel-home {
+    --vel-dna-hue: 258;
+    --vp: oklch(65% 0.21 var(--vel-dna-hue));
+    --vp-light: oklch(80% 0.14 var(--vel-dna-hue));
+    --vp-dim: oklch(50% 0.22 var(--vel-dna-hue));
+    --vp-glow: oklch(65% 0.21 var(--vel-dna-hue) / 0.18);
+    --vp-subtle: oklch(65% 0.21 var(--vel-dna-hue) / 0.09);
+    --vs0: oklch(7%  0.02  var(--vel-dna-hue));
+    --vs1: oklch(10% 0.025 var(--vel-dna-hue));
+    --vs2: oklch(13% 0.03  var(--vel-dna-hue));
+    --vs3: oklch(17% 0.035 var(--vel-dna-hue));
+    --vs4: oklch(22% 0.04  var(--vel-dna-hue));
+    --vborder: oklch(26% 0.045 var(--vel-dna-hue));
+    --vborder-dim: oklch(20% 0.035 var(--vel-dna-hue));
+    --vt1: oklch(92% 0.015 var(--vel-dna-hue));
+    --vt2: oklch(70% 0.03  var(--vel-dna-hue));
+    --vt3: oklch(50% 0.04  var(--vel-dna-hue));
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --dur: 220ms;
+    background: var(--vs0);
+    color: var(--vt1);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  #vel-home * { box-sizing: border-box; }
 
-function toPlaygroundUrl(html: string): string {
-  const encoded = btoa(new TextEncoder().encode(html).reduce((s, b) => s + String.fromCharCode(b), ''))
-  return `${PLAYGROUND_URL}/#code=${encoded}`
-}
+  /* Scope themes */
+  #vel-home [data-vel-theme="ocean"]  { --vel-dna-hue: 205; }
+  #vel-home [data-vel-theme="forest"] { --vel-dna-hue: 145; }
+  #vel-home [data-vel-theme="ember"]  { --vel-dna-hue: 22;  }
+  #vel-home [data-vel-theme="aurora"] { --vel-dna-hue: 300; }
+  #vel-home [data-vel-theme="gold"]   { --vel-dna-hue: 55;  }
 
-// ─── Design tokens ────────────────────────────────────────────────────────────
+  /* ─ NAV ─ */
+  .vhome-nav {
+    position: sticky; top: 0; z-index: 100;
+    height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 clamp(1rem, 4vw, 3rem);
+    background: var(--vs0);
+    border-bottom: 1px solid var(--vborder);
+    backdrop-filter: blur(12px);
+  }
+  .vhome-nav-links { display: flex; align-items: center; gap: 1.5rem; }
+  .vhome-nav-link {
+    font-size: 0.875rem; font-weight: 500; color: var(--vt2);
+    text-decoration: none;
+    transition: color var(--dur) var(--ease);
+  }
+  .vhome-nav-link:hover { color: var(--vt1); }
+  .vhome-nav-cta {
+    font-size: 0.875rem; font-weight: 600; padding: 0.4rem 1rem;
+    border-radius: 0.5rem;
+    background: var(--vp); color: oklch(12% 0.02 var(--vel-dna-hue));
+    text-decoration: none;
+    transition: all var(--dur) var(--ease);
+  }
+  .vhome-nav-cta:hover { background: var(--vp-light); }
+  .vhome-nav-badge {
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em;
+    padding: 0.2rem 0.5rem; border-radius: 9999px;
+    background: var(--vp-subtle); color: var(--vp-light);
+    border: 1px solid var(--vp-glow);
+  }
 
-const C = {
-  page:     '#060b17',
-  header:   '#060b17',
-  surface:  '#0d1422',
-  surface2: '#111827',
-  border:   '#1e2d45',
-  text:     '#e2e8f0',
-  muted:    '#64748b',
-  accent:   '#7c5cfc',
-  label:    '#c4b5fd',
-}
+  /* ─ HERO ─ */
+  .vhome-hero {
+    text-align: center;
+    padding: clamp(4rem, 10vw, 8rem) clamp(1rem, 4vw, 3rem) clamp(3rem, 6vw, 5rem);
+    border-bottom: 1px solid var(--vborder-dim);
+    position: relative; overflow: hidden;
+  }
+  .vhome-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 70% 50% at 50% -10%, var(--vp-glow), transparent 65%);
+    pointer-events: none;
+  }
+  .vhome-hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--vp); background: var(--vp-subtle);
+    border: 1px solid var(--vp-glow); border-radius: 9999px;
+    padding: 0.35rem 1rem; margin-bottom: 1.5rem;
+  }
+  .vhome-hero-eyebrow::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--vp);
+  }
+  .vhome-hero h1 {
+    font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 900;
+    letter-spacing: -0.03em; line-height: 1.05;
+    margin: 0 0 1.25rem;
+    color: var(--vt1);
+  }
+  .vhome-hero h1 em { font-style: normal; color: var(--vp); }
+  .vhome-hero-sub {
+    font-size: clamp(1rem, 2vw, 1.25rem); color: var(--vt2);
+    max-width: 580px; margin: 0 auto 2.5rem; line-height: 1.7;
+  }
+  .vhome-hero-ctas {
+    display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;
+    margin-bottom: 3rem;
+  }
+  .vhome-cta-primary {
+    font-size: 0.9375rem; font-weight: 700; padding: 0.75rem 1.75rem;
+    border-radius: 0.625rem; background: var(--vp);
+    color: oklch(12% 0.02 var(--vel-dna-hue));
+    text-decoration: none; border: none; cursor: pointer;
+    transition: all var(--dur) var(--ease);
+  }
+  .vhome-cta-primary:hover { background: var(--vp-light); transform: translateY(-1px); }
+  .vhome-cta-secondary {
+    font-size: 0.9375rem; font-weight: 600; padding: 0.75rem 1.75rem;
+    border-radius: 0.625rem; background: var(--vs2); color: var(--vt1);
+    text-decoration: none; border: 1px solid var(--vborder); cursor: pointer;
+    transition: all var(--dur) var(--ease);
+  }
+  .vhome-cta-secondary:hover { border-color: var(--vp); color: var(--vp); }
+  .vhome-cta-ghost {
+    font-size: 0.9375rem; font-weight: 500; padding: 0.75rem 1.25rem;
+    border-radius: 0.625rem; background: transparent; color: var(--vt2);
+    text-decoration: none; border: 1px solid var(--vborder); cursor: pointer;
+    transition: all var(--dur) var(--ease);
+  }
+  .vhome-cta-ghost:hover { color: var(--vt1); border-color: var(--vborder); }
 
-// ─── Code block with Copy + Try in Playground ────────────────────────────────
+  /* ─ DNA SLIDER ─ */
+  .vhome-dna-strip {
+    display: inline-flex; align-items: center; gap: 1rem;
+    background: var(--vs2); border: 1px solid var(--vborder);
+    border-radius: 0.75rem; padding: 0.625rem 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+  .vhome-dna-label {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--vt3); white-space: nowrap;
+  }
+  .vhome-dna-slider {
+    -webkit-appearance: none; appearance: none;
+    width: 200px; height: 6px; border-radius: 3px; cursor: pointer;
+    background: linear-gradient(to right in oklch,
+      oklch(65% 0.21 0), oklch(65% 0.21 60), oklch(65% 0.21 120),
+      oklch(65% 0.21 180), oklch(65% 0.21 240), oklch(65% 0.21 300), oklch(65% 0.21 360));
+  }
+  .vhome-dna-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+    background: var(--vp); border: 3px solid var(--vs0);
+    box-shadow: 0 0 0 2px var(--vp); cursor: pointer;
+    transition: box-shadow var(--dur) var(--ease);
+  }
+  .vhome-dna-slider::-webkit-slider-thumb:hover { box-shadow: 0 0 0 4px var(--vp-glow); }
+  .vhome-dna-swatch {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--vp); border: 2px solid var(--vborder); flex-shrink: 0;
+  }
+  .vhome-dna-val {
+    font-size: 0.8rem; font-weight: 700; color: var(--vp);
+    font-family: 'Cascadia Code', Consolas, monospace; min-width: 2.5rem;
+  }
+  .vhome-dna-note {
+    font-size: 0.72rem; color: var(--vt3); margin-top: 0.25rem;
+  }
 
-function CodeBlock({ code }: { code: string }) {
+  /* ─ WIN11 TERMINAL ─ */
+  .vhome-terminal {
+    background: #0C0C0C; border-radius: 0.625rem; overflow: hidden;
+    border: 1px solid #2a2a2a;
+    box-shadow: 0 20px 60px -12px rgba(0,0,0,0.8);
+    text-align: left;
+  }
+  .vhome-terminal-titlebar {
+    display: flex; align-items: center;
+    padding: 0 0.75rem; height: 32px;
+    background: #1C1C1C; border-bottom: 1px solid #2a2a2a;
+  }
+  .vhome-terminal-title {
+    font-size: 0.72rem; color: #9a9a9a;
+    font-family: 'Cascadia Code', 'Segoe UI', sans-serif;
+    flex: 1;
+  }
+  .vhome-terminal-controls {
+    display: flex; align-items: center; gap: 0;
+    margin-left: auto;
+  }
+  .vhome-terminal-btn {
+    width: 46px; height: 32px; border: none;
+    background: transparent; cursor: pointer;
+    font-size: 0.75rem; color: #9a9a9a;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  .vhome-terminal-btn:hover { background: rgba(255,255,255,0.08); }
+  .vhome-terminal-btn.close:hover { background: #E81123; color: #fff; }
+  .vhome-terminal-action-bar {
+    display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem;
+    padding: 0.5rem 0.875rem; background: #111;
+    border-bottom: 1px solid #1e1e1e;
+  }
+  .vhome-terminal-copy {
+    font-size: 0.7rem; font-weight: 600; padding: 0.25rem 0.625rem;
+    border-radius: 0.25rem; cursor: pointer; border: none;
+    font-family: 'Cascadia Code', Consolas, monospace;
+    transition: all 0.15s;
+  }
+  .vhome-terminal-copy.idle {
+    background: #2a2a2a; color: #9a9a9a; border: 1px solid #333;
+  }
+  .vhome-terminal-copy.copied {
+    background: rgba(14,203,129,0.15); color: #0ecb81; border: 1px solid rgba(14,203,129,0.3);
+  }
+  .vhome-terminal-copy:hover.idle { background: #333; color: #ccc; }
+  .vhome-terminal-code {
+    padding: 1.25rem 1.5rem; overflow-x: auto;
+    font-family: 'Cascadia Code', Consolas, 'Courier New', monospace;
+    font-size: 0.8125rem; line-height: 1.8; color: #CCCCCC;
+    max-height: 340px; overflow-y: auto;
+  }
+  .vhome-terminal-code::-webkit-scrollbar { width: 8px; height: 8px; }
+  .vhome-terminal-code::-webkit-scrollbar-track { background: #111; }
+  .vhome-terminal-code::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+  .tc-comment { color: #6a9955; }
+  .tc-prop    { color: #9cdcfe; }
+  .tc-value   { color: #ce9178; }
+  .tc-fn      { color: #dcdcaa; }
+  .tc-kw      { color: #c586c0; }
+  .tc-cls     { color: #4ec9b0; }
+  .tc-num     { color: #b5cea8; }
+  .tc-str     { color: #ce9178; }
+
+  /* ─ SECTION LAYOUT ─ */
+  .vhome-section {
+    padding: clamp(3rem, 6vw, 5rem) clamp(1rem, 4vw, 3rem);
+    border-bottom: 1px solid var(--vborder-dim);
+  }
+  .vhome-wrap { max-width: 1100px; margin: 0 auto; }
+  .vhome-section-eyebrow {
+    font-size: 0.7rem; font-weight: 800; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--vp); margin-bottom: 0.75rem; display: block;
+  }
+  .vhome-section-title {
+    font-size: clamp(1.875rem, 3vw, 2.5rem); font-weight: 800;
+    letter-spacing: -0.025em; line-height: 1.15; margin-bottom: 1rem;
+  }
+  .vhome-section-desc {
+    font-size: 1.0625rem; color: var(--vt2); max-width: 580px; line-height: 1.75;
+    margin-bottom: 2.5rem;
+  }
+  .vhome-section-desc code {
+    font-family: 'Cascadia Code', Consolas, monospace;
+    font-size: 0.875em; color: var(--vp-light);
+    background: var(--vp-subtle); padding: 0.1em 0.4em; border-radius: 0.25rem;
+  }
+
+  /* ─ INNOVATIONS GRID ─ */
+  .vhome-innovations {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1px; background: var(--vborder-dim);
+    border: 1px solid var(--vborder-dim); border-radius: 1rem; overflow: hidden;
+  }
+  .vhome-innovation {
+    background: var(--vs1); padding: 1.75rem;
+    transition: background var(--dur) var(--ease);
+  }
+  .vhome-innovation:hover { background: var(--vs2); }
+  .vhome-innovation-num {
+    font-size: 0.65rem; font-weight: 800; letter-spacing: 0.15em;
+    color: var(--vp); text-transform: uppercase; margin-bottom: 1rem; display: block;
+  }
+  .vhome-innovation-icon {
+    width: 40px; height: 40px; border-radius: 0.625rem;
+    background: var(--vp-subtle); border: 1px solid var(--vp-glow);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.25rem; margin-bottom: 1rem;
+  }
+  .vhome-innovation h3 {
+    font-size: 1.0625rem; font-weight: 700; margin-bottom: 0.5rem; line-height: 1.3;
+  }
+  .vhome-innovation p {
+    font-size: 0.875rem; color: var(--vt2); line-height: 1.65;
+  }
+  .vhome-innovation-tag {
+    display: inline-block; margin-top: 0.75rem;
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--vt3);
+    background: var(--vs3); border: 1px solid var(--vborder-dim);
+    border-radius: 9999px; padding: 0.2rem 0.5rem;
+    font-family: 'Cascadia Code', Consolas, monospace;
+  }
+
+  /* ─ TWO-COL FEATURE SECTION ─ */
+  .vhome-split { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+  @media (max-width: 768px) { .vhome-split { grid-template-columns: 1fr; gap: 2rem; } }
+
+  /* ─ STATS ─ */
+  .vhome-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+    background: var(--vborder-dim); border: 1px solid var(--vborder-dim);
+    border-radius: 1rem; overflow: hidden;
+  }
+  @media (max-width: 640px) { .vhome-stats { grid-template-columns: repeat(2, 1fr); } }
+  .vhome-stat {
+    background: var(--vs1); padding: 2rem; text-align: center;
+  }
+  .vhome-stat-num {
+    display: block; font-size: clamp(2rem, 4vw, 3rem); font-weight: 900;
+    color: var(--vp); line-height: 1; margin-bottom: 0.5rem;
+  }
+  .vhome-stat-label {
+    font-size: 0.8125rem; color: var(--vt3); line-height: 1.4;
+  }
+
+  /* ─ CQ CARD (live demo) ─ */
+  .vhome-cq-outer {
+    container-type: inline-size;
+    resize: horizontal; overflow: auto;
+    min-width: 260px; max-width: 100%; width: 400px;
+    border: 1px dashed var(--vborder-dim); border-radius: 1rem;
+    padding: 1px;
+  }
+  .vhome-cq-card {
+    background: var(--vs2); border-radius: 1rem; overflow: hidden;
+    border: 1px solid var(--vborder);
+  }
+  .vhome-cq-inner { display: grid; grid-template-columns: 1fr; }
+  .vhome-cq-img {
+    height: 120px; background: var(--vp-subtle); border-bottom: 1px solid var(--vborder);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; color: var(--vp);
+  }
+  .vhome-cq-body { padding: 1.25rem; }
+  .vhome-cq-tag {
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--vp); display: block; margin-bottom: 0.375rem;
+  }
+  .vhome-cq-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; line-height: 1.3; }
+  .vhome-cq-desc { font-size: 0.8125rem; color: var(--vt2); line-height: 1.6; }
+  .vhome-cq-footer {
+    background: var(--vs3); border-top: 1px solid var(--vborder);
+    padding: 0.5rem 0.75rem; font-size: 0.7rem; color: var(--vt3);
+    text-align: center; font-family: 'Cascadia Code', Consolas, monospace;
+    transition: color var(--dur) var(--ease);
+  }
+  @container (min-width: 450px) {
+    .vhome-cq-inner { grid-template-columns: 180px 1fr; }
+    .vhome-cq-img { height: 100%; min-height: 160px; border-bottom: none; border-right: 1px solid var(--vborder); }
+    .vhome-cq-footer { color: oklch(65% 0.2 162); }
+  }
+
+  /* ─ PALETTE SWATCHES ─ */
+  .vhome-swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.5rem; }
+  .vhome-swatch { border-radius: 0.5rem; overflow: hidden; border: 1px solid var(--vborder-dim); }
+  .vhome-swatch-color { height: 56px; transition: all var(--dur) var(--ease); }
+  .vhome-swatch-label {
+    padding: 0.375rem 0.5rem; background: var(--vs2);
+    font-size: 0.65rem; color: var(--vt3);
+    font-family: 'Cascadia Code', Consolas, monospace;
+  }
+
+  /* ─ FORM DEMO (CSS-only validation) ─ */
+  .vhome-field { display: grid; gap: 0.375rem; }
+  .vhome-field label { font-size: 0.875rem; font-weight: 500; color: var(--vt2); transition: color var(--dur) var(--ease); }
+  .vhome-input {
+    background: var(--vs2); border: 1.5px solid var(--vborder);
+    border-radius: 0.5rem; padding: 0.625rem 0.875rem;
+    font-size: 0.875rem; color: var(--vt1); width: 100%;
+    transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+    outline: none; font-family: inherit;
+  }
+  .vhome-input::placeholder { color: var(--vt3); }
+  .vhome-input:focus {
+    border-color: var(--vp);
+    box-shadow: 0 0 0 3px var(--vp-glow);
+    background: var(--vs1);
+  }
+  .vhome-field-hint { font-size: 0.75rem; color: var(--vt3); }
+  .vhome-field-error { font-size: 0.75rem; color: oklch(65% 0.22 25); display: none; }
+  .vhome-field-ok    { font-size: 0.75rem; color: oklch(70% 0.2 162);  display: none; }
+  .vhome-field:has(.vhome-input:invalid:not(:placeholder-shown)) label { color: oklch(65% 0.22 25); }
+  .vhome-field:has(.vhome-input:invalid:not(:placeholder-shown)) .vhome-input { border-color: oklch(65% 0.22 25); box-shadow: 0 0 0 3px oklch(65% 0.22 25 / 0.12); }
+  .vhome-field:has(.vhome-input:invalid:not(:placeholder-shown)) .vhome-field-error { display: block; }
+  .vhome-field:has(.vhome-input:invalid:not(:placeholder-shown)) .vhome-field-hint  { display: none; }
+  .vhome-field:has(.vhome-input:valid:not(:placeholder-shown)) label { color: oklch(70% 0.2 162); }
+  .vhome-field:has(.vhome-input:valid:not(:placeholder-shown)) .vhome-input { border-color: oklch(70% 0.2 162); box-shadow: 0 0 0 3px oklch(70% 0.2 162 / 0.12); }
+  .vhome-field:has(.vhome-input:valid:not(:placeholder-shown)) .vhome-field-ok   { display: block; }
+  .vhome-field:has(.vhome-input:valid:not(:placeholder-shown)) .vhome-field-hint { display: none; }
+
+  /* ─ COMPONENTS PREVIEW ─ */
+  .vhome-component-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem;
+  }
+  .vhome-component-preview {
+    background: var(--vs1); border: 1px solid var(--vborder);
+    border-radius: 0.875rem; overflow: hidden;
+  }
+  .vhome-component-preview-header {
+    background: var(--vs2); border-bottom: 1px solid var(--vborder);
+    padding: 0.625rem 1rem;
+    font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--vt3);
+  }
+  .vhome-component-preview-body { padding: 1.25rem; }
+
+  /* ─ SCOPE THEME DEMO ─ */
+  .vhome-theme-btns { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+  .vhome-theme-btn {
+    padding: 0.375rem 0.875rem; border-radius: 9999px;
+    border: 1px solid var(--vborder); background: var(--vs2);
+    color: var(--vt2); font-size: 0.8125rem; font-weight: 500; cursor: pointer;
+    transition: all var(--dur) var(--ease);
+  }
+  .vhome-theme-btn:hover, .vhome-theme-btn[data-active="true"] {
+    background: var(--vp-subtle); border-color: var(--vp-glow); color: var(--vp);
+  }
+  .vhome-scope-zone {
+    background: var(--vs1); border: 1px solid var(--vborder);
+    border-radius: 1rem; padding: 1.5rem;
+    transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+  }
+  .vhome-scope-label {
+    font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--vp); margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .vhome-scope-label::before {
+    content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--vp);
+    transition: background var(--dur) var(--ease);
+  }
+  .vhome-scope-cards {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  .vhome-scope-card {
+    background: var(--vs2); border: 1px solid var(--vborder);
+    border-radius: 0.625rem; padding: 1rem;
+    transition: all var(--dur) var(--ease);
+  }
+  .vhome-scope-card-icon {
+    font-size: 1.5rem; margin-bottom: 0.5rem;
+    transition: color var(--dur) var(--ease);
+  }
+  .vhome-scope-card-title { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem; }
+  .vhome-scope-card-desc { font-size: 0.75rem; color: var(--vt3); line-height: 1.4; }
+
+  /* ─ CTA SECTION ─ */
+  .vhome-cta-section {
+    text-align: center;
+    padding: clamp(4rem, 8vw, 7rem) clamp(1rem, 4vw, 3rem);
+    position: relative; overflow: hidden;
+  }
+  .vhome-cta-section::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 50% 100%, var(--vp-glow), transparent 70%);
+    pointer-events: none;
+  }
+  .vhome-cta-section h2 {
+    font-size: clamp(2rem, 4vw, 3rem); font-weight: 900;
+    letter-spacing: -0.025em; margin-bottom: 1rem;
+  }
+  .vhome-cta-section p {
+    font-size: 1.0625rem; color: var(--vt2); max-width: 480px; margin: 0 auto 2.5rem; line-height: 1.7;
+  }
+
+  /* ─ FOOTER ─ */
+  .vhome-footer {
+    padding: 2rem clamp(1rem, 4vw, 3rem);
+    border-top: 1px solid var(--vborder-dim);
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+  }
+  .vhome-footer-copy { font-size: 0.8125rem; color: var(--vt3); }
+  .vhome-footer-links { display: flex; gap: 1.5rem; }
+  .vhome-footer-link { font-size: 0.8125rem; color: var(--vt3); text-decoration: none; transition: color var(--dur) var(--ease); }
+  .vhome-footer-link:hover { color: var(--vt1); }
+`
+
+// ─── Win11 Terminal Component ────────────────────────────────────────────────
+function Win11Terminal({ filename, children }: { filename: string; children: string }) {
   const [copied, setCopied] = useState(false)
 
   const handleCopy = useCallback(() => {
-    navigator.clipboard.writeText(code)
+    // Strip HTML tags to get plain text
+    const plain = children.replace(/<[^>]+>/g, '')
+    navigator.clipboard.writeText(plain)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
-  }, [code])
+  }, [children])
 
   return (
-    <div style={{ border: `1px solid ${C.border}`, borderRadius: '12px', overflow: 'hidden', marginTop: '12px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 16px', background: C.surface, borderBottom: `1px solid ${C.border}` }}>
-        <span style={{ fontSize: '11px', fontWeight: 500, color: C.muted, letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>
-          HTML
-        </span>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button
-            onClick={handleCopy}
-            style={{
-              fontSize: '11px', fontWeight: 500, padding: '4px 10px', borderRadius: '6px', cursor: 'pointer',
-              background: copied ? '#0ecb8120' : C.surface2,
-              color: copied ? '#0ecb81' : '#94a3b8',
-              border: `1px solid ${copied ? '#0ecb8140' : C.border}`,
-              transition: 'all .15s',
-            }}
-          >
-            {copied ? '✓ Copied' : 'Copy'}
-          </button>
-          <a
-            href={toPlaygroundUrl(code)}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              fontSize: '11px', fontWeight: 500, padding: '4px 10px', borderRadius: '6px',
-              background: '#7c5cfc20', color: C.label,
-              border: '1px solid #7c5cfc40', textDecoration: 'none',
-              transition: 'all .15s',
-            }}
-          >
-            Try in Playground →
-          </a>
+    <div className="vhome-terminal">
+      <div className="vhome-terminal-titlebar">
+        <span className="vhome-terminal-title">{filename}</span>
+        <div className="vhome-terminal-controls">
+          <button className="vhome-terminal-btn">─</button>
+          <button className="vhome-terminal-btn">□</button>
+          <button className="vhome-terminal-btn close">✕</button>
         </div>
       </div>
-      <pre style={{
-        margin: 0, padding: '16px',
-        background: C.page,
-        color: '#94a3b8',
-        fontSize: '12px', lineHeight: '1.7',
-        whiteSpace: 'pre-wrap', wordBreak: 'break-all',
-        maxHeight: '280px', overflowY: 'auto',
-        fontFamily: "'Fira Code', 'Cascadia Code', Consolas, monospace",
-      }}>
-        <code>{code}</code>
+      <div className="vhome-terminal-action-bar">
+        <button
+          className={`vhome-terminal-copy ${copied ? 'copied' : 'idle'}`}
+          onClick={handleCopy}
+        >
+          {copied ? '✓ Copied' : 'Copy'}
+        </button>
+      </div>
+      <pre className="vhome-terminal-code">
+        <code dangerouslySetInnerHTML={{ __html: children }} />
       </pre>
     </div>
   )
 }
 
-// ─── Section heading ──────────────────────────────────────────────────────────
+// ─── Scope Theme Demo ─────────────────────────────────────────────────────────
+function ScopeThemeDemo() {
+  const [activeTheme, setActiveTheme] = useState('default')
+  const themes = ['default', 'ocean', 'forest', 'ember', 'aurora', 'gold']
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p style={{ fontSize: '11px', fontWeight: 600, color: C.muted, letterSpacing: '0.08em', textTransform: 'uppercase' as const, marginBottom: '16px' }}>
-      {children}
-    </p>
+    <>
+      <div className="vhome-theme-btns">
+        {themes.map(t => (
+          <button
+            key={t}
+            className="vhome-theme-btn"
+            data-active={activeTheme === t ? 'true' : 'false'}
+            onClick={() => setActiveTheme(t)}
+          >
+            {t.charAt(0).toUpperCase() + t.slice(1)}
+          </button>
+        ))}
+      </div>
+      <div
+        className="vhome-scope-zone"
+        data-vel-theme={activeTheme === 'default' ? undefined : activeTheme}
+      >
+        <div className="vhome-scope-label">
+          {activeTheme === 'default' ? 'data-vel-theme — default' : `data-vel-theme="${activeTheme}"`}
+        </div>
+        <div className="vhome-scope-cards">
+          {[
+            { icon: '◈', title: 'Token Cascade', desc: 'All colors inherit from theme' },
+            { icon: '⬡', title: 'Zero JS Logic', desc: 'One attribute, full retheme' },
+            { icon: '↬', title: 'Nestable', desc: 'Themes can nest inside themes' },
+            { icon: '⟁', title: 'Instant', desc: 'CSS transitions handle everything' },
+          ].map(c => (
+            <div key={c.title} className="vhome-scope-card">
+              <div className="vhome-scope-card-icon">{c.icon}</div>
+              <div className="vhome-scope-card-title">{c.title}</div>
+              <div className="vhome-scope-card-desc">{c.desc}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <button className="vel-btn vel-btn-primary">Themed Button</button>
+          <button className="vel-btn vel-btn-outline-primary">Secondary</button>
+        </div>
+      </div>
+    </>
   )
 }
 
-// ─── Preview box ─────────────────────────────────────────────────────────────
-
-function PreviewBox({ children }: { children: React.ReactNode }) {
-  return (
-    <div style={{ background: C.surface2, borderRadius: '12px', padding: '28px', border: `1px solid ${C.border}` }}>
-      {children}
-    </div>
-  )
-}
-
-// ─── Code snippets (dark-themed) ─────────────────────────────────────────────
-
-const BUTTON_CODE = `<div style="min-height:100vh;background:#060b17;padding:40px;font-family:system-ui,sans-serif">
-  <div style="max-width:720px;margin:0 auto">
-
-    <h1 class="vel-text-3xl vel-font-bold vel-mb-8 vel-tracking-tight" style="color:#f1f5f9">Buttons</h1>
-
-    <section class="vel-mb-8">
-      <h2 class="vel-text-xs vel-font-semibold vel-uppercase vel-tracking-widest vel-mb-4" style="color:#64748b">Solid</h2>
-      <div class="vel-flex vel-flex-wrap vel-gap-3">
-        <button class="vel-btn vel-btn-primary">Primary</button>
-        <button class="vel-btn vel-btn-secondary">Secondary</button>
-        <button class="vel-btn vel-btn-success">Success</button>
-        <button class="vel-btn vel-btn-danger">Danger</button>
-        <button class="vel-btn vel-btn-warning">Warning</button>
-        <button class="vel-btn vel-btn-info">Info</button>
-      </div>
-    </section>
-
-    <section class="vel-mb-8">
-      <h2 class="vel-text-xs vel-font-semibold vel-uppercase vel-tracking-widest vel-mb-4" style="color:#64748b">Outline &amp; Ghost</h2>
-      <div class="vel-flex vel-flex-wrap vel-gap-3">
-        <button class="vel-btn vel-btn-outline-primary">Outline</button>
-        <button class="vel-btn vel-btn-ghost">Ghost</button>
-        <button class="vel-btn vel-btn-link">Link</button>
-        <button class="vel-btn vel-btn-primary" disabled>Disabled</button>
-      </div>
-    </section>
-
-    <section>
-      <h2 class="vel-text-xs vel-font-semibold vel-uppercase vel-tracking-widest vel-mb-4" style="color:#64748b">Sizes</h2>
-      <div class="vel-flex vel-flex-wrap vel-items-center vel-gap-3">
-        <button class="vel-btn vel-btn-primary vel-btn-xs">XSmall</button>
-        <button class="vel-btn vel-btn-primary vel-btn-sm">Small</button>
-        <button class="vel-btn vel-btn-primary">Default</button>
-        <button class="vel-btn vel-btn-primary vel-btn-lg">Large</button>
-        <button class="vel-btn vel-btn-primary vel-btn-xl">XLarge</button>
-      </div>
-    </section>
-
-  </div>
-</div>`
-
-const CARD_CODE = `<div style="min-height:100vh;background:#060b17;padding:40px;font-family:system-ui,sans-serif">
-  <div style="max-width:900px;margin:0 auto">
-
-    <h1 class="vel-text-3xl vel-font-bold vel-mb-8 vel-tracking-tight" style="color:#f1f5f9">Cards</h1>
-
-    <div class="vel-grid vel-grid-cols-3 vel-gap-6 vel-mb-6">
-      <div class="vel-card vel-card-hover">
-        <div class="vel-card-header">Hover Card</div>
-        <div class="vel-card-body">
-          <p class="vel-text-neutral-500 vel-text-sm vel-mb-4">Shadow lifts on hover.</p>
-          <button class="vel-btn vel-btn-primary vel-btn-sm">Action</button>
-        </div>
-      </div>
-      <div class="vel-card vel-card-glass">
-        <div class="vel-card-header">Glass</div>
-        <div class="vel-card-body">
-          <p class="vel-text-neutral-500 vel-text-sm vel-mb-4">Glassmorphism variant.</p>
-          <button class="vel-btn vel-btn-outline-primary vel-btn-sm">Action</button>
-        </div>
-      </div>
-      <div class="vel-card vel-card-primary">
-        <div class="vel-card-body">
-          <h3 class="vel-text-base vel-font-semibold vel-mb-2" style="color:#fff">Primary Card</h3>
-          <p class="vel-text-sm" style="color:rgba(255,255,255,.75)">Brand-colored card.</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="vel-grid vel-grid-cols-2 vel-gap-6">
-      <div class="vel-card vel-card-elevated">
-        <div class="vel-card-header">Elevated</div>
-        <div class="vel-card-body">
-          <p class="vel-text-neutral-500 vel-text-sm">Large shadow for depth and prominence.</p>
-        </div>
-      </div>
-      <div class="vel-card vel-card-success">
-        <div class="vel-card-body">
-          <h3 class="vel-text-base vel-font-semibold vel-mb-2" style="color:#fff">Success Card</h3>
-          <p class="vel-text-sm" style="color:rgba(255,255,255,.75)">Emerald brand tint.</p>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>`
-
-const BADGE_CODE = `<div style="min-height:100vh;background:#060b17;padding:40px;font-family:system-ui,sans-serif">
-  <div style="max-width:720px;margin:0 auto">
-
-    <h1 class="vel-text-3xl vel-font-bold vel-mb-8 vel-tracking-tight" style="color:#f1f5f9">Badges &amp; Alerts</h1>
-
-    <section class="vel-mb-8">
-      <h2 class="vel-text-xs vel-font-semibold vel-uppercase vel-tracking-widest vel-mb-4" style="color:#64748b">Badges</h2>
-      <div class="vel-flex vel-flex-wrap vel-gap-3">
-        <span class="vel-badge vel-badge-primary">Primary</span>
-        <span class="vel-badge vel-badge-success">Success</span>
-        <span class="vel-badge vel-badge-danger">Danger</span>
-        <span class="vel-badge vel-badge-warning">Warning</span>
-        <span class="vel-badge vel-badge-info">Info</span>
-        <span class="vel-badge vel-badge-secondary">Secondary</span>
-      </div>
-    </section>
-
-    <section>
-      <h2 class="vel-text-xs vel-font-semibold vel-uppercase vel-tracking-widest vel-mb-4" style="color:#64748b">Alerts</h2>
-      <div class="vel-flex vel-flex-col vel-gap-3">
-        <div class="vel-alert vel-alert-info">Info — Something worth knowing about.</div>
-        <div class="vel-alert vel-alert-success">Success — Your changes have been saved.</div>
-        <div class="vel-alert vel-alert-warning">Warning — Review before continuing.</div>
-        <div class="vel-alert vel-alert-danger">Danger — This action cannot be undone.</div>
-      </div>
-    </section>
-
-  </div>
-</div>`
-
-const GRADIENT_CODE = `<div style="min-height:100vh;background:#060b17;padding:40px;font-family:system-ui,sans-serif">
-  <div style="max-width:720px;margin:0 auto">
-
-    <h1 class="vel-text-3xl vel-font-bold vel-mb-8 vel-tracking-tight" style="color:#f1f5f9">Gradients &amp; Glows</h1>
-
-    <section class="vel-mb-8">
-      <h2 class="vel-text-xs vel-font-semibold vel-uppercase vel-tracking-widest vel-mb-4" style="color:#64748b">Gradient backgrounds</h2>
-      <div class="vel-grid vel-grid-cols-3 vel-gap-4">
-        <div class="vel-bg-gradient-primary vel-p-6 vel-rounded-xl vel-text-center vel-font-semibold" style="color:#fff">primary</div>
-        <div class="vel-bg-gradient-aurora vel-p-6 vel-rounded-xl vel-text-center vel-font-semibold" style="color:#fff">aurora</div>
-        <div class="vel-bg-gradient-ocean vel-p-6 vel-rounded-xl vel-text-center vel-font-semibold" style="color:#fff">ocean</div>
-        <div class="vel-bg-gradient-success vel-p-6 vel-rounded-xl vel-text-center vel-font-semibold" style="color:#fff">success</div>
-        <div class="vel-bg-gradient-danger vel-p-6 vel-rounded-xl vel-text-center vel-font-semibold" style="color:#fff">danger</div>
-        <div class="vel-bg-gradient-sunset vel-p-6 vel-rounded-xl vel-text-center vel-font-semibold" style="color:#fff">sunset</div>
-      </div>
-    </section>
-
-    <section>
-      <h2 class="vel-text-xs vel-font-semibold vel-uppercase vel-tracking-widest vel-mb-4" style="color:#64748b">Glow buttons</h2>
-      <div class="vel-flex vel-flex-wrap vel-gap-4">
-        <button class="vel-btn vel-btn-primary vel-btn-glow-primary">Glow Primary</button>
-        <button class="vel-btn vel-btn-success vel-btn-glow-success">Glow Success</button>
-        <button class="vel-btn vel-btn-danger vel-btn-glow-danger">Glow Danger</button>
-      </div>
-    </section>
-
-  </div>
-</div>`
-
-const COLORS_CODE = `<div style="min-height:100vh;background:#060b17;padding:40px;font-family:system-ui,sans-serif">
-  <div style="max-width:800px;margin:0 auto">
-
-    <h1 class="vel-text-3xl vel-font-bold vel-mb-8 vel-tracking-tight" style="color:#f1f5f9">Colors</h1>
-
-    <section class="vel-mb-8">
-      <h2 class="vel-text-xs vel-font-semibold vel-uppercase vel-tracking-widest vel-mb-4" style="color:#64748b">Semantic</h2>
-      <div class="vel-grid vel-grid-cols-6 vel-gap-3">
-        <div class="vel-bg-primary vel-text-white vel-p-4 vel-rounded-xl vel-text-center vel-text-sm vel-font-medium">primary</div>
-        <div class="vel-bg-secondary vel-text-white vel-p-4 vel-rounded-xl vel-text-center vel-text-sm vel-font-medium">secondary</div>
-        <div class="vel-bg-success vel-text-white vel-p-4 vel-rounded-xl vel-text-center vel-text-sm vel-font-medium">success</div>
-        <div class="vel-bg-danger vel-text-white vel-p-4 vel-rounded-xl vel-text-center vel-text-sm vel-font-medium">danger</div>
-        <div class="vel-bg-warning vel-p-4 vel-rounded-xl vel-text-center vel-text-sm vel-font-medium">warning</div>
-        <div class="vel-bg-info vel-text-white vel-p-4 vel-rounded-xl vel-text-center vel-text-sm vel-font-medium">info</div>
-      </div>
-    </section>
-
-    <section class="vel-mb-8">
-      <h2 class="vel-text-xs vel-font-semibold vel-uppercase vel-tracking-widest vel-mb-4" style="color:#64748b">Light variants</h2>
-      <div class="vel-grid vel-grid-cols-5 vel-gap-3">
-        <div class="vel-bg-primary-light vel-text-primary vel-p-4 vel-rounded-xl vel-text-center vel-text-sm vel-font-medium">primary</div>
-        <div class="vel-bg-success-light vel-text-success vel-p-4 vel-rounded-xl vel-text-center vel-text-sm vel-font-medium">success</div>
-        <div class="vel-bg-danger-light vel-text-danger vel-p-4 vel-rounded-xl vel-text-center vel-text-sm vel-font-medium">danger</div>
-        <div class="vel-bg-warning-light vel-text-neutral-700 vel-p-4 vel-rounded-xl vel-text-center vel-text-sm vel-font-medium">warning</div>
-        <div class="vel-bg-info-light vel-text-info vel-p-4 vel-rounded-xl vel-text-center vel-text-sm vel-font-medium">info</div>
-      </div>
-    </section>
-
-    <section>
-      <h2 class="vel-text-xs vel-font-semibold vel-uppercase vel-tracking-widest vel-mb-4" style="color:#64748b">Neutral scale</h2>
-      <div class="vel-flex vel-gap-2">
-        <div class="vel-bg-neutral-50  vel-flex-1 vel-py-4 vel-rounded-lg vel-text-center" style="font-size:10px;color:#334155">50</div>
-        <div class="vel-bg-neutral-100 vel-flex-1 vel-py-4 vel-rounded-lg vel-text-center" style="font-size:10px;color:#334155">100</div>
-        <div class="vel-bg-neutral-200 vel-flex-1 vel-py-4 vel-rounded-lg vel-text-center" style="font-size:10px;color:#334155">200</div>
-        <div class="vel-bg-neutral-300 vel-flex-1 vel-py-4 vel-rounded-lg vel-text-center" style="font-size:10px;color:#334155">300</div>
-        <div class="vel-bg-neutral-400 vel-flex-1 vel-py-4 vel-rounded-lg vel-text-center" style="font-size:10px;color:#fff">400</div>
-        <div class="vel-bg-neutral-500 vel-flex-1 vel-py-4 vel-rounded-lg vel-text-center" style="font-size:10px;color:#fff">500</div>
-        <div class="vel-bg-neutral-600 vel-flex-1 vel-py-4 vel-rounded-lg vel-text-center" style="font-size:10px;color:#fff">600</div>
-        <div class="vel-bg-neutral-700 vel-flex-1 vel-py-4 vel-rounded-lg vel-text-center" style="font-size:10px;color:#fff">700</div>
-        <div class="vel-bg-neutral-800 vel-flex-1 vel-py-4 vel-rounded-lg vel-text-center" style="font-size:10px;color:#fff">800</div>
-        <div class="vel-bg-neutral-900 vel-flex-1 vel-py-4 vel-rounded-lg vel-text-center" style="font-size:10px;color:#fff">900</div>
-        <div class="vel-bg-neutral-950 vel-flex-1 vel-py-4 vel-rounded-lg vel-text-center" style="font-size:10px;color:#fff">950</div>
-      </div>
-    </section>
-
-  </div>
-</div>`
-
-const TYPOGRAPHY_CODE = `<div style="min-height:100vh;background:#060b17;padding:40px;font-family:system-ui,sans-serif">
-  <div style="max-width:640px;margin:0 auto">
-
-    <h1 class="vel-text-3xl vel-font-bold vel-mb-8 vel-tracking-tight" style="color:#f1f5f9">Typography</h1>
-
-    <section class="vel-mb-10">
-      <h2 class="vel-text-xs vel-font-semibold vel-uppercase vel-tracking-widest vel-mb-5" style="color:#64748b">Type scale</h2>
-      <div class="vel-space-y-3">
-        <p class="vel-text-5xl vel-font-black vel-leading-none" style="color:#f1f5f9">Display — vel-text-5xl</p>
-        <p class="vel-text-3xl vel-font-bold" style="color:#f1f5f9">Heading 1 — vel-text-3xl</p>
-        <p class="vel-text-2xl vel-font-semibold" style="color:#e2e8f0">Heading 2 — vel-text-2xl</p>
-        <p class="vel-text-xl vel-font-medium" style="color:#cbd5e1">Heading 3 — vel-text-xl</p>
-        <p class="vel-text-base" style="color:#94a3b8">Body — the quick brown fox jumps over the lazy dog.</p>
-        <p class="vel-text-sm" style="color:#64748b">Small — secondary information and captions.</p>
-        <p class="vel-text-xs vel-uppercase vel-tracking-wider vel-font-semibold" style="color:#475569">Label / Eyebrow — vel-text-xs</p>
-      </div>
-    </section>
-
-    <section>
-      <h2 class="vel-text-xs vel-font-semibold vel-uppercase vel-tracking-widest vel-mb-5" style="color:#64748b">Text colors</h2>
-      <div class="vel-space-y-1">
-        <p class="vel-text-xl vel-font-medium vel-text-primary">vel-text-primary</p>
-        <p class="vel-text-xl vel-font-medium vel-text-success">vel-text-success</p>
-        <p class="vel-text-xl vel-font-medium vel-text-danger">vel-text-danger</p>
-        <p class="vel-text-xl vel-font-medium vel-text-warning">vel-text-warning</p>
-        <p class="vel-text-xl vel-font-medium vel-text-info">vel-text-info</p>
-      </div>
-    </section>
-
-  </div>
-</div>`
-
-const PAGINATION_CODE = `<div style="min-height:100vh;background:#060b17;padding:40px;font-family:system-ui,sans-serif">
-  <div style="max-width:720px;margin:0 auto">
-
-    <h1 class="vel-text-3xl vel-font-bold vel-mb-8 vel-tracking-tight" style="color:#f1f5f9">Pagination &amp; Breadcrumb</h1>
-
-    <section class="vel-mb-10">
-      <h2 class="vel-text-xs vel-font-semibold vel-uppercase vel-tracking-widest vel-mb-4" style="color:#64748b">Breadcrumb</h2>
-      <ol class="vel-breadcrumb vel-breadcrumb-chevron">
-        <li class="vel-breadcrumb-item"><a href="#" class="vel-breadcrumb-link">Home</a></li>
-        <li class="vel-breadcrumb-item"><a href="#" class="vel-breadcrumb-link">Components</a></li>
-        <li class="vel-breadcrumb-item"><span class="vel-breadcrumb-active">Breadcrumb</span></li>
-      </ol>
-    </section>
-
-    <section>
-      <h2 class="vel-text-xs vel-font-semibold vel-uppercase vel-tracking-widest vel-mb-4" style="color:#64748b">Pagination</h2>
-      <nav class="vel-pagination">
-        <span class="vel-page-item"><span class="vel-page-link vel-page-link-disabled">← Prev</span></span>
-        <span class="vel-page-item"><a href="#" class="vel-page-link">1</a></span>
-        <span class="vel-page-item"><a href="#" class="vel-page-link vel-page-link-active">2</a></span>
-        <span class="vel-page-item"><a href="#" class="vel-page-link">3</a></span>
-        <span class="vel-page-ellipsis">…</span>
-        <span class="vel-page-item"><a href="#" class="vel-page-link">8</a></span>
-        <span class="vel-page-item"><a href="#" class="vel-page-link">Next →</a></span>
-      </nav>
-    </section>
-
-  </div>
-</div>`
-
-const STEPS_CODE = `<div style="min-height:100vh;background:#060b17;padding:40px;font-family:system-ui,sans-serif">
-  <div style="max-width:720px;margin:0 auto">
-
-    <h1 class="vel-text-3xl vel-font-bold vel-mb-8 vel-tracking-tight" style="color:#f1f5f9">Steps</h1>
-
-    <section class="vel-mb-10">
-      <h2 class="vel-text-xs vel-font-semibold vel-uppercase vel-tracking-widest vel-mb-6" style="color:#64748b">Horizontal</h2>
-      <div class="vel-steps">
-        <div class="vel-step vel-step-complete">
-          <div class="vel-step-indicator">✓</div>
-          <div class="vel-step-label">Account</div>
-        </div>
-        <div class="vel-step vel-step-complete">
-          <div class="vel-step-indicator">✓</div>
-          <div class="vel-step-label">Profile</div>
-        </div>
-        <div class="vel-step vel-step-active">
-          <div class="vel-step-indicator">3</div>
-          <div class="vel-step-label">Billing</div>
-        </div>
-        <div class="vel-step">
-          <div class="vel-step-indicator">4</div>
-          <div class="vel-step-label">Review</div>
-        </div>
-      </div>
-    </section>
-
-  </div>
-</div>`
-
-const SKELETON_CODE = `<div style="min-height:100vh;background:#060b17;padding:40px;font-family:system-ui,sans-serif">
-  <div style="max-width:720px;margin:0 auto">
-
-    <h1 class="vel-text-3xl vel-font-bold vel-mb-8 vel-tracking-tight" style="color:#f1f5f9">Skeleton &amp; Kbd</h1>
-
-    <section class="vel-mb-10">
-      <h2 class="vel-text-xs vel-font-semibold vel-uppercase vel-tracking-widest vel-mb-4" style="color:#64748b">Skeleton loaders</h2>
-      <div class="vel-flex vel-gap-4 vel-mb-6">
-        <div class="vel-skeleton vel-skeleton-avatar-xl"></div>
-        <div class="vel-flex-1">
-          <div class="vel-skeleton vel-skeleton-text vel-skeleton-lg vel-mb-3"></div>
-          <div class="vel-skeleton vel-skeleton-text vel-skeleton-sm"></div>
-          <div class="vel-skeleton vel-skeleton-text vel-skeleton-sm"></div>
-        </div>
-      </div>
-      <div class="vel-skeleton vel-skeleton-rect vel-skeleton-3xl" style="width:100%"></div>
-    </section>
-
-    <section>
-      <h2 class="vel-text-xs vel-font-semibold vel-uppercase vel-tracking-widest vel-mb-4" style="color:#64748b">Keyboard keys</h2>
-      <div class="vel-flex vel-flex-wrap vel-gap-4">
-        <span class="vel-kbd-combo"><kbd class="vel-kbd">Ctrl</kbd><kbd class="vel-kbd">K</kbd></span>
-        <span class="vel-kbd-combo"><kbd class="vel-kbd">⌘</kbd><kbd class="vel-kbd">Shift</kbd><kbd class="vel-kbd">P</kbd></span>
-        <kbd class="vel-kbd vel-kbd-lg">Enter</kbd>
-        <kbd class="vel-kbd">Tab</kbd>
-        <kbd class="vel-kbd">Esc</kbd>
-      </div>
-    </section>
-
-  </div>
-</div>`
-
-const DIVIDER_CODE = `<div style="min-height:100vh;background:#060b17;padding:40px;font-family:system-ui,sans-serif">
-  <div style="max-width:720px;margin:0 auto">
-
-    <h1 class="vel-text-3xl vel-font-bold vel-mb-8 vel-tracking-tight" style="color:#f1f5f9">Dividers</h1>
-
-    <div class="vel-flex vel-flex-col vel-gap-8">
-      <div>
-        <p class="vel-text-sm vel-mb-4" style="color:#94a3b8">Plain</p>
-        <hr class="vel-divider-plain" />
-      </div>
-      <div>
-        <p class="vel-text-sm vel-mb-4" style="color:#94a3b8">With label</p>
-        <div class="vel-divider">OR</div>
-      </div>
-      <div>
-        <p class="vel-text-sm vel-mb-4" style="color:#94a3b8">Left-aligned label</p>
-        <div class="vel-divider vel-divider-left">Section</div>
-      </div>
-      <div>
-        <p class="vel-text-sm vel-mb-4" style="color:#94a3b8">Primary color</p>
-        <div class="vel-divider vel-divider-primary">Primary</div>
-      </div>
-    </div>
-
-  </div>
-</div>`
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
+// ─── Main Page ────────────────────────────────────────────────────────────────
 export default function Home() {
-  const colors   = ['primary', 'secondary', 'success', 'danger', 'warning', 'info']
-  const neutrals = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
+  const [hue, setHue] = useState(258)
+
+  const onHue = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = Number(e.target.value)
+    setHue(v)
+    document.getElementById('vel-home')?.style.setProperty('--vel-dna-hue', String(v))
+  }, [])
 
   return (
-    <main style={{ minHeight: '100vh', background: C.page, color: C.text, fontFamily: 'system-ui, sans-serif' }}>
+    <>
+      <style dangerouslySetInnerHTML={{ __html: DNA_CSS }} />
 
-      {/* ── Header ── */}
-      <header style={{
-        position: 'sticky', top: 0, zIndex: 50,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 32px', height: '56px',
-        background: C.header, borderBottom: `1px solid ${C.border}`,
-        backdropFilter: 'blur(8px)',
-      }}>
-        <img src={`${BASE_PATH}/velora_actual.png`} alt="VeloraCSS" style={{ height: '28px', width: 'auto' }} />
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{
-            fontSize: '11px', color: C.muted, background: C.surface2,
-            padding: '2px 8px', borderRadius: '4px', border: `1px solid ${C.border}`,
-          }}>v0.3.0</span>
-          <a
-            href={DOCS_URL}
-            style={{
-              fontSize: '12px', fontWeight: 500, padding: '5px 14px', borderRadius: '7px',
-              background: C.surface2, color: C.label, textDecoration: 'none',
-              border: `1px solid ${C.border}`,
-            }}
-          >
-            Docs
-          </a>
-          <a
-            href={PLAYGROUND_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              fontSize: '12px', fontWeight: 500, padding: '5px 14px', borderRadius: '7px',
-              background: C.accent, color: '#fff', textDecoration: 'none',
-              border: `1px solid ${C.accent}`,
-            }}
-          >
-            Open Playground →
-          </a>
-        </div>
-      </header>
+      <main id="vel-home" style={{ '--vel-dna-hue': '258' } as React.CSSProperties}>
 
-      {/* ── Hero ── */}
-      <div style={{ textAlign: 'center', padding: '80px 32px 64px', borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
-          <span style={{
-            fontSize: '11px', fontWeight: 600, color: C.label,
-            background: '#7c5cfc15', padding: '4px 12px', borderRadius: '99px',
-            border: '1px solid #7c5cfc30',
-          }}>
-            Now in v0.3 — 22 components, transform system &amp; 300+ new utilities
-          </span>
-        </div>
-        <h1 style={{ fontSize: '3rem', fontWeight: 900, color: C.text, letterSpacing: '-0.03em', margin: '0 0 16px', lineHeight: 1.1 }}>
-          Build fast.<br />Look great.
-        </h1>
-        <p style={{ fontSize: '1.125rem', color: C.muted, maxWidth: '520px', margin: '0 auto 36px', lineHeight: 1.7 }}>
-          VeloraCSS is a fully original utility-first CSS framework with rich components,
-          zero dependencies, and a consistent design system — running live in Next.js.
-        </p>
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' as const }}>
-          <a href={PLAYGROUND_URL} target="_blank" rel="noopener noreferrer"
-            style={{ fontSize: '14px', fontWeight: 600, padding: '10px 24px', borderRadius: '8px', background: C.accent, color: '#fff', textDecoration: 'none' }}>
-            Open Playground
-          </a>
-          <a href={DOCS_URL}
-            style={{ fontSize: '14px', fontWeight: 600, padding: '10px 24px', borderRadius: '8px', background: C.surface2, color: C.text, textDecoration: 'none', border: `1px solid ${C.border}` }}>
-            Read the Docs
-          </a>
-          <a href="https://github.com/VeloraX/veloracss" target="_blank" rel="noopener noreferrer"
-            style={{ fontSize: '14px', fontWeight: 600, padding: '10px 24px', borderRadius: '8px', background: C.surface2, color: C.text, textDecoration: 'none', border: `1px solid ${C.border}` }}>
-            GitHub
-          </a>
-        </div>
-      </div>
+        {/* ─── NAV ─── */}
+        <nav className="vhome-nav">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <img src={`${BASE_PATH}/velora_actual.png`} alt="VeloraCSS" style={{ height: '26px', width: 'auto' }} />
+            <span className="vhome-nav-badge">v0.3.0</span>
+          </div>
+          <div className="vhome-nav-links">
+            <Link href={DOCS_URL} className="vhome-nav-link">Docs</Link>
+            <a href={PLAYGROUND_URL} target="_blank" rel="noopener noreferrer" className="vhome-nav-link">Playground</a>
+            <a href="https://github.com/VeloraX/veloracss" target="_blank" rel="noopener noreferrer" className="vhome-nav-link">GitHub</a>
+            <a href={PLAYGROUND_URL} target="_blank" rel="noopener noreferrer" className="vhome-nav-cta">
+              Try it live →
+            </a>
+          </div>
+        </nav>
 
-      {/* ── Content ── */}
-      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '64px 32px' }}>
+        {/* ─── HERO ─── */}
+        <section className="vhome-hero">
+          <div className="vhome-hero-eyebrow">
+            AI-designed · Human-shipped · Built for the future
+          </div>
+          <h1>CSS that <em>thinks</em><br />in context.</h1>
+          <p className="vhome-hero-sub">
+            VeloraCSS delivers six capabilities no other utility framework attempts —
+            from a color system driven by a single number, to components that adapt to
+            their container without a single media query.
+          </p>
+          <div className="vhome-hero-ctas">
+            <Link href={DOCS_URL} className="vhome-cta-primary">Read the Docs</Link>
+            <a href={PLAYGROUND_URL} target="_blank" rel="noopener noreferrer" className="vhome-cta-secondary">Open Playground →</a>
+            <a href="https://github.com/VeloraX/veloracss" target="_blank" rel="noopener noreferrer" className="vhome-cta-ghost">GitHub</a>
+          </div>
 
-        {/* Buttons */}
-        <section style={{ marginBottom: '64px' }}>
-          <SectionLabel>Buttons</SectionLabel>
-          <PreviewBox>
-            <div className="vel-flex vel-flex-wrap vel-gap-3 vel-mb-4">
-              <button className="vel-btn vel-btn-primary">Primary</button>
-              <button className="vel-btn vel-btn-secondary">Secondary</button>
-              <button className="vel-btn vel-btn-success">Success</button>
-              <button className="vel-btn vel-btn-danger">Danger</button>
-              <button className="vel-btn vel-btn-warning">Warning</button>
-              <button className="vel-btn vel-btn-info">Info</button>
+          {/* Live DNA Slider */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div className="vhome-dna-strip">
+              <span className="vhome-dna-label">Color DNA</span>
+              <div className="vhome-dna-swatch" />
+              <input
+                type="range" min="0" max="360" value={hue}
+                className="vhome-dna-slider"
+                onChange={onHue}
+              />
+              <span className="vhome-dna-val">{hue}°</span>
             </div>
-            <div className="vel-flex vel-flex-wrap vel-gap-3">
-              <button className="vel-btn vel-btn-outline-primary">Outline</button>
-              <button className="vel-btn vel-btn-ghost">Ghost</button>
-              <button className="vel-btn vel-btn-link">Link</button>
-              <button className="vel-btn vel-btn-primary vel-btn-sm">Small</button>
-              <button className="vel-btn vel-btn-primary vel-btn-lg">Large</button>
-              <button className="vel-btn vel-btn-primary" disabled>Disabled</button>
-            </div>
-          </PreviewBox>
-          <CodeBlock code={BUTTON_CODE} />
+            <p className="vhome-dna-note">
+              One number. Every color on this page derives from it via <code style={{ fontFamily: 'Cascadia Code, Consolas, monospace', color: 'inherit' }}>oklch()</code>.
+            </p>
+          </div>
         </section>
 
-        {/* Cards */}
-        <section style={{ marginBottom: '64px' }}>
-          <SectionLabel>Cards</SectionLabel>
-          <PreviewBox>
-            <div className="vel-grid vel-grid-cols-3 vel-gap-4">
-              <div className="vel-card vel-card-hover">
-                <div className="vel-card-header">Hover Card</div>
-                <div className="vel-card-body">
-                  <p className="vel-text-neutral-500 vel-text-sm vel-mb-3">Shadow lifts on hover.</p>
-                  <button className="vel-btn vel-btn-primary vel-btn-sm">Action</button>
-                </div>
-              </div>
-              <div className="vel-card vel-card-glass">
-                <div className="vel-card-header">Glass</div>
-                <div className="vel-card-body">
-                  <p className="vel-text-neutral-500 vel-text-sm vel-mb-3">Glassmorphism variant.</p>
-                  <button className="vel-btn vel-btn-outline-primary vel-btn-sm">Action</button>
-                </div>
-              </div>
-              <div className="vel-card vel-card-primary">
-                <div className="vel-card-body">
-                  <h3 className="vel-text-base vel-font-semibold vel-text-white vel-mb-2">Primary</h3>
-                  <p className="vel-text-sm" style={{ color: 'rgba(255,255,255,.75)' }}>Brand-colored card.</p>
-                </div>
-              </div>
-            </div>
-          </PreviewBox>
-          <CodeBlock code={CARD_CODE} />
-        </section>
-
-        {/* Badges & Alerts */}
-        <section style={{ marginBottom: '64px' }}>
-          <SectionLabel>Badges &amp; Alerts</SectionLabel>
-          <PreviewBox>
-            <div className="vel-flex vel-flex-wrap vel-gap-3 vel-mb-6">
-              <span className="vel-badge vel-badge-primary">Primary</span>
-              <span className="vel-badge vel-badge-success">Success</span>
-              <span className="vel-badge vel-badge-danger">Danger</span>
-              <span className="vel-badge vel-badge-warning">Warning</span>
-              <span className="vel-badge vel-badge-info">Info</span>
-              <span className="vel-badge vel-badge-secondary">Secondary</span>
-            </div>
-            <div className="vel-flex vel-flex-col vel-gap-3">
-              <div className="vel-alert vel-alert-info">Info — Something worth knowing about.</div>
-              <div className="vel-alert vel-alert-success">Success — Your changes have been saved.</div>
-              <div className="vel-alert vel-alert-warning">Warning — Review before continuing.</div>
-              <div className="vel-alert vel-alert-danger">Danger — This action cannot be undone.</div>
-            </div>
-          </PreviewBox>
-          <CodeBlock code={BADGE_CODE} />
-        </section>
-
-        {/* Gradients & Glows */}
-        <section style={{ marginBottom: '64px' }}>
-          <SectionLabel>Gradients &amp; Glows</SectionLabel>
-          <PreviewBox>
-            <div className="vel-grid vel-grid-cols-3 vel-gap-4 vel-mb-6">
-              <div className="vel-bg-gradient-primary vel-p-5 vel-rounded-xl vel-text-center vel-font-semibold vel-text-white">primary</div>
-              <div className="vel-bg-gradient-aurora vel-p-5 vel-rounded-xl vel-text-center vel-font-semibold vel-text-white">aurora</div>
-              <div className="vel-bg-gradient-ocean vel-p-5 vel-rounded-xl vel-text-center vel-font-semibold vel-text-white">ocean</div>
-              <div className="vel-bg-gradient-success vel-p-5 vel-rounded-xl vel-text-center vel-font-semibold vel-text-white">success</div>
-              <div className="vel-bg-gradient-danger vel-p-5 vel-rounded-xl vel-text-center vel-font-semibold vel-text-white">danger</div>
-              <div className="vel-bg-gradient-sunset vel-p-5 vel-rounded-xl vel-text-center vel-font-semibold vel-text-white">sunset</div>
-            </div>
-            <div className="vel-flex vel-flex-wrap vel-gap-4">
-              <button className="vel-btn vel-btn-primary vel-btn-glow-primary">Glow Primary</button>
-              <button className="vel-btn vel-btn-success vel-btn-glow-success">Glow Success</button>
-              <button className="vel-btn vel-btn-danger vel-btn-glow-danger">Glow Danger</button>
-            </div>
-          </PreviewBox>
-          <CodeBlock code={GRADIENT_CODE} />
-        </section>
-
-        {/* Colors */}
-        <section style={{ marginBottom: '64px' }}>
-          <SectionLabel>Colors</SectionLabel>
-          <PreviewBox>
-            <div className="vel-grid vel-grid-cols-6 vel-gap-3 vel-mb-4">
-              {colors.map((c) => (
-                <div key={c} className={`vel-bg-${c} vel-text-white vel-p-4 vel-rounded-xl vel-text-center vel-text-sm vel-font-medium`}>
-                  {c}
+        {/* ─── 6 INNOVATIONS ─── */}
+        <section className="vhome-section">
+          <div className="vhome-wrap">
+            <span className="vhome-section-eyebrow">What makes Velora different</span>
+            <h2 className="vhome-section-title">Six things no other<br />framework does.</h2>
+            <div className="vhome-innovations">
+              {[
+                {
+                  num: '01', icon: '◈', title: 'Color Genetics',
+                  desc: 'One hue drives 50+ derived colors via oklch(). Perceptually uniform, mathematically coherent. Change a single number — the entire UI recolors.',
+                  tag: '--vel-dna-hue: 258',
+                },
+                {
+                  num: '02', icon: '⬡', title: 'Container Intelligence',
+                  desc: 'Components respond to their container, not the viewport. A card in a sidebar stacks; the same card in a wide area goes horizontal. Zero media queries.',
+                  tag: '@container (min-width: 460px)',
+                },
+                {
+                  num: '03', icon: '⟁', title: 'CSS State Machine',
+                  desc: 'Tabs, toggles, and accordions powered by :has() + radio inputs. State is tracked by the browser. No event listeners. No DOM manipulation.',
+                  tag: '.tabs:has(#t1:checked) #panel-1',
+                },
+                {
+                  num: '04', icon: '↬', title: 'Scope Theming',
+                  desc: 'Set data-vel-theme on any element and every child instantly inherits a new color universe. Themes can nest. One attribute, full cascade.',
+                  tag: 'data-vel-theme="ocean"',
+                },
+                {
+                  num: '05', icon: '◉', title: 'Smart Forms',
+                  desc: 'CSS reads browser validity state via :has(:invalid). Labels change color, errors appear, borders react — all without JavaScript.',
+                  tag: '.field:has(input:invalid)',
+                },
+                {
+                  num: '06', icon: '⧖', title: 'Fluid Scale',
+                  desc: 'Every spacing and type token uses clamp(). Values interpolate continuously across all viewport widths. No breakpoints. No jumps.',
+                  tag: 'clamp(1rem, 0.8rem + 1vw, 1.5rem)',
+                },
+              ].map(f => (
+                <div key={f.num} className="vhome-innovation">
+                  <span className="vhome-innovation-num">{f.num}</span>
+                  <div className="vhome-innovation-icon">{f.icon}</div>
+                  <h3>{f.title}</h3>
+                  <p>{f.desc}</p>
+                  <span className="vhome-innovation-tag">{f.tag}</span>
                 </div>
               ))}
             </div>
-            <div className="vel-grid vel-grid-cols-11 vel-gap-1">
-              {neutrals.map((n) => (
-                <div key={n} className={`vel-bg-neutral-${n} vel-py-3 vel-rounded-lg vel-text-center`}
-                  style={{ fontSize: '10px', color: n >= 500 ? '#fff' : '#334155' }}>
-                  {n}
+          </div>
+        </section>
+
+        {/* ─── COLOR GENETICS DEEP DIVE ─── */}
+        <section className="vhome-section">
+          <div className="vhome-wrap">
+            <div className="vhome-split">
+              <div>
+                <span className="vhome-section-eyebrow">Innovation 01</span>
+                <h2 className="vhome-section-title">One number.<br />An entire universe.</h2>
+                <p className="vhome-section-desc">
+                  Tailwind ships 22 color palettes — 1,540 hardcoded swatches you can't change
+                  without config. VeloraCSS generates every color mathematically from
+                  <code>--vel-dna-hue</code> using <code>oklch()</code>, the only perceptually
+                  uniform color space. Watch the swatches below react as you slide.
+                </p>
+                <Win11Terminal filename="velora.css">
+{`<span class="tc-comment">/* The entire palette from one variable */</span>
+<span class="tc-prop">--vel-dna-hue</span>: <span class="tc-num">258</span>;
+
+<span class="tc-comment">/* All colors are derived — nothing hardcoded */</span>
+<span class="tc-prop">--vel-color-primary</span>:  <span class="tc-fn">oklch</span>(<span class="tc-num">65% 0.21</span> <span class="tc-fn">var</span>(<span class="tc-prop">--vel-dna-hue</span>));
+<span class="tc-prop">--vel-surface-0</span>:      <span class="tc-fn">oklch</span>(<span class="tc-num">7%  0.02</span> <span class="tc-fn">var</span>(<span class="tc-prop">--vel-dna-hue</span>));
+<span class="tc-prop">--vel-text-1</span>:         <span class="tc-fn">oklch</span>(<span class="tc-num">92% 0.015</span> <span class="tc-fn">var</span>(<span class="tc-prop">--vel-dna-hue</span>));
+<span class="tc-prop">--vel-border</span>:         <span class="tc-fn">oklch</span>(<span class="tc-num">26% 0.045</span> <span class="tc-fn">var</span>(<span class="tc-prop">--vel-dna-hue</span>));
+
+<span class="tc-comment">/* Change in JS with one line: */</span>
+<span class="tc-cls">document</span>.documentElement.style
+  .setProperty(<span class="tc-str">'--vel-dna-hue'</span>, <span class="tc-num">145</span>);</span>`}
+                </Win11Terminal>
+              </div>
+              <div>
+                <div className="vhome-swatches" style={{ marginBottom: '1rem' }}>
+                  {[
+                    { label: 'primary', bg: 'var(--vp)' },
+                    { label: 'light', bg: 'var(--vp-light)' },
+                    { label: 'dim', bg: 'var(--vp-dim)' },
+                    { label: 'surface 0', bg: 'var(--vs0)' },
+                    { label: 'surface 3', bg: 'var(--vs3)' },
+                    { label: 'border', bg: 'var(--vborder)' },
+                  ].map(s => (
+                    <div key={s.label} className="vhome-swatch">
+                      <div className="vhome-swatch-color" style={{ background: s.bg }} />
+                      <div className="vhome-swatch-label">{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+                {/* Live card */}
+                <div style={{ background: 'var(--vs2)', border: '1px solid var(--vborder)', borderRadius: '0.75rem', overflow: 'hidden' }}>
+                  <div style={{ background: 'var(--vp-subtle)', borderBottom: '1px solid var(--vp-glow)', padding: '0.875rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--vp-light)' }}>Auto-themed card</span>
+                    <span style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.08em', color: 'var(--vp)', background: 'var(--vp-subtle)', border: '1px solid var(--vp-glow)', borderRadius: '9999px', padding: '0.15rem 0.5rem' }}>live</span>
+                  </div>
+                  <div style={{ padding: '1.25rem' }}>
+                    <p style={{ fontSize: '0.875rem', color: 'var(--vt2)', marginBottom: '1rem', lineHeight: 1.6 }}>Every color in this card derives from the DNA hue. Drag the slider above to see it react.</p>
+                    <div style={{ display: 'flex', gap: '0.75rem' }}>
+                      <button className="vel-btn vel-btn-primary">Action</button>
+                      <button className="vel-btn vel-btn-ghost">Cancel</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ─── CONTAINER INTELLIGENCE ─── */}
+        <section className="vhome-section">
+          <div className="vhome-wrap">
+            <div className="vhome-split">
+              <div>
+                <span className="vhome-section-eyebrow">Innovation 02</span>
+                <h2 className="vhome-section-title">Components that<br />know their space.</h2>
+                <p className="vhome-section-desc">
+                  Tailwind's responsive system watches the viewport. VeloraCSS components
+                  watch <em>themselves</em>. Drag the box handle — the card reflows based
+                  on its own container width, not the screen size.
+                </p>
+                <div style={{ marginBottom: '1rem', fontSize: '0.75rem', color: 'var(--vt3)' }}>
+                  ↙ Drag the bottom-right corner to resize
+                </div>
+                <div className="vhome-cq-outer">
+                  <div className="vhome-cq-card">
+                    <div className="vhome-cq-inner">
+                      <div className="vhome-cq-img">◈</div>
+                      <div className="vhome-cq-body">
+                        <span className="vhome-cq-tag">Container Query</span>
+                        <div className="vhome-cq-title">Adapts to its space</div>
+                        <div className="vhome-cq-desc">Stacks in tight containers, reflows when there's room. No media queries.</div>
+                      </div>
+                    </div>
+                    <div className="vhome-cq-footer">@container — watching width</div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <Win11Terminal filename="velora.css">
+{`<span class="tc-comment">/* Mark the parent as a query context */</span>
+<span class="tc-cls">.vel-cq-wrapper</span> {
+  <span class="tc-prop">container-type</span>: <span class="tc-kw">inline-size</span>;
+}
+
+<span class="tc-comment">/* Component reacts to ITS container, not viewport */</span>
+@<span class="tc-fn">container</span> (<span class="tc-prop">min-width</span>: <span class="tc-num">460px</span>) {
+  <span class="tc-cls">.vel-cq-card</span> {
+    <span class="tc-prop">grid-template-columns</span>: <span class="tc-num">200px 1fr</span>;
+  }
+  <span class="tc-cls">.vel-cq-image</span> {
+    <span class="tc-prop">border-right</span>: <span class="tc-num">1px</span> <span class="tc-kw">solid</span> <span class="tc-fn">var</span>(<span class="tc-prop">--vel-border</span>);
+    <span class="tc-prop">border-bottom</span>: <span class="tc-kw">none</span>;
+  }
+}
+
+<span class="tc-comment">/* Result: works in any layout — sidebar, grid, full-width */</span>
+<span class="tc-comment">/* No JavaScript. No class toggling. Just CSS. */</span>`}
+                </Win11Terminal>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ─── SCOPE THEMING ─── */}
+        <section className="vhome-section">
+          <div className="vhome-wrap">
+            <span className="vhome-section-eyebrow">Innovation 04</span>
+            <h2 className="vhome-section-title">One attribute.<br />Entire theme cascade.</h2>
+            <p className="vhome-section-desc">
+              Set <code>data-vel-theme</code> on any element and every child automatically
+              inherits a new color world. Click the themes below to see it live.
+            </p>
+            <div className="vhome-split" style={{ alignItems: 'flex-start' }}>
+              <ScopeThemeDemo />
+              <Win11Terminal filename="velora.css">
+{`<span class="tc-comment">/* One line per theme — hue shift handles everything */</span>
+[<span class="tc-prop">data-vel-theme</span>="<span class="tc-str">ocean</span>"]  { <span class="tc-prop">--vel-dna-hue</span>: <span class="tc-num">205</span>; }
+[<span class="tc-prop">data-vel-theme</span>="<span class="tc-str">forest</span>"] { <span class="tc-prop">--vel-dna-hue</span>: <span class="tc-num">145</span>; }
+[<span class="tc-prop">data-vel-theme</span>="<span class="tc-str">ember</span>"]  { <span class="tc-prop">--vel-dna-hue</span>: <span class="tc-num">22</span>;  }
+[<span class="tc-prop">data-vel-theme</span>="<span class="tc-str">aurora</span>"] { <span class="tc-prop">--vel-dna-hue</span>: <span class="tc-num">300</span>; }
+
+<span class="tc-comment">/* All tokens derive from the hue — nothing to override */</span>
+<span class="tc-prop">--vel-color-primary</span>: <span class="tc-fn">oklch</span>(<span class="tc-num">65% 0.21</span> <span class="tc-fn">var</span>(<span class="tc-prop">--vel-dna-hue</span>));
+<span class="tc-prop">--vel-surface-1</span>:     <span class="tc-fn">oklch</span>(<span class="tc-num">10% 0.025</span> <span class="tc-fn">var</span>(<span class="tc-prop">--vel-dna-hue</span>));
+
+<span class="tc-comment">/* The entire theming "logic" in JavaScript: */</span>
+<span class="tc-cls">el</span>.dataset.<span class="tc-fn">velTheme</span> = <span class="tc-str">'ocean'</span>;</span>`}
+              </Win11Terminal>
+            </div>
+          </div>
+        </section>
+
+        {/* ─── SMART FORMS ─── */}
+        <section className="vhome-section">
+          <div className="vhome-wrap">
+            <div className="vhome-split">
+              <div>
+                <span className="vhome-section-eyebrow">Innovation 05</span>
+                <h2 className="vhome-section-title">Form validation.<br />Zero JavaScript.</h2>
+                <p className="vhome-section-desc">
+                  VeloraCSS uses <code>:has()</code> with <code>:valid</code> and <code>:invalid</code>
+                  to build a complete validation UI in pure CSS. Type in the fields below — labels
+                  change color, error messages appear, borders react. No JS needed.
+                </p>
+                <div style={{ display: 'grid', gap: '1.25rem', maxWidth: '380px' }}>
+                  <div className="vhome-field">
+                    <label htmlFor="h-name">Full name</label>
+                    <input type="text" id="h-name" className="vhome-input" placeholder="Jane Smith" minLength={2} required />
+                    <span className="vhome-field-hint">At least 2 characters</span>
+                    <span className="vhome-field-error">Name must be at least 2 characters</span>
+                    <span className="vhome-field-ok">Looks good!</span>
+                  </div>
+                  <div className="vhome-field">
+                    <label htmlFor="h-email">Email address</label>
+                    <input type="email" id="h-email" className="vhome-input" placeholder="jane@example.com" required />
+                    <span className="vhome-field-hint">We&apos;ll never share your email</span>
+                    <span className="vhome-field-error">Enter a valid email address</span>
+                    <span className="vhome-field-ok">Valid email address</span>
+                  </div>
+                </div>
+              </div>
+              <Win11Terminal filename="velora.css">
+{`<span class="tc-comment">/* :has() reads browser validity — no JS needed */</span>
+
+<span class="tc-comment">/* Label turns red when input is invalid */</span>
+<span class="tc-cls">.vel-field</span>:<span class="tc-fn">has</span>(<span class="tc-cls">.vel-input</span>:<span class="tc-fn">invalid</span>:<span class="tc-fn">not</span>(:<span class="tc-fn">placeholder-shown</span>)) <span class="tc-cls">label</span> {
+  <span class="tc-prop">color</span>: <span class="tc-fn">oklch</span>(<span class="tc-num">65% 0.22 25</span>);
+}
+
+<span class="tc-comment">/* Border + ring on invalid */</span>
+<span class="tc-cls">.vel-field</span>:<span class="tc-fn">has</span>(<span class="tc-cls">.vel-input</span>:<span class="tc-fn">invalid</span>:<span class="tc-fn">not</span>(:<span class="tc-fn">placeholder-shown</span>)) <span class="tc-cls">.vel-input</span> {
+  <span class="tc-prop">border-color</span>: <span class="tc-fn">oklch</span>(<span class="tc-num">65% 0.22 25</span>);
+  <span class="tc-prop">box-shadow</span>: <span class="tc-num">0 0 0 3px</span> <span class="tc-fn">oklch</span>(<span class="tc-num">65% 0.22 25 / 0.12</span>);
+}
+
+<span class="tc-comment">/* Show error message — CSS toggles visibility */</span>
+<span class="tc-cls">.vel-field</span>:<span class="tc-fn">has</span>(<span class="tc-cls">.vel-input</span>:<span class="tc-fn">invalid</span>:<span class="tc-fn">not</span>(:<span class="tc-fn">placeholder-shown</span>)) <span class="tc-cls">.vel-field-error</span> {
+  <span class="tc-prop">display</span>: <span class="tc-kw">block</span>; <span class="tc-comment">/* zero JS */</span>
+}
+
+<span class="tc-comment">/* Valid state — green automatically */</span>
+<span class="tc-cls">.vel-field</span>:<span class="tc-fn">has</span>(<span class="tc-cls">.vel-input</span>:<span class="tc-fn">valid</span>:<span class="tc-fn">not</span>(:<span class="tc-fn">placeholder-shown</span>)) <span class="tc-cls">.vel-input</span> {
+  <span class="tc-prop">border-color</span>: <span class="tc-fn">oklch</span>(<span class="tc-num">70% 0.2 162</span>);
+}</span>`}
+              </Win11Terminal>
+            </div>
+          </div>
+        </section>
+
+        {/* ─── COMPONENTS SHOWCASE ─── */}
+        <section className="vhome-section">
+          <div className="vhome-wrap">
+            <span className="vhome-section-eyebrow">Rich component library</span>
+            <h2 className="vhome-section-title">29 components,<br />all using the DNA system.</h2>
+            <p className="vhome-section-desc" style={{ marginBottom: '2rem' }}>
+              Every component is built with the same token cascade. Change the DNA hue above
+              and watch every button, badge, and card adapt instantly.
+            </p>
+            <div className="vhome-component-grid">
+              {/* Buttons */}
+              <div className="vhome-component-preview">
+                <div className="vhome-component-preview-header">Buttons</div>
+                <div className="vhome-component-preview-body">
+                  <div className="vel-flex vel-flex-wrap vel-gap-2 vel-mb-3">
+                    <button className="vel-btn vel-btn-primary">Primary</button>
+                    <button className="vel-btn vel-btn-secondary">Secondary</button>
+                    <button className="vel-btn vel-btn-success">Success</button>
+                    <button className="vel-btn vel-btn-danger">Danger</button>
+                  </div>
+                  <div className="vel-flex vel-flex-wrap vel-gap-2">
+                    <button className="vel-btn vel-btn-outline-primary">Outline</button>
+                    <button className="vel-btn vel-btn-ghost">Ghost</button>
+                    <button className="vel-btn vel-btn-primary vel-btn-sm">Small</button>
+                    <button className="vel-btn vel-btn-primary" disabled>Disabled</button>
+                  </div>
+                </div>
+              </div>
+              {/* Badges & Alerts */}
+              <div className="vhome-component-preview">
+                <div className="vhome-component-preview-header">Badges & Alerts</div>
+                <div className="vhome-component-preview-body">
+                  <div className="vel-flex vel-flex-wrap vel-gap-2 vel-mb-3">
+                    <span className="vel-badge vel-badge-primary">Primary</span>
+                    <span className="vel-badge vel-badge-success">Success</span>
+                    <span className="vel-badge vel-badge-danger">Danger</span>
+                    <span className="vel-badge vel-badge-warning">Warning</span>
+                    <span className="vel-badge vel-badge-info">Info</span>
+                  </div>
+                  <div className="vel-alert vel-alert-info" style={{ fontSize: '0.8125rem' }}>
+                    Info — Something worth knowing.
+                  </div>
+                </div>
+              </div>
+              {/* Cards */}
+              <div className="vhome-component-preview">
+                <div className="vhome-component-preview-header">Cards</div>
+                <div className="vhome-component-preview-body" style={{ padding: '0.75rem' }}>
+                  <div className="vel-card vel-card-hover" style={{ marginBottom: '0.5rem' }}>
+                    <div className="vel-card-body" style={{ padding: '0.875rem' }}>
+                      <p style={{ fontSize: '0.8125rem', color: 'var(--vt2, #94a3b8)' }}>Hover to see elevation.</p>
+                      <button className="vel-btn vel-btn-primary vel-btn-sm" style={{ marginTop: '0.5rem' }}>Action</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* Steps */}
+              <div className="vhome-component-preview">
+                <div className="vhome-component-preview-header">Steps</div>
+                <div className="vhome-component-preview-body">
+                  <div className="vel-steps">
+                    <div className="vel-step vel-step-complete">
+                      <div className="vel-step-indicator">✓</div>
+                      <div className="vel-step-label">Account</div>
+                    </div>
+                    <div className="vel-step vel-step-active">
+                      <div className="vel-step-indicator">2</div>
+                      <div className="vel-step-label">Profile</div>
+                    </div>
+                    <div className="vel-step">
+                      <div className="vel-step-indicator">3</div>
+                      <div className="vel-step-label">Billing</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* Skeleton */}
+              <div className="vhome-component-preview">
+                <div className="vhome-component-preview-header">Skeleton Loaders</div>
+                <div className="vhome-component-preview-body">
+                  <div className="vel-flex vel-gap-3 vel-mb-3">
+                    <div className="vel-skeleton vel-skeleton-avatar-lg" />
+                    <div style={{ flex: 1 }}>
+                      <div className="vel-skeleton vel-skeleton-text vel-skeleton-lg vel-mb-2" />
+                      <div className="vel-skeleton vel-skeleton-text vel-skeleton-sm" />
+                    </div>
+                  </div>
+                  <div className="vel-skeleton vel-skeleton-rect" style={{ width: '100%', height: '48px' }} />
+                </div>
+              </div>
+              {/* Kbd */}
+              <div className="vhome-component-preview">
+                <div className="vhome-component-preview-header">Keyboard & Dividers</div>
+                <div className="vhome-component-preview-body">
+                  <div className="vel-flex vel-flex-wrap vel-gap-3 vel-mb-4">
+                    <span className="vel-kbd-combo"><kbd className="vel-kbd">Ctrl</kbd><kbd className="vel-kbd">K</kbd></span>
+                    <span className="vel-kbd-combo"><kbd className="vel-kbd">⌘</kbd><kbd className="vel-kbd">Shift</kbd><kbd className="vel-kbd">P</kbd></span>
+                    <kbd className="vel-kbd vel-kbd-lg">Enter</kbd>
+                  </div>
+                  <div className="vel-divider">OR</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ─── STATS ─── */}
+        <section className="vhome-section" style={{ borderBottom: 'none' }}>
+          <div className="vhome-wrap">
+            <div className="vhome-stats">
+              {[
+                { num: '300+', label: 'utility classes' },
+                { num: '29', label: 'components' },
+                { num: '6', label: 'CSS innovations' },
+                { num: '0', label: 'dependencies' },
+              ].map(s => (
+                <div key={s.label} className="vhome-stat">
+                  <span className="vhome-stat-num">{s.num}</span>
+                  <span className="vhome-stat-label">{s.label}</span>
                 </div>
               ))}
             </div>
-          </PreviewBox>
-          <CodeBlock code={COLORS_CODE} />
+          </div>
         </section>
 
-        {/* Typography */}
-        <section style={{ marginBottom: '64px' }}>
-          <SectionLabel>Typography</SectionLabel>
-          <PreviewBox>
-            <div className="vel-space-y-2">
-              <p className="vel-text-5xl vel-font-black vel-leading-none" style={{ color: C.text }}>Display</p>
-              <p className="vel-text-3xl vel-font-bold" style={{ color: C.text }}>Heading 1</p>
-              <p className="vel-text-2xl vel-font-semibold" style={{ color: '#cbd5e1' }}>Heading 2</p>
-              <p className="vel-text-xl vel-font-medium" style={{ color: '#94a3b8' }}>Heading 3</p>
-              <p className="vel-text-base" style={{ color: C.muted }}>Body — the quick brown fox jumps over the lazy dog.</p>
-              <p className="vel-text-sm" style={{ color: '#64748b' }}>Small — secondary information and captions.</p>
-              <p className="vel-text-xs vel-uppercase vel-tracking-wider vel-font-semibold" style={{ color: '#475569' }}>Label / Eyebrow</p>
+        {/* ─── CTA ─── */}
+        <section className="vhome-cta-section">
+          <div className="vhome-wrap">
+            <h2>Ready to build<br />something <em style={{ fontStyle: 'normal', color: 'var(--vp)' }}>extraordinary?</em></h2>
+            <p>Start with the docs, explore the playground, or dive into the source. VeloraCSS is open source and ready to use today.</p>
+            <div className="vhome-hero-ctas">
+              <Link href={DOCS_URL} className="vhome-cta-primary">Get Started →</Link>
+              <a href={PLAYGROUND_URL} target="_blank" rel="noopener noreferrer" className="vhome-cta-secondary">Open Playground</a>
+              <a href="https://github.com/VeloraX/veloracss" target="_blank" rel="noopener noreferrer" className="vhome-cta-ghost">View Source</a>
             </div>
-          </PreviewBox>
-          <CodeBlock code={TYPOGRAPHY_CODE} />
+          </div>
         </section>
 
-        {/* Pagination & Breadcrumb */}
-        <section style={{ marginBottom: '64px' }}>
-          <SectionLabel>Pagination &amp; Breadcrumb</SectionLabel>
-          <PreviewBox>
-            <div className="vel-mb-6">
-              <p className="vel-text-xs vel-font-semibold vel-uppercase vel-tracking-widest vel-mb-3" style={{ color: C.muted }}>Breadcrumb</p>
-              <ol className="vel-breadcrumb vel-breadcrumb-chevron">
-                <li className="vel-breadcrumb-item"><a href="#" className="vel-breadcrumb-link">Home</a></li>
-                <li className="vel-breadcrumb-item"><a href="#" className="vel-breadcrumb-link">Components</a></li>
-                <li className="vel-breadcrumb-item"><span className="vel-breadcrumb-active">Breadcrumb</span></li>
-              </ol>
+        {/* ─── FOOTER ─── */}
+        <footer className="vhome-footer">
+          <div className="vhome-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', width: '100%' }}>
+            <span className="vhome-footer-copy">VeloraCSS v0.3.0 — AI-designed. Human-shipped.</span>
+            <div className="vhome-footer-links">
+              <Link href={DOCS_URL} className="vhome-footer-link">Docs</Link>
+              <a href={PLAYGROUND_URL} target="_blank" rel="noopener noreferrer" className="vhome-footer-link">Playground</a>
+              <a href="https://github.com/VeloraX/veloracss" target="_blank" rel="noopener noreferrer" className="vhome-footer-link">GitHub</a>
             </div>
-            <div>
-              <p className="vel-text-xs vel-font-semibold vel-uppercase vel-tracking-widest vel-mb-3" style={{ color: C.muted }}>Pagination</p>
-              <nav className="vel-pagination">
-                <span className="vel-page-item"><span className="vel-page-link vel-page-link-disabled">← Prev</span></span>
-                <span className="vel-page-item"><a href="#" className="vel-page-link">1</a></span>
-                <span className="vel-page-item"><a href="#" className="vel-page-link vel-page-link-active">2</a></span>
-                <span className="vel-page-item"><a href="#" className="vel-page-link">3</a></span>
-                <span className="vel-page-ellipsis">…</span>
-                <span className="vel-page-item"><a href="#" className="vel-page-link">8</a></span>
-                <span className="vel-page-item"><a href="#" className="vel-page-link">Next →</a></span>
-              </nav>
-            </div>
-          </PreviewBox>
-          <CodeBlock code={PAGINATION_CODE} />
-        </section>
+          </div>
+        </footer>
 
-        {/* Steps */}
-        <section style={{ marginBottom: '64px' }}>
-          <SectionLabel>Steps</SectionLabel>
-          <PreviewBox>
-            <div className="vel-steps">
-              <div className="vel-step vel-step-complete">
-                <div className="vel-step-indicator">✓</div>
-                <div className="vel-step-label">Account</div>
-              </div>
-              <div className="vel-step vel-step-complete">
-                <div className="vel-step-indicator">✓</div>
-                <div className="vel-step-label">Profile</div>
-              </div>
-              <div className="vel-step vel-step-active">
-                <div className="vel-step-indicator">3</div>
-                <div className="vel-step-label">Billing</div>
-              </div>
-              <div className="vel-step">
-                <div className="vel-step-indicator">4</div>
-                <div className="vel-step-label">Review</div>
-              </div>
-            </div>
-          </PreviewBox>
-          <CodeBlock code={STEPS_CODE} />
-        </section>
-
-        {/* Skeleton & Kbd */}
-        <section style={{ marginBottom: '64px' }}>
-          <SectionLabel>Skeleton &amp; Keyboard Keys</SectionLabel>
-          <PreviewBox>
-            <div className="vel-flex vel-gap-4 vel-mb-6">
-              <div className="vel-skeleton vel-skeleton-avatar-xl"></div>
-              <div style={{ flex: 1 }}>
-                <div className="vel-skeleton vel-skeleton-text vel-skeleton-lg vel-mb-3"></div>
-                <div className="vel-skeleton vel-skeleton-text vel-skeleton-sm vel-mb-2"></div>
-                <div className="vel-skeleton vel-skeleton-text vel-skeleton-sm"></div>
-              </div>
-            </div>
-            <div className="vel-flex vel-flex-wrap vel-gap-4">
-              <span className="vel-kbd-combo"><kbd className="vel-kbd">Ctrl</kbd><kbd className="vel-kbd">K</kbd></span>
-              <span className="vel-kbd-combo"><kbd className="vel-kbd">⌘</kbd><kbd className="vel-kbd">Shift</kbd><kbd className="vel-kbd">P</kbd></span>
-              <kbd className="vel-kbd vel-kbd-lg">Enter</kbd>
-              <kbd className="vel-kbd">Tab</kbd>
-              <kbd className="vel-kbd">Esc</kbd>
-            </div>
-          </PreviewBox>
-          <CodeBlock code={SKELETON_CODE} />
-        </section>
-
-        {/* Dividers */}
-        <section style={{ marginBottom: '64px' }}>
-          <SectionLabel>Dividers</SectionLabel>
-          <PreviewBox>
-            <div className="vel-flex vel-flex-col vel-gap-6">
-              <hr className="vel-divider-plain" />
-              <div className="vel-divider">OR</div>
-              <div className="vel-divider vel-divider-left">Section</div>
-              <div className="vel-divider vel-divider-primary">Primary</div>
-            </div>
-          </PreviewBox>
-          <CodeBlock code={DIVIDER_CODE} />
-        </section>
-
-      </div>
-
-      {/* ── Footer ── */}
-      <footer style={{
-        textAlign: 'center', padding: '32px', borderTop: `1px solid ${C.border}`,
-        fontSize: '13px', color: C.muted,
-      }}>
-        VeloraCSS v0.3.0 — Next.js Demo ·{' '}
-        <a href={DOCS_URL} style={{ color: C.label, textDecoration: 'none' }}>Docs</a>
-        {' · '}
-        <a href={PLAYGROUND_URL} style={{ color: C.label, textDecoration: 'none' }}>Open Playground</a>
-      </footer>
-
-    </main>
+      </main>
+    </>
   )
 }
