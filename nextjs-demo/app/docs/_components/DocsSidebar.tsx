@@ -82,6 +82,15 @@ const sidebarStyles = `
     text-decoration: none; padding: 0.3rem 0.25rem; transition: color 0.12s;
   }
   .vdocs-sidebar-back:hover { color: var(--vel-color-text); }
+  .vdocs-sidebar-footer-links {
+    display: flex; flex-wrap: wrap; gap: 0.25rem 0.875rem; margin-top: 0.5rem;
+    padding-top: 0.5rem; border-top: 1px solid var(--vel-border-base);
+  }
+  .vdocs-sidebar-footer-link {
+    font-size: 0.72rem; color: var(--vel-color-muted);
+    text-decoration: none; transition: color 0.12s;
+  }
+  .vdocs-sidebar-footer-link:hover { color: var(--vel-color-text); }
 `
 
 export default function DocsSidebar({ currentSlug }: DocsSidebarProps) {
@@ -146,9 +155,15 @@ export default function DocsSidebar({ currentSlug }: DocsSidebarProps) {
           ))}
         </nav>
 
-        {/* Back to Demo */}
+        {/* Footer links */}
         <div className="vdocs-sidebar-footer">
-          <Link href="/" className="vdocs-sidebar-back">← Back to Demo</Link>
+          <Link href="/" className="vdocs-sidebar-back">← Home</Link>
+          <div className="vdocs-sidebar-footer-links">
+            <Link href="/community" className="vdocs-sidebar-footer-link">Community</Link>
+            <a href="https://velorax.github.io/veloracss/playground" target="_blank" rel="noopener noreferrer" className="vdocs-sidebar-footer-link">Playground</a>
+            <a href="https://github.com/VeloraX/veloracss" target="_blank" rel="noopener noreferrer" className="vdocs-sidebar-footer-link">GitHub</a>
+            <a href="https://discord.gg/RKmSyudqAv" target="_blank" rel="noopener noreferrer" className="vdocs-sidebar-footer-link">Discord</a>
+          </div>
         </div>
       </aside>
     </>

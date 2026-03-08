@@ -1,13 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { communityComponents, CommunityComponent } from './_data/components'
-
-// ─── Build-time constants ─────────────────────────────────────────────────────
-const IS_PROD   = process.env.NODE_ENV === 'production'
-const BASE_PATH = IS_PROD ? '/veloracss' : ''
-const DOCS_URL  = '/docs'
+import SiteHeader from '../_components/SiteHeader'
 
 // ─── Page styles ─────────────────────────────────────────────────────────────
 const PAGE_CSS = `
@@ -192,33 +187,7 @@ export default function CommunityPage() {
         color: 'var(--vel-color-text)',
       }}>
 
-        {/* Nav */}
-        <nav style={{
-          borderBottom: '1px solid var(--vel-border-base)',
-          padding: '0.875rem 2rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1.5rem',
-          background: 'var(--vel-surface-1)',
-        }}>
-          <Link
-            href="/"
-            style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--vel-color-text)', textDecoration: 'none', letterSpacing: '-0.02em' }}
-          >
-            VeloraCSS
-          </Link>
-          <Link href={DOCS_URL} className="vcom-nav-link">Docs</Link>
-          <span style={{ fontSize: '0.8125rem', color: 'var(--vel-color-primary)', fontWeight: 600 }}>Community</span>
-          <div style={{ flex: 1 }} />
-          <a
-            href="https://github.com/VeloraX/veloracss"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="vcom-nav-link"
-          >
-            GitHub
-          </a>
-        </nav>
+        <SiteHeader />
 
         {/* Main */}
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '3rem 2rem' }}>

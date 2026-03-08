@@ -987,6 +987,7 @@ export default function Home() {
           </div>
           <div className="vel-flex vel-items-center vel-gap-6">
             <Link href={DOCS_URL} className="vhome-nav-link">Docs</Link>
+            <Link href="/community" className="vhome-nav-link">Community</Link>
             <a href={PLAYGROUND_URL} target="_blank" rel="noopener noreferrer" className="vhome-nav-link">Playground</a>
             <a href="https://github.com/VeloraX/veloracss" target="_blank" rel="noopener noreferrer" className="vhome-nav-link">GitHub</a>
             <a href={PLAYGROUND_URL} target="_blank" rel="noopener noreferrer" className="vel-btn vel-btn-primary vel-btn-sm">
