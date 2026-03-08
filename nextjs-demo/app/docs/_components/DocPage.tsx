@@ -114,7 +114,7 @@ function highlightCode(code: string): string {
   return code.trimStart().startsWith('<') ? highlightHTML(code) : highlightCSS(code)
 }
 
-// ─── Win11 Terminal Code Block ────────────────────────────────────────────────
+// ─── macOS Terminal Code Block ────────────────────────────────────────────────
 function Win11Block({ filename, code }: { filename: string; code: string }) {
   const [copied, setCopied] = useState(false)
 
@@ -143,39 +143,40 @@ function Win11Block({ filename, code }: { filename: string; code: string }) {
       border: '1px solid #2a2a2a',
       borderTop: 'none',
     }}>
-      {/* Win11 title bar */}
+      {/* macOS title bar */}
       <div style={{
         display: 'flex', alignItems: 'center',
-        height: '32px', padding: '0 0 0 0.875rem',
+        height: '32px', padding: '0 0.875rem',
         background: '#1C1C1C', borderBottom: '1px solid #2a2a2a',
       }}>
+        {/* macOS dots — left */}
+        <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
+          <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#ff5f57' }} />
+          <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#ffbd2e' }} />
+          <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#28c840' }} />
+        </div>
+        {/* filename — center */}
         <span style={{
-          fontSize: '0.72rem', color: '#777', flex: 1,
+          flex: 1, textAlign: 'center',
+          fontSize: '0.72rem', color: '#777',
           fontFamily: "'Cascadia Code', Consolas, monospace",
         }}>
           {filename}
         </span>
-        {/* Copy button */}
+        {/* Copy button — right */}
         <button
           onClick={handleCopy}
           style={{
-            fontSize: '0.68rem', fontWeight: 600, padding: '0 0.75rem',
-            height: '32px', cursor: 'pointer', border: 'none',
+            fontSize: '0.68rem', fontWeight: 600, padding: '0.15rem 0.625rem',
+            height: '22px', cursor: 'pointer', border: 'none', borderRadius: '0.25rem',
             fontFamily: "'Cascadia Code', Consolas, monospace",
-            transition: 'all 0.15s',
-            background: copied ? 'rgba(14,203,129,0.15)' : 'transparent',
+            transition: 'all 0.15s', flexShrink: 0,
+            background: copied ? 'rgba(14,203,129,0.15)' : 'rgba(255,255,255,0.08)',
             color: copied ? '#0ecb81' : '#666',
-            borderLeft: '1px solid #2a2a2a',
           }}
         >
           {copied ? '✓ Copied' : 'Copy'}
         </button>
-        {/* Win11 window controls — right side */}
-        <div style={{ display: 'flex', alignItems: 'center', height: '32px' }}>
-          <button style={{ width: 46, height: 32, background: 'transparent', border: 'none', color: '#888', fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>─</button>
-          <button style={{ width: 46, height: 32, background: 'transparent', border: 'none', color: '#888', fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>□</button>
-          <button style={{ width: 46, height: 32, background: 'transparent', border: 'none', color: '#888', fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
-        </div>
       </div>
       {/* Code */}
       <pre style={{

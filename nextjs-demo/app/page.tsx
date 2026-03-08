@@ -84,7 +84,7 @@ const DNA_CSS = `
     font-size: 0.72rem; color: var(--vt3); margin-top: 0.25rem;
   }
 
-  /* ─ WIN11 TERMINAL ─ */
+  /* ─ macOS TERMINAL ─ */
   .vhome-terminal {
     background: #0C0C0C; border-radius: 0.5rem; overflow: hidden;
     border: 1px solid #2d2d2d;
@@ -93,37 +93,27 @@ const DNA_CSS = `
   }
   .vhome-terminal-titlebar {
     display: flex; align-items: center;
-    padding: 0 0; height: 32px;
+    padding: 0 0.875rem; height: 32px; gap: 0;
     background: #1C1C1C; border-bottom: 1px solid #2d2d2d;
+  }
+  .vhome-terminal-dots {
+    display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+  }
+  .vhome-terminal-dot {
+    width: 12px; height: 12px; border-radius: 50%;
   }
   .vhome-terminal-title {
     font-size: 0.72rem; color: #888;
     font-family: 'Cascadia Code', Menlo, Monaco, monospace;
-    flex: 1; padding-left: 0.875rem;
-  }
-  .vhome-terminal-controls {
-    display: flex; align-items: stretch; height: 32px; flex-shrink: 0;
-  }
-  .vhome-terminal-ctrl {
-    display: flex; align-items: center; justify-content: center;
-    width: 46px; font-size: 0.7rem; color: #888;
-    cursor: pointer; transition: background 0.15s; border: none;
-    background: transparent; font-family: inherit;
-  }
-  .vhome-terminal-ctrl:hover { background: rgba(255,255,255,0.08); color: #ccc; }
-  .vhome-terminal-ctrl.close:hover { background: #e81123; color: #fff; }
-  .vhome-terminal-action-bar {
-    display: flex; align-items: center; justify-content: flex-end;
-    background: #141414; border-bottom: 1px solid #1e1e1e;
-    padding: 0 0.75rem; height: 28px;
+    flex: 1; text-align: center;
   }
   .vhome-terminal-copy {
-    font-size: 0.7rem; font-weight: 600; padding: 0.2rem 0.5rem;
-    border-radius: 0.2rem; cursor: pointer; border: none;
+    font-size: 0.68rem; font-weight: 600; padding: 0.15rem 0.625rem;
+    height: 22px; border-radius: 0.25rem; cursor: pointer; border: none;
     font-family: 'Cascadia Code', Consolas, monospace;
     transition: all 0.15s; flex-shrink: 0;
   }
-  .vhome-terminal-copy.idle { background: #333; color: #888; }
+  .vhome-terminal-copy.idle { background: rgba(255,255,255,0.08); color: #888; }
   .vhome-terminal-copy.copied { background: rgba(14,203,129,0.15); color: #0ecb81; }
   .vhome-terminal-code {
     padding: 1.25rem 1.5rem; overflow-x: hidden; overflow-y: auto;
@@ -691,14 +681,15 @@ function Win11Terminal({ filename, children }: { filename: string; children: str
   return (
     <div className="vhome-terminal">
       <div className="vhome-terminal-titlebar">
-        <span className="vhome-terminal-title">{filename}</span>
-        <div className="vhome-terminal-controls">
-          <button className="vhome-terminal-ctrl">─</button>
-          <button className="vhome-terminal-ctrl">□</button>
-          <button className="vhome-terminal-ctrl close">✕</button>
+        {/* macOS dots — left */}
+        <div className="vhome-terminal-dots">
+          <div className="vhome-terminal-dot" style={{ background: '#ff5f57' }} />
+          <div className="vhome-terminal-dot" style={{ background: '#ffbd2e' }} />
+          <div className="vhome-terminal-dot" style={{ background: '#28c840' }} />
         </div>
-      </div>
-      <div className="vhome-terminal-action-bar">
+        {/* filename — center */}
+        <span className="vhome-terminal-title">{filename}</span>
+        {/* Copy button — right */}
         <button
           className={`vhome-terminal-copy ${copied ? 'copied' : 'idle'}`}
           onClick={handleCopy}
