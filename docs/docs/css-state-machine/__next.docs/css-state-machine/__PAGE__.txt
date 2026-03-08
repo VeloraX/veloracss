@@ -1,0 +1,39 @@
+1:"$Sreact.fragment"
+2:I[46193,["/veloracss/_next/static/chunks/f4b72a572e01d135.js","/veloracss/_next/static/chunks/c1712021cf274e24.js"],"default"]
+7:I[93373,["/veloracss/_next/static/chunks/89d43586d21f2643.js","/veloracss/_next/static/chunks/27e596ffa243fe8c.js"],"OutletBoundary"]
+8:"$Sreact.suspense"
+3:T67e,<div class="vel-sm-tabs">
+  <input class="vel-sm-tab-input" type="radio" name="demo-tabs" id="tab1" checked />
+  <input class="vel-sm-tab-input" type="radio" name="demo-tabs" id="tab2" />
+  <input class="vel-sm-tab-input" type="radio" name="demo-tabs" id="tab3" />
+  <div class="vel-flex vel-gap-0" style="border-bottom:1px solid #1e2d45;margin-bottom:1rem">
+    <label class="vel-sm-tab-label" for="tab1" style="padding:0.5rem 1.25rem;cursor:pointer;font-size:0.875rem;font-weight:500;color:#64748b;border-bottom:2px solid transparent">Overview</label>
+    <label class="vel-sm-tab-label" for="tab2" style="padding:0.5rem 1.25rem;cursor:pointer;font-size:0.875rem;font-weight:500;color:#64748b;border-bottom:2px solid transparent">Features</label>
+    <label class="vel-sm-tab-label" for="tab3" style="padding:0.5rem 1.25rem;cursor:pointer;font-size:0.875rem;font-weight:500;color:#64748b;border-bottom:2px solid transparent">Install</label>
+  </div>
+  <div class="vel-sm-tab-panel" style="color:#94a3b8;font-size:0.875rem;line-height:1.6">VeloraCSS is a utility-first framework with Color Genetics, Container Intelligence, and zero-JS state machines built in.</div>
+  <div class="vel-sm-tab-panel" style="color:#94a3b8;font-size:0.875rem;line-height:1.6">300+ utilities · 29 components · 6 CSS innovations · 0 dependencies. Everything ships in one CSS file.</div>
+  <div class="vel-sm-tab-panel" style="color:#94a3b8;font-size:0.875rem;line-height:1.6"><code style="font-family:Cascadia Code,Consolas,monospace;background:#0d1422;padding:0.2rem 0.5rem;border-radius:4px;color:#a87fff">npm install veloracss</code> — then import the CSS. Done.</div>
+</div>4:T73c,<div style="display:flex;flex-direction:column;gap:0.5rem;max-width:420px">
+  <div class="vel-sm-toggle" style="border:1px solid #1e2d45;border-radius:8px;overflow:hidden">
+    <input class="vel-sm-toggle-input" type="checkbox" id="acc1" />
+    <label class="vel-sm-toggle-label" for="acc1" style="display:flex;justify-content:space-between;align-items:center;padding:0.875rem 1rem;cursor:pointer;font-size:0.875rem;font-weight:600;color:#e2e8f0;background:#0d1422">
+      What is Color Genetics? <span>↓</span>
+    </label>
+    <div class="vel-sm-toggle-panel" style="padding:0.875rem 1rem;color:#64748b;font-size:0.8125rem;line-height:1.6;background:#060b17">
+      One CSS variable — <code style="font-family:Cascadia Code,Consolas,monospace;color:#a87fff">--vel-dna-hue</code> — drives 50+ derived colors via <code style="font-family:Cascadia Code,Consolas,monospace;color:#a87fff">oklch()</code>. Change one number and your entire UI recolors.
+    </div>
+  </div>
+  <div class="vel-sm-toggle" style="border:1px solid #1e2d45;border-radius:8px;overflow:hidden">
+    <input class="vel-sm-toggle-input" type="checkbox" id="acc2" />
+    <label class="vel-sm-toggle-label" for="acc2" style="display:flex;justify-content:space-between;align-items:center;padding:0.875rem 1rem;cursor:pointer;font-size:0.875rem;font-weight:600;color:#e2e8f0;background:#0d1422">
+      What is Container Intelligence? <span>↓</span>
+    </label>
+    <div class="vel-sm-toggle-panel" style="padding:0.875rem 1rem;color:#64748b;font-size:0.8125rem;line-height:1.6;background:#060b17">
+      Components respond to their own container width using <code style="font-family:Cascadia Code,Consolas,monospace;color:#a87fff">@container</code> queries. The same card can be one column at 300px and two columns at 500px — no media queries needed.
+    </div>
+  </div>
+</div>0:{"buildId":"0ithD1hI1hiVyxONKVwTv","rsc":["$","$1","c",{"children":[["$","$L2",null,{"title":"CSS State Machine","description":"Zero-JavaScript tabs, toggles, and accordions powered by :has() + radio/checkbox inputs. No event listeners, no JavaScript — pure CSS state.","source":"state-machine.css","table":[{"class":"vel-sm-tabs","properties":"Zero-JS tab container (:has() + radio inputs)"},{"class":"vel-sm-tab-input","properties":"Hidden radio input driving tab state"},{"class":"vel-sm-tab-label","properties":"Clickable tab label"},{"class":"vel-sm-tab-panel","properties":"Tab content panel (hidden until selected)"},{"class":"vel-sm-toggle","properties":"Zero-JS disclosure/accordion container"},{"class":"vel-sm-toggle-input","properties":"Hidden checkbox driving open/closed"},{"class":"vel-sm-toggle-label","properties":"Clickable toggle trigger"},{"class":"vel-sm-toggle-panel","properties":"Collapsible content panel"}],"examples":[{"label":"Zero-JS tabs — no JavaScript, no event listeners","html":"$3"},{"label":"Zero-JS accordion/toggle — CSS :has() drives open/closed","html":"$4"}]}],["$L5"],"$L6"]}],"loading":null,"isPartial":false}
+5:["$","script","script-0",{"src":"/veloracss/_next/static/chunks/c1712021cf274e24.js","async":true}]
+6:["$","$L7",null,{"children":["$","$8",null,{"name":"Next.MetadataOutlet","children":"$@9"}]}]
+9:null

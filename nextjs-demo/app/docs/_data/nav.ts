@@ -212,4 +212,13 @@ export const navSections: NavSection[] = [
       { label: 'Pricing', slug: 'pricing' },
     ],
   },
+  {
+    title: 'Innovations',
+    items: [
+      { label: 'Container Queries', slug: 'container-queries' },
+      { label: 'CSS State Machine', slug: 'css-state-machine' },
+      { label: 'Scope Theming', slug: 'scope-theming' },
+      { label: 'Smart Forms', slug: 'smart-forms' },
+    ],
+  },
 ]
