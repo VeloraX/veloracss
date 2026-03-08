@@ -3,8 +3,8 @@
 import { useState, useCallback } from 'react'
 import Link from 'next/link'
 
-const IS_PROD = process.env.NODE_ENV === 'production'
-const DOCS_URL = IS_PROD ? '/veloracss/docs' : '/docs'
+// Next.js Link prepends basePath automatically — never include it in href
+const DOCS_URL = '/docs'
 
 const DNA_CSS = `
   #vel-404 {

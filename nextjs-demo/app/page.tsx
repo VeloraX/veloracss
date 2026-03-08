@@ -1,13 +1,14 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import Link from 'next/link'
 
 // ─── Build-time constants ─────────────────────────────────────────────────────
-const IS_PROD       = process.env.NODE_ENV === 'production'
-const BASE_PATH     = IS_PROD ? '/veloracss' : ''
+const IS_PROD        = process.env.NODE_ENV === 'production'
+const BASE_PATH      = IS_PROD ? '/veloracss' : ''
 const PLAYGROUND_URL = IS_PROD ? 'https://velorax.github.io/veloracss/playground' : 'http://localhost:5173'
-const DOCS_URL       = IS_PROD ? '/veloracss/docs' : '/docs'
+// Next.js Link prepends basePath automatically — never include it in href
+const DOCS_URL       = '/docs'
 
 // ─── DNA Token CSS (scoped to #vel-home) ─────────────────────────────────────
 const DNA_CSS = `
@@ -481,19 +482,27 @@ const DNA_CSS = `
 // ─── macOS Terminal Component ─────────────────────────────────────────────────
 function MacTerminal({ filename, children }: { filename: string; children: string }) {
   const [copied, setCopied] = useState(false)
+  const preRef = useRef<HTMLPreElement>(null)
 
   const handleCopy = useCallback(() => {
-    const plain = children.replace(/<[^>]+>/g, '')
-    const el = document.createElement('textarea')
-    el.value = plain
-    el.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0'
-    document.body.appendChild(el)
-    el.focus()
-    el.select()
-    document.execCommand('copy')
-    document.body.removeChild(el)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    // Use DOM textContent — strips HTML tags AND decodes entities correctly
+    const text = preRef.current?.textContent ?? children.replace(/<[^>]+>/g, '')
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }).catch(() => {
+      // execCommand fallback
+      const ta = document.createElement('textarea')
+      ta.value = text
+      ta.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:1px;opacity:0.01'
+      document.body.appendChild(ta)
+      ta.focus()
+      ta.select()
+      document.execCommand('copy')
+      document.body.removeChild(ta)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
   }, [children])
 
   return (
@@ -512,7 +521,7 @@ function MacTerminal({ filename, children }: { filename: string; children: strin
           {copied ? '✓ Copied' : 'Copy'}
         </button>
       </div>
-      <pre className="vhome-terminal-code">
+      <pre ref={preRef} className="vhome-terminal-code">
         <code dangerouslySetInnerHTML={{ __html: children }} />
       </pre>
     </div>
