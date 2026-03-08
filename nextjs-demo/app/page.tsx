@@ -36,6 +36,7 @@ const DNA_CSS = `
     font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
+    min-height: 100dvh;
   }
   #vel-home * { box-sizing: border-box; }
 
@@ -353,7 +354,8 @@ const DNA_CSS = `
   }
 
   /* ─ PALETTE SWATCHES ─ */
-  .vhome-swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.5rem; }
+  .vhome-swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+  @media (max-width: 640px) { .vhome-swatches { grid-template-columns: repeat(2, 1fr); } }
   .vhome-swatch { border-radius: 0.5rem; overflow: hidden; border: 1px solid var(--vborder-dim); }
   .vhome-swatch-color { height: 56px; transition: all var(--dur) var(--ease); }
   .vhome-swatch-label {
@@ -361,6 +363,9 @@ const DNA_CSS = `
     font-size: 0.65rem; color: var(--vt3);
     font-family: 'Cascadia Code', Consolas, monospace;
   }
+  .vhome-swatch-info { padding: 0.375rem 0.5rem; background: var(--vs2); }
+  .vhome-swatch-name { font-size: 0.7rem; font-weight: 600; color: var(--vt2); display: block; }
+  .vhome-swatch-var { font-size: 0.62rem; color: var(--vt3); font-family: 'Cascadia Code', Consolas, monospace; }
 
   /* ─ FORM DEMO (CSS-only validation) ─ */
   .vhome-field { display: grid; gap: 0.375rem; }
@@ -441,11 +446,85 @@ const DNA_CSS = `
     transition: all var(--dur) var(--ease);
   }
   .vhome-scope-card-icon {
-    font-size: 1.5rem; margin-bottom: 0.5rem;
-    transition: color var(--dur) var(--ease);
+    width: 40px; height: 40px; border-radius: 0.5rem;
+    background: var(--vp-subtle); border: 1px solid var(--vp-glow);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.125rem; margin-bottom: 0.625rem;
+    color: var(--vp); transition: all var(--dur) var(--ease);
   }
   .vhome-scope-card-title { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem; }
   .vhome-scope-card-desc { font-size: 0.75rem; color: var(--vt3); line-height: 1.4; }
+
+  /* ─ DNA-TOKEN BUTTONS (used in scope demo so they respond to theme changes) ─ */
+  .vhome-btn-primary {
+    background: var(--vp); color: oklch(12% 0.02 var(--vel-dna-hue));
+    border: none; border-radius: 0.5rem; padding: 0.625rem 1.25rem;
+    font-size: 0.875rem; font-weight: 600; cursor: pointer; font-family: inherit;
+    transition: all var(--dur) var(--ease);
+  }
+  .vhome-btn-primary:hover { background: var(--vp-light); transform: translateY(-1px); }
+  .vhome-btn-outline {
+    background: transparent; color: var(--vp);
+    border: 1px solid var(--vp-glow); border-radius: 0.5rem; padding: 0.625rem 1.25rem;
+    font-size: 0.875rem; font-weight: 500; cursor: pointer; font-family: inherit;
+    transition: all var(--dur) var(--ease);
+  }
+  .vhome-btn-outline:hover { border-color: var(--vp); background: var(--vp-subtle); }
+
+  /* ─ CSS STATE MACHINE TABS ─ */
+  .vhome-tabs-demo {
+    background: var(--vs2); border: 1px solid var(--vborder);
+    border-radius: 1rem; overflow: hidden;
+  }
+  .vhome-tabs-demo input[type="radio"] {
+    position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;
+  }
+  .vhome-tabs-nav {
+    display: flex; background: var(--vs3); border-bottom: 1px solid var(--vborder); gap: 0;
+  }
+  .vhome-tabs-nav label {
+    padding: 0.75rem 1.5rem; font-size: 0.875rem; font-weight: 500; color: var(--vt3);
+    cursor: pointer; border-bottom: 2px solid transparent;
+    transition: all var(--dur) var(--ease); user-select: none; position: relative; bottom: -1px;
+  }
+  .vhome-tabs-nav label:hover { color: var(--vt1); }
+  .vhome-tab-panels { padding: 1.5rem; }
+  .vhome-tab-panel { display: none; animation: vhome-fade-up 0.25s var(--ease) both; }
+  .vhome-tab-panel h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--vt1); }
+  .vhome-tab-panel > p { color: var(--vt2); font-size: 0.875rem; line-height: 1.7; margin-bottom: 1rem; }
+  .vhome-tab-panel code { font-family: 'Cascadia Code', Consolas, monospace; font-size: 0.875em; color: var(--vp-light); background: var(--vp-subtle); padding: 0.1em 0.4em; border-radius: 0.25rem; }
+  @keyframes vhome-fade-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  /* :has() selectors — show active tab panel + highlight active label */
+  #vel-home .vhome-tabs-demo:has(#h-tab-1:checked) label[for="h-tab-1"],
+  #vel-home .vhome-tabs-demo:has(#h-tab-2:checked) label[for="h-tab-2"],
+  #vel-home .vhome-tabs-demo:has(#h-tab-3:checked) label[for="h-tab-3"] {
+    color: var(--vp); border-bottom-color: var(--vp);
+  }
+  #vel-home .vhome-tabs-demo:has(#h-tab-1:checked) #h-panel-1,
+  #vel-home .vhome-tabs-demo:has(#h-tab-2:checked) #h-panel-2,
+  #vel-home .vhome-tabs-demo:has(#h-tab-3:checked) #h-panel-3 { display: block; }
+  /* Mini-feature grid inside tabs */
+  .vhome-mini-features { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem; margin-top: 1rem; }
+  .vhome-mini-feature { display: flex; align-items: flex-start; gap: 0.625rem; padding: 0.75rem; background: var(--vs3); border: 1px solid var(--vborder); border-radius: 0.625rem; }
+  .vhome-mini-feature-icon { width: 28px; height: 28px; border-radius: 0.375rem; background: var(--vp-subtle); border: 1px solid var(--vp-glow); display: flex; align-items: center; justify-content: center; font-size: 0.875rem; flex-shrink: 0; }
+  .vhome-mini-feature-title { font-size: 0.875rem; font-weight: 600; color: var(--vt1); margin-bottom: 0.125rem; }
+  .vhome-mini-feature-desc { font-size: 0.72rem; color: var(--vt3); line-height: 1.4; }
+  /* Compare grid */
+  .vhome-compare-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
+  @media (max-width: 640px) { .vhome-compare-row { grid-template-columns: 1fr; } }
+  .vhome-compare-cell { border-radius: 0.5rem; overflow: hidden; border: 1px solid var(--vborder); }
+  .vhome-compare-header { padding: 0.5rem 0.75rem; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+  .vhome-compare-bad { background: oklch(15% 0.05 0); color: oklch(60% 0.2 20); border-bottom: 1px solid oklch(25% 0.08 0); }
+  .vhome-compare-good { background: var(--vp-subtle); color: var(--vp); border-bottom: 1px solid var(--vp-glow); }
+  .vhome-compare-cell pre { padding: 0.75rem; font-size: 0.72rem; line-height: 1.6; color: var(--vt2); background: var(--vs2); font-family: 'Cascadia Code', Consolas, monospace; white-space: pre-wrap; margin: 0; }
+
+  /* ─ FOOTER BADGE ─ */
+  .vhome-footer-badge {
+    display: inline-flex; align-items: center;
+    font-size: 0.7rem; font-weight: 500; letter-spacing: 0.03em;
+    color: var(--vp); border: 1px solid var(--vp-glow);
+    background: var(--vp-subtle); border-radius: 9999px; padding: 0.35rem 1rem;
+  }
 
   /* ─ CTA SECTION ─ */
   .vhome-cta-section {
@@ -569,8 +648,8 @@ function ScopeThemeDemo() {
           ))}
         </div>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button className="vel-btn vel-btn-primary">Themed Button</button>
-          <button className="vel-btn vel-btn-outline-primary">Secondary</button>
+          <button className="vhome-btn-primary">Themed Button</button>
+          <button className="vhome-btn-outline">Secondary</button>
         </div>
       </div>
     </>
@@ -725,16 +804,21 @@ export default function Home() {
               <div>
                 <div className="vhome-swatches" style={{ marginBottom: '1rem' }}>
                   {[
-                    { label: 'primary', bg: 'var(--vp)' },
-                    { label: 'light', bg: 'var(--vp-light)' },
-                    { label: 'dim', bg: 'var(--vp-dim)' },
-                    { label: 'surface 0', bg: 'var(--vs0)' },
-                    { label: 'surface 3', bg: 'var(--vs3)' },
-                    { label: 'border', bg: 'var(--vborder)' },
+                    { label: 'Primary',      sub: 'oklch(65% 0.21 hue)',   bg: 'var(--vp)' },
+                    { label: 'Primary Light',sub: 'oklch(80% 0.14 hue)',   bg: 'var(--vp-light)' },
+                    { label: 'Primary Dim',  sub: 'oklch(50% 0.22 hue)',   bg: 'var(--vp-dim)' },
+                    { label: 'Surface 0',    sub: 'oklch(7% 0.02 hue)',    bg: 'var(--vs0)' },
+                    { label: 'Surface 3',    sub: 'oklch(17% 0.035 hue)',  bg: 'var(--vs3)' },
+                    { label: 'Border',       sub: 'oklch(26% 0.045 hue)',  bg: 'var(--vborder)' },
+                    { label: 'Text Primary', sub: 'oklch(92% 0.015 hue)',  bg: 'var(--vt1)' },
+                    { label: 'Text Muted',   sub: 'oklch(50% 0.04 hue)',   bg: 'var(--vt3)' },
                   ].map(s => (
                     <div key={s.label} className="vhome-swatch">
                       <div className="vhome-swatch-color" style={{ background: s.bg }} />
-                      <div className="vhome-swatch-label">{s.label}</div>
+                      <div className="vhome-swatch-info">
+                        <span className="vhome-swatch-name">{s.label}</span>
+                        <span className="vhome-swatch-var">{s.sub}</span>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -807,6 +891,105 @@ export default function Home() {
 <span class="tc-comment">/* Result: works in any layout — sidebar, grid, full-width */</span>
 <span class="tc-comment">/* No JavaScript. No class toggling. Just CSS. */</span>`}
                 </MacTerminal>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ─── CSS STATE MACHINE ─── */}
+        <section className="vhome-section">
+          <div className="vhome-wrap">
+            <span className="vhome-section-eyebrow">Innovation 03</span>
+            <h2 className="vhome-section-title">Tabs, toggles, state.<br />Zero JavaScript.</h2>
+            <p className="vhome-section-desc">
+              VeloraCSS uses <code>:has()</code> — the "parent selector" — to make containers aware of
+              their children's state. Radio inputs drive the state machine. CSS reads which one is checked
+              and updates the entire UI. No event listeners. No DOM manipulation.
+            </p>
+            <div className="vhome-tabs-demo">
+              {/* Hidden radio inputs — the state machine */}
+              <input type="radio" name="hometab" id="h-tab-1" defaultChecked />
+              <input type="radio" name="hometab" id="h-tab-2" />
+              <input type="radio" name="hometab" id="h-tab-3" />
+              {/* Labels become clickable tab buttons */}
+              <div className="vhome-tabs-nav">
+                <label htmlFor="h-tab-1">Overview</label>
+                <label htmlFor="h-tab-2">How it works</label>
+                <label htmlFor="h-tab-3">vs. Tailwind</label>
+              </div>
+              <div className="vhome-tab-panels">
+                {/* Panel 1 */}
+                <div className="vhome-tab-panel" id="h-panel-1">
+                  <h3>:has() makes parents aware of their children</h3>
+                  <p>The CSS <code>:has()</code> pseudo-class is the first true parent selector. It lets a container change its own styles based on what's happening inside it — without JavaScript reading the DOM.</p>
+                  <div className="vhome-mini-features">
+                    {[
+                      { icon: '⚡', title: 'Zero JS', desc: 'State machine runs entirely in CSS' },
+                      { icon: '🎯', title: 'Cascades', desc: 'Child state propagates to parent and siblings' },
+                      { icon: '♿', title: 'Accessible', desc: 'Native radio semantics, keyboard navigable' },
+                      { icon: '🔋', title: 'Performant', desc: 'No JS parsing, no event listeners, no re-renders' },
+                    ].map(f => (
+                      <div key={f.title} className="vhome-mini-feature">
+                        <div className="vhome-mini-feature-icon">{f.icon}</div>
+                        <div>
+                          <div className="vhome-mini-feature-title">{f.title}</div>
+                          <div className="vhome-mini-feature-desc">{f.desc}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* Panel 2 */}
+                <div className="vhome-tab-panel" id="h-panel-2">
+                  <h3>The entire tab system is ~8 lines of CSS</h3>
+                  <p>These tabs are powered by a radio group + <code>:has()</code>. The browser tracks which radio is checked. CSS reads that state and updates the UI. Click between tabs — you&apos;re executing a state machine with zero JavaScript.</p>
+                  <MacTerminal filename="velora.css">
+{`<span class="tc-comment">/* Panel visibility — :has() reads radio state */</span>
+<span class="tc-cls">.vel-tabs</span>:<span class="tc-fn">has</span>(#tab-1:<span class="tc-fn">checked</span>) #panel-1 { <span class="tc-prop">display</span>: <span class="tc-kw">block</span>; }
+<span class="tc-cls">.vel-tabs</span>:<span class="tc-fn">has</span>(#tab-2:<span class="tc-fn">checked</span>) #panel-2 { <span class="tc-prop">display</span>: <span class="tc-kw">block</span>; }
+
+<span class="tc-comment">/* Active tab highlight — parent reacts to child state */</span>
+<span class="tc-cls">.vel-tabs</span>:<span class="tc-fn">has</span>(#tab-1:<span class="tc-fn">checked</span>) label[for=tab-1] {
+  <span class="tc-prop">color</span>: <span class="tc-fn">var</span>(<span class="tc-prop">--vel-color-primary</span>);
+  <span class="tc-prop">border-bottom-color</span>: <span class="tc-fn">var</span>(<span class="tc-prop">--vel-color-primary</span>);
+}
+
+<span class="tc-comment">/* Zero JavaScript. Browser tracks state natively. */</span>`}
+                  </MacTerminal>
+                </div>
+                {/* Panel 3 */}
+                <div className="vhome-tab-panel" id="h-panel-3">
+                  <h3>What you&apos;d write in Tailwind vs. VeloraCSS</h3>
+                  <div className="vhome-compare-row">
+                    <div className="vhome-compare-cell">
+                      <div className="vhome-compare-header vhome-compare-bad">Tailwind approach</div>
+                      <pre>{`// JavaScript required
+const [tab, setTab] = useState(0)
+
+// Class toggling in JSX
+className={tab === 0
+  ? 'border-b-2 border-indigo-500'
+  : 'text-gray-500'}
+
+// Event handler
+onClick={() => setTab(0)}`}</pre>
+                    </div>
+                    <div className="vhome-compare-cell">
+                      <div className="vhome-compare-header vhome-compare-good">VeloraCSS approach</div>
+                      <pre>{`<!-- Just HTML + CSS, no JS -->
+<input type="radio" id="t1" checked>
+<label for="t1">Tab 1</label>
+
+/* In CSS */
+.tabs:has(#t1:checked) #panel-1 {
+  display: block;
+}`}</pre>
+                    </div>
+                  </div>
+                  <p style={{ color: 'var(--vt3)', fontSize: '0.8rem', margin: 0 }}>
+                    The Tailwind pattern requires a JavaScript framework, component state, and event listeners. VeloraCSS requires none of that — it works in plain HTML.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -1038,12 +1221,17 @@ export default function Home() {
 
         {/* ─── FOOTER ─── */}
         <footer className="vhome-footer">
-          <div className="vhome-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', width: '100%' }}>
-            <span className="vhome-footer-copy">VeloraCSS v0.3.0 — AI-designed. Human-shipped.</span>
-            <div className="vhome-footer-links">
-              <Link href={DOCS_URL} className="vhome-footer-link">Docs</Link>
-              <a href={PLAYGROUND_URL} target="_blank" rel="noopener noreferrer" className="vhome-footer-link">Playground</a>
-              <a href="https://github.com/VeloraX/veloracss" target="_blank" rel="noopener noreferrer" className="vhome-footer-link">GitHub</a>
+          <div className="vhome-wrap" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', width: '100%' }}>
+            <span className="vhome-footer-badge">
+              Color Genetics · Container Intelligence · CSS State Machine · Scope Theming · Smart Forms · Fluid Scale
+            </span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', width: '100%' }}>
+              <span className="vhome-footer-copy">VeloraCSS v0.3.0 — AI-designed. Human-shipped.</span>
+              <div className="vhome-footer-links">
+                <Link href={DOCS_URL} className="vhome-footer-link">Docs</Link>
+                <a href={PLAYGROUND_URL} target="_blank" rel="noopener noreferrer" className="vhome-footer-link">Playground</a>
+                <a href="https://github.com/VeloraX/veloracss" target="_blank" rel="noopener noreferrer" className="vhome-footer-link">GitHub</a>
+              </div>
             </div>
           </div>
         </footer>
