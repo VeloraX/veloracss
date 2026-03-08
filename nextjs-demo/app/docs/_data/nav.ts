@@ -19,6 +19,7 @@ export const navSections: NavSection[] = [
       { label: 'Dark Mode', slug: 'dark-mode' },
       { label: 'Theme Variables', slug: 'theme-variables' },
       { label: 'Colors', slug: 'colors' },
+      { label: 'velora.config.js', slug: 'velora-config' },
     ],
   },
   {

@@ -281,6 +281,45 @@ npm install veloracss`} />
         </div>
       </section>
 
+      {/* CDN */}
+      <section style={{ marginBottom: '2.5rem' }}>
+        <SectionTitle>CDN</SectionTitle>
+        <p style={{ color: C.muted, fontSize: '0.9rem', lineHeight: 1.7, marginBottom: '1rem' }}>
+          Use VeloraCSS without npm via jsDelivr. No build step required — drop the link tag in your{' '}
+          <Inline>&lt;head&gt;</Inline> and start using <Inline>vel-</Inline> classes immediately.
+        </p>
+        <div style={{ display: 'grid', gap: '0.75rem' }}>
+          <div>
+            <p style={{ color: C.dim, fontSize: '0.8rem', marginBottom: '0.5rem' }}>Latest (auto-updates to newest 1.x):</p>
+            <MacTerminal filename="index.html" code={`<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/veloracss@1/dist/velora.min.css">`} />
+          </div>
+          <div>
+            <p style={{ color: C.dim, fontSize: '0.8rem', marginBottom: '0.5rem' }}>Pinned to v1.0.0 (no surprise updates):</p>
+            <MacTerminal filename="index.html" code={`<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/veloracss@1.0.0/dist/velora.min.css">`} />
+          </div>
+        </div>
+        {/* Live preview */}
+        <div style={{
+          marginTop: '1rem', background: C.surface, border: `1px solid ${C.border}`,
+          borderRadius: '0.5rem', padding: '1.5rem',
+        }}>
+          <div className="vel-card vel-p-5">
+            <div className="vel-text-xs vel-font-bold vel-text-primary vel-mb-3" style={{ textTransform: 'uppercase', letterSpacing: '0.1em' }}>Add this to your HTML &lt;head&gt;</div>
+            <div className="vel-text-muted vel-text-sm vel-mb-4" style={{ lineHeight: 1.6 }}>No build step, no npm required. Drop the link tag in and start using vel- classes immediately.</div>
+            <div style={{ display: 'grid', gap: '0.75rem' }}>
+              <div className="vel-flex vel-items-center vel-gap-2">
+                <span className="vel-badge vel-badge-primary vel-badge-sm">Latest</span>
+                <code className="vel-text-xs" style={{ fontFamily: 'Cascadia Code,Consolas,monospace', color: '#94a3b8' }}>&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/veloracss@1/dist/velora.min.css"&gt;</code>
+              </div>
+              <div className="vel-flex vel-items-center vel-gap-2">
+                <span className="vel-badge vel-badge-sm" style={{ background: 'rgba(14,203,129,0.15)', color: '#0ecb81', border: '1px solid rgba(14,203,129,0.2)' }}>Pinned</span>
+                <code className="vel-text-xs" style={{ fontFamily: 'Cascadia Code,Consolas,monospace', color: '#94a3b8' }}>&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/veloracss@1.0.0/dist/velora.min.css"&gt;</code>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Edit on GitHub */}
       <div style={{ marginTop: '3rem', paddingTop: '1.5rem', borderTop: `1px solid ${C.border}` }}>
         <a

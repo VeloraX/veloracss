@@ -87,7 +87,7 @@ _Last updated: 2026-03-08. Updated at every milestone. Add items here whenever a
 
 - [ ] **CHANGELOG.md** — document what's new in v1.0.0 vs 0.x
 - [ ] **velora.config.js docs page** — how to override tokens and customize the framework
-- [ ] **Docs search** — client-side fuzzy search across all 142+ pages
+- [x] **Docs search** — already built into DocsSidebar (live filter on label + slug)
 - [ ] **CDN links** — jsDelivr / unpkg install option in Getting Started docs
 - [ ] QA pass on color-genetics + fluid-scale docs pages (newly added, not yet QA'd)
 - [ ] Product Hunt launch post (after npm is live)
