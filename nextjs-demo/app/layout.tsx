@@ -1,6 +1,8 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import '../styles/velora.css'
 import './globals.css'
+
+export const viewport: Viewport = { colorScheme: 'dark' }
 
 export const metadata: Metadata = {
   title: 'VeloraCSS — Next.js Demo',
