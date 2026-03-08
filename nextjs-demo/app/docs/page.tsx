@@ -1,5 +1,9 @@
-import { redirect } from 'next/navigation'
+'use client'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function DocsPage() {
-  redirect('/docs/getting-started')
+  const router = useRouter()
+  useEffect(() => { router.replace('/docs/getting-started') }, [router])
+  return null
 }
