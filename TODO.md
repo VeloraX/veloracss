@@ -109,11 +109,13 @@ _Last updated: 2026-03-08. Updated at every milestone. Add items here whenever a
 ## 🔵 FUTURE — v2 Ideas
 
 - [ ] JetBrains plugin
-- [ ] Charts — Bar chart (CSS flex) + Progress Ring (SVG stroke-dasharray) — in progress (architect spec complete)
+- [x] Charts — Bar chart (CSS flex + --vel-bar-h) + Progress Ring (SVG + --vel-ring-pct), docs page
 - [x] Dark/light mode toggle on docs site — ThemeToggle in sidebar, persists via localStorage, full CSS-var theming
 - [ ] Create the playground other sites wish they had: https://play.tailwindcss.com/ but with live editing of all 22 components + token sliders + config editor and instant preview and copyable code snippets and exportable sandbox link and more
 - [ ] Dark/light mode toggle on playground site
-- [ ] Calendar component — in progress (architect spec complete)
+- [x] Calendar component — full month grid, range selection, mini variant, event dots, disabled days, docs page
 - [x] Carousel component — zero-JS :has() + radio inputs, up to 6 slides, dots, captions, arrows
 - [ ] Social media presence (@veloracss)
 - [ ] Sponsorship / Open Collective
+- [ ] Create a F12 DevTools panel for inspecting VeloraCSS tokens and components in any site using the framework
+

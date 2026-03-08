@@ -1808,6 +1808,7 @@ onClick={() => setTab(0)}`}</pre>
               <div className="vel-flex vel-gap-6">
                 <Link href={DOCS_URL} className="vhome-footer-link">Docs</Link>
                 <a href={PLAYGROUND_URL} target="_blank" rel="noopener noreferrer" className="vhome-footer-link">Playground</a>
+                <Link href="/community" className="vhome-footer-link">Community</Link>
                 <a href="https://github.com/VeloraX/veloracss" target="_blank" rel="noopener noreferrer" className="vhome-footer-link">GitHub</a>
                 <a href="https://discord.gg/RKmSyudqAv" target="_blank" rel="noopener noreferrer" className="vhome-footer-link">Discord</a>
               </div>
