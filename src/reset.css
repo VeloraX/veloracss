@@ -171,6 +171,6 @@ img, video {
 ::-webkit-scrollbar              { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track        { background: var(--vel-surface-0); }
 ::-webkit-scrollbar-thumb        { background: var(--vel-border-base); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover  { background: #2d4060; }
+::-webkit-scrollbar-thumb:hover  { background: var(--vel-scrollbar-thumb-hover); }
 ::-webkit-scrollbar-corner       { background: var(--vel-surface-0); }
 * { scrollbar-width: thin; scrollbar-color: var(--vel-border-base) var(--vel-surface-0); }

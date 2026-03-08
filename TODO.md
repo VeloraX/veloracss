@@ -89,7 +89,7 @@ _Last updated: 2026-03-08. Updated at every milestone. Add items here whenever a
 - [x] **velora.config.js docs page** — how to override tokens and customize the framework
 - [x] **Docs search** — already built into DocsSidebar (live filter on label + slug)
 - [x] **CDN links** — jsDelivr / unpkg install option in Getting Started docs
-- [ ] QA pass on color-genetics + fluid-scale docs pages (newly added, not yet QA'd)
+- [x] QA pass on color-genetics + fluid-scale docs pages — 7 issues fixed (wrong token names, wrong clamp values, redundant classes)
 - [ ] Product Hunt launch post (after npm is live)
 
 ---
@@ -101,8 +101,8 @@ _Last updated: 2026-03-08. Updated at every milestone. Add items here whenever a
 - [ ] **Build-time purging** — strip unused classes for production
 - [ ] **Light mode** — `data-vel-mode="light"` support
 - [ ] **CLI** — `npx veloracss init`, `velora build`, `velora watch`
-- [ ] Contributing guide + issue templates
-- [ ] Discord / community
+- [x] Contributing guide + issue templates — CONTRIBUTING.md + .github/ISSUE_TEMPLATE/ + PR template
+- [x] Discord / community — https://discord.gg/RKmSyudqAv added to homepage footer + CONTRIBUTING.md
 
 ---
 

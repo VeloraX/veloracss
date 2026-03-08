@@ -10,6 +10,82 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const entry = resolve(__dirname, 'src/velora.css')
 const outDir = resolve(__dirname, 'dist')
 
+// ─── velora.config.js support ────────────────────────────────────────────────
+
+const TOKEN_MAP = {
+  dnaHue:            '--vel-dna-hue',
+  colorPrimary:      '--vel-color-primary',
+  colorPrimaryHover: '--vel-color-primary-hover',
+  colorPrimaryLight: '--vel-color-primary-light',
+  colorPrimaryFg:    '--vel-color-primary-fg',
+  surfaceBg:         '--vel-surface-bg',
+  surface1:          '--vel-surface-1',
+  surface2:          '--vel-surface-2',
+  surface3:          '--vel-surface-3',
+  surface4:          '--vel-surface-4',
+  borderBase:        '--vel-border-base',
+  borderSubtle:      '--vel-border-subtle',
+  colorText:         '--vel-color-text',
+  colorMuted:        '--vel-color-muted',
+  fontSans:          '--vel-font-sans',
+  fontSerif:         '--vel-font-serif',
+  fontMono:          '--vel-font-mono',
+  radius:            '--vel-radius',
+  radiusSm:          '--vel-radius-sm',
+  radiusMd:          '--vel-radius-md',
+  radiusLg:          '--vel-radius-lg',
+  radiusXl:          '--vel-radius-xl',
+}
+
+async function loadConfig() {
+  // Try velora.config.js first, then velora.config.cjs
+  const candidates = ['velora.config.js', 'velora.config.cjs']
+  for (const name of candidates) {
+    const configPath = new URL(name, import.meta.url).pathname
+    try {
+      const mod = await import(`file://${configPath}?t=${Date.now()}`)
+      return mod.default ?? mod
+    } catch {
+      // file doesn't exist or parse error — try next
+    }
+  }
+  return {}
+}
+
+function buildConfigOverride(config) {
+  const tokens = config.tokens
+  if (!tokens || typeof tokens !== 'object') return { css: '', count: 0 }
+
+  const lines = []
+
+  for (const [key, cssVar] of Object.entries(TOKEN_MAP)) {
+    if (tokens[key] !== undefined) {
+      lines.push(`  ${cssVar}: ${tokens[key]};`)
+      if (key === 'surfaceBg') {
+        lines.push(`  --vel-surface-0: ${tokens[key]};`)
+      }
+    }
+  }
+
+  if (typeof tokens.raw === 'string' && tokens.raw.trim()) {
+    const rawLines = tokens.raw.trim().split(';')
+      .filter(l => l.trim())
+      .map(l => `  ${l.trim()};`)
+    lines.push(...rawLines)
+  }
+
+  if (lines.length === 0) return { css: '', count: 0 }
+
+  const css = [
+    '\n/* ─── velora.config.js — token overrides ─── */',
+    ':root {',
+    ...lines,
+    '}',
+  ].join('\n')
+
+  return { css, count: lines.length }
+}
+
 // ─── Variant filtering ────────────────────────────────────────────────────────
 //
 // Each function receives `cls` — the part of the class name after `vel-`
@@ -175,11 +251,15 @@ async function build() {
   mkdirSync(outDir, { recursive: true })
   const input = readFileSync(entry, 'utf8')
 
+  // Load optional velora.config.js
+  const veloraConfig = await loadConfig()
+  const { css: configOverrideCss, count: configOverrideCount } = buildConfigOverride(veloraConfig)
+
   // 1. Resolve imports + autoprefixer → base CSS
   const baseResult = await postcss([postcssImport(), autoprefixer()])
     .process(input, { from: entry })
 
-  const baseCss = baseResult.css
+  const baseCss = baseResult.css + configOverrideCss
 
   // 2. Generate responsive + state variants
   const variantsCss = generateVariants(baseCss)
@@ -197,6 +277,9 @@ async function build() {
   const size    = (finalCss.length / 1024).toFixed(1)
   const minSize = (minResult.css.length / 1024).toFixed(1)
   console.log(`VeloraCSS built — ${size}KB / ${minSize}KB minified`)
+  if (configOverrideCount > 0) {
+    console.log(`Config: velora.config.js applied (${configOverrideCount} token overrides)`)
+  }
 
   // 5. Sync to Next.js demo
   const nextStylesDir = resolve(__dirname, 'nextjs-demo/styles')

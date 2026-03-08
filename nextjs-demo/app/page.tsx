@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import Link from 'next/link'
 
 // ─── Build-time constants ─────────────────────────────────────────────────────
@@ -654,6 +654,75 @@ const DNA_CSS = `
   .vhome-footer-link { font-size: 0.8125rem; color: var(--vt3); text-decoration: none; transition: color var(--dur) var(--ease); }
   .vhome-footer-link:hover { color: var(--vt1); }
 
+  /* ─ DISCORD WIDGET ─ */
+  .vhome-discord-widget {
+    position: fixed; right: 1.25rem; bottom: 1.5rem; z-index: 9000;
+    font-family: inherit;
+  }
+  .vhome-discord-pill {
+    display: flex; align-items: center; gap: 0.5rem;
+    background: var(--vs2); border: 1px solid var(--vborder);
+    border-radius: 9999px; padding: 0.5rem 1rem 0.5rem 0.625rem;
+    cursor: pointer; user-select: none;
+    box-shadow: 0 4px 24px oklch(0% 0 0 / 0.4);
+    transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+    color: var(--vt1); font-size: 0.8125rem; font-weight: 500;
+  }
+  .vhome-discord-pill:hover {
+    background: var(--vs3); border-color: var(--vp-glow);
+    box-shadow: 0 4px 32px var(--vp-glow);
+  }
+  .vhome-discord-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: oklch(65% 0.18 160); flex-shrink: 0;
+  }
+  .vhome-discord-panel {
+    position: absolute; right: 0; bottom: calc(100% + 0.75rem);
+    width: 260px;
+    background: var(--vs1); border: 1px solid var(--vborder);
+    border-radius: 0.75rem; overflow: hidden;
+    box-shadow: 0 16px 48px oklch(0% 0 0 / 0.5);
+  }
+  .vhome-discord-header {
+    background: #5865F2; padding: 0.875rem 1rem;
+    display: flex; align-items: center; gap: 0.625rem;
+  }
+  .vhome-discord-header-text { line-height: 1.2; }
+  .vhome-discord-header-name { font-size: 0.875rem; font-weight: 700; color: #fff; }
+  .vhome-discord-header-sub { font-size: 0.7rem; color: rgba(255,255,255,0.7); }
+  .vhome-discord-members {
+    padding: 0.5rem 0; max-height: 180px; overflow-y: auto;
+  }
+  .vhome-discord-member {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.375rem 1rem;
+  }
+  .vhome-discord-avatar {
+    width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
+  }
+  .vhome-discord-avatar-fallback {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    background: var(--vp-subtle); border: 1px solid var(--vp-glow);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; font-weight: 700; color: var(--vp);
+  }
+  .vhome-discord-member-name { font-size: 0.8rem; color: var(--vt2); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .vhome-discord-status { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .vhome-discord-status-online  { background: oklch(65% 0.18 160); }
+  .vhome-discord-status-idle    { background: oklch(72% 0.19 75); }
+  .vhome-discord-status-dnd     { background: oklch(60% 0.22 25); }
+  .vhome-discord-more {
+    font-size: 0.75rem; color: var(--vt3); padding: 0.25rem 1rem 0.5rem;
+  }
+  .vhome-discord-join {
+    display: block; text-align: center; text-decoration: none;
+    background: #5865F2; color: #fff;
+    font-size: 0.8125rem; font-weight: 600;
+    padding: 0.625rem 1rem; margin: 0.25rem 0.75rem 0.75rem;
+    border-radius: 0.5rem; transition: background 0.15s;
+  }
+  .vhome-discord-join:hover { background: #4752c4; }
+
   /* ─ COMPONENT SHOWCASE WRAPPERS ─ */
   .vhome-showcase-header {
     background: var(--vs2); border-bottom: 1px solid var(--vborder);
@@ -821,6 +890,75 @@ function ScopePanels() {
           </div>
         </div>
       ))}
+    </div>
+  )
+}
+
+// ─── Discord Widget ───────────────────────────────────────────────────────────
+interface DiscordMember { username: string; status: string; avatar_url?: string }
+interface DiscordWidget { name: string; presence_count: number; instant_invite: string; members: DiscordMember[] }
+
+function DiscordWidget() {
+  const [open, setOpen] = useState(false)
+  const [data, setData] = useState<DiscordWidget | null>(null)
+
+  useEffect(() => {
+    fetch('https://discord.com/api/guilds/1478942228956057652/widget.json')
+      .then(r => r.json())
+      .then(setData)
+      .catch(() => {})
+  }, [])
+
+  const statusClass = (s: string) =>
+    s === 'idle' ? 'vhome-discord-status-idle' :
+    s === 'dnd'  ? 'vhome-discord-status-dnd'  :
+    'vhome-discord-status-online'
+
+  const invite = data?.instant_invite ?? 'https://discord.gg/RKmSyudqAv'
+  const count  = data?.presence_count ?? 0
+  const shown  = data?.members.slice(0, 5) ?? []
+  const extra  = (data?.presence_count ?? 0) - shown.length
+
+  return (
+    <div className="vhome-discord-widget">
+      {open && (
+        <div className="vhome-discord-panel">
+          <div className="vhome-discord-header">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
+              <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.101 18.08.118 18.1.138 18.112a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+            </svg>
+            <div className="vhome-discord-header-text">
+              <div className="vhome-discord-header-name">{data?.name ?? 'VeloraCSS'}</div>
+              <div className="vhome-discord-header-sub">{count} online</div>
+            </div>
+          </div>
+          {shown.length > 0 && (
+            <div className="vhome-discord-members">
+              {shown.map((m, i) => (
+                <div key={i} className="vhome-discord-member">
+                  {m.avatar_url
+                    ? <img src={m.avatar_url} alt={m.username} className="vhome-discord-avatar" />
+                    : <div className="vhome-discord-avatar-fallback">{m.username[0].toUpperCase()}</div>
+                  }
+                  <span className="vhome-discord-member-name">{m.username}</span>
+                  <span className={`vhome-discord-status ${statusClass(m.status)}`} />
+                </div>
+              ))}
+              {extra > 0 && <div className="vhome-discord-more">+{extra} more online</div>}
+            </div>
+          )}
+          <a href={invite} target="_blank" rel="noopener noreferrer" className="vhome-discord-join">
+            Join Server
+          </a>
+        </div>
+      )}
+      <button className="vhome-discord-pill" onClick={() => setOpen(o => !o)} aria-label="Discord community">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.101 18.08.118 18.1.138 18.112a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+        </svg>
+        <span className="vhome-discord-dot" />
+        {count > 0 ? `${count} online` : 'Discord'}
+      </button>
     </div>
   )
 }
@@ -1671,11 +1809,13 @@ onClick={() => setTab(0)}`}</pre>
                 <Link href={DOCS_URL} className="vhome-footer-link">Docs</Link>
                 <a href={PLAYGROUND_URL} target="_blank" rel="noopener noreferrer" className="vhome-footer-link">Playground</a>
                 <a href="https://github.com/VeloraX/veloracss" target="_blank" rel="noopener noreferrer" className="vhome-footer-link">GitHub</a>
+                <a href="https://discord.gg/RKmSyudqAv" target="_blank" rel="noopener noreferrer" className="vhome-footer-link">Discord</a>
               </div>
             </div>
           </div>
         </footer>
 
+        <DiscordWidget />
       </main>
     </>
   )

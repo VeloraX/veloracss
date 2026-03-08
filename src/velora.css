@@ -5,6 +5,7 @@
 
 @import './tokens.css';
 @import './reset.css';
+@import './modes.css';
 
 /* Utilities */
 @import './utilities/layout.css';
