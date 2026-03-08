@@ -9,12 +9,12 @@ export default function ScopeThemingPage() {
       table={[
         { class: 'data-vel-theme="ocean"',   properties: '--vel-dna-hue: 205 (blue-ocean)' },
         { class: 'data-vel-theme="forest"',  properties: '--vel-dna-hue: 145 (green-forest)' },
-        { class: 'data-vel-theme="rose"',    properties: '--vel-dna-hue: 350 (pink-rose)' },
-        { class: 'data-vel-theme="amber"',   properties: '--vel-dna-hue: 48 (warm-amber)' },
-        { class: 'data-vel-theme="violet"',  properties: '--vel-dna-hue: 290 (purple-violet)' },
+        { class: 'data-vel-theme="rose"',    properties: '--vel-dna-hue: 10 (pink-rose)' },
+        { class: 'data-vel-theme="amber"',   properties: '--vel-dna-hue: 65 (warm-amber)' },
+        { class: 'data-vel-theme="violet"',  properties: '--vel-dna-hue: 280 (purple-violet)' },
         { class: 'data-vel-theme="cyan"',    properties: '--vel-dna-hue: 195 (cyan)' },
         { class: 'data-vel-theme="slate"',   properties: '--vel-dna-hue: 220 (neutral-slate)' },
-        { class: 'data-vel-theme="crimson"', properties: '--vel-dna-hue: 10 (red-crimson)' },
+        { class: 'data-vel-theme="crimson"', properties: '--vel-dna-hue: 350 (red-crimson)' },
       ]}
       examples={[
         {

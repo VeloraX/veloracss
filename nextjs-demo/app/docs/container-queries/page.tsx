@@ -7,9 +7,9 @@ export default function ContainerQueriesPage() {
       description="Utilities for container-type and @container-aware responsive variants. Components adapt to their own width, not the viewport."
       source="container-queries.css"
       table={[
-        { class: 'vel-container',        properties: 'container-type: inline-size' },
-        { class: 'vel-container-size',   properties: 'container-type: size' },
-        { class: 'vel-container-normal', properties: 'container-type: normal' },
+        { class: 'vel-container-type-inline',  properties: 'container-type: inline-size' },
+        { class: 'vel-container-type-size',    properties: 'container-type: size' },
+        { class: 'vel-container-type-normal',  properties: 'container-type: normal' },
         { class: 'vel-@sm:{class}',      properties: 'Applies {class} when container ≥ 320px' },
         { class: 'vel-@md:{class}',      properties: 'Applies {class} when container ≥ 480px' },
         { class: 'vel-@lg:{class}',      properties: 'Applies {class} when container ≥ 640px' },
@@ -17,7 +17,7 @@ export default function ContainerQueriesPage() {
       examples={[
         {
           label: 'Resize the container to see layout adapt',
-          html: `<div class="vel-container" style="resize:horizontal;overflow:auto;min-width:200px;max-width:100%;width:340px;border:1px dashed #1e2d45;border-radius:8px;padding:1px">
+          html: `<div class="vel-container-type-inline" style="resize:horizontal;overflow:auto;min-width:200px;max-width:100%;width:340px;border:1px dashed #1e2d45;border-radius:8px;padding:1px">
   <div class="vel-bg-surface-2 vel-rounded-lg vel-overflow-hidden" style="border:1px solid #1e2d45">
     <div class="vel-flex vel-gap-0" style="flex-direction:column">
       <div style="height:100px;background:var(--vel-color-primary,#7c5cfc);opacity:0.15;display:flex;align-items:center;justify-content:center;font-size:2rem">🖼</div>
@@ -32,7 +32,7 @@ export default function ContainerQueriesPage() {
         },
         {
           label: 'Container-aware grid — columns change at container breakpoints',
-          html: `<div class="vel-container" style="border:1px solid #1e2d45;border-radius:8px;padding:1rem;resize:horizontal;overflow:auto;min-width:200px;max-width:100%;width:500px">
+          html: `<div class="vel-container-type-inline" style="border:1px solid #1e2d45;border-radius:8px;padding:1rem;resize:horizontal;overflow:auto;min-width:200px;max-width:100%;width:500px">
   <div style="display:grid;grid-template-columns:repeat(1,1fr);gap:0.75rem">
     <div class="vel-bg-primary vel-text-white vel-rounded-md vel-p-3 vel-text-sm vel-font-bold">Item 1</div>
     <div class="vel-bg-primary vel-text-white vel-rounded-md vel-p-3 vel-text-sm vel-font-bold">Item 2</div>

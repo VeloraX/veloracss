@@ -14,7 +14,7 @@ export default function SmartFormsPage() {
         { class: 'vel-field-hint',    properties: 'Hint text (hidden when field is touched)' },
         { class: 'vel-field-error',   properties: 'Error message (shown when :invalid)' },
         { class: 'vel-field-ok',      properties: 'Success message (shown when :valid)' },
-        { class: 'vel-smart-form submit', properties: 'Submit button auto-disabled when form has invalid fields' },
+        { class: 'vel-form-submit', properties: 'Submit button — auto-disabled (opacity 0.5, pointer-events none) when form has invalid inputs' },
       ]}
       examples={[
         {
@@ -39,7 +39,7 @@ export default function SmartFormsPage() {
         },
         {
           label: 'Required field — border turns red when left empty and touched',
-          html: `<form style="max-width:360px;display:grid;gap:1rem">
+          html: `<form class="vel-smart-form" style="max-width:360px;display:grid;gap:1rem">
   <div class="vel-field">
     <label class="vel-field-label" for="sf-url">Website URL</label>
     <input class="vel-field-input" type="url" id="sf-url" placeholder="https://example.com" required />

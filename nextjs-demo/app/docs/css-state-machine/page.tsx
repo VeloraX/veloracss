@@ -20,17 +20,17 @@ export default function CssStateMachinePage() {
         {
           label: 'Zero-JS tabs — no JavaScript, no event listeners',
           html: `<div class="vel-sm-tabs">
-  <input class="vel-sm-tab-input" type="radio" name="demo-tabs" id="tab1" checked />
-  <input class="vel-sm-tab-input" type="radio" name="demo-tabs" id="tab2" />
-  <input class="vel-sm-tab-input" type="radio" name="demo-tabs" id="tab3" />
+  <input class="vel-sm-tab-input" type="radio" name="demo-tabs" id="vel-tab-1" checked />
+  <input class="vel-sm-tab-input" type="radio" name="demo-tabs" id="vel-tab-2" />
+  <input class="vel-sm-tab-input" type="radio" name="demo-tabs" id="vel-tab-3" />
   <div class="vel-flex vel-gap-0" style="border-bottom:1px solid #1e2d45;margin-bottom:1rem">
-    <label class="vel-sm-tab-label" for="tab1" style="padding:0.5rem 1.25rem;cursor:pointer;font-size:0.875rem;font-weight:500;color:#64748b;border-bottom:2px solid transparent">Overview</label>
-    <label class="vel-sm-tab-label" for="tab2" style="padding:0.5rem 1.25rem;cursor:pointer;font-size:0.875rem;font-weight:500;color:#64748b;border-bottom:2px solid transparent">Features</label>
-    <label class="vel-sm-tab-label" for="tab3" style="padding:0.5rem 1.25rem;cursor:pointer;font-size:0.875rem;font-weight:500;color:#64748b;border-bottom:2px solid transparent">Install</label>
+    <label class="vel-sm-tab-label" for="vel-tab-1" style="padding:0.5rem 1.25rem;cursor:pointer;font-size:0.875rem;font-weight:500;color:#64748b;border-bottom:2px solid transparent">Overview</label>
+    <label class="vel-sm-tab-label" for="vel-tab-2" style="padding:0.5rem 1.25rem;cursor:pointer;font-size:0.875rem;font-weight:500;color:#64748b;border-bottom:2px solid transparent">Features</label>
+    <label class="vel-sm-tab-label" for="vel-tab-3" style="padding:0.5rem 1.25rem;cursor:pointer;font-size:0.875rem;font-weight:500;color:#64748b;border-bottom:2px solid transparent">Install</label>
   </div>
-  <div class="vel-sm-tab-panel" style="color:#94a3b8;font-size:0.875rem;line-height:1.6">VeloraCSS is a utility-first framework with Color Genetics, Container Intelligence, and zero-JS state machines built in.</div>
-  <div class="vel-sm-tab-panel" style="color:#94a3b8;font-size:0.875rem;line-height:1.6">300+ utilities · 29 components · 6 CSS innovations · 0 dependencies. Everything ships in one CSS file.</div>
-  <div class="vel-sm-tab-panel" style="color:#94a3b8;font-size:0.875rem;line-height:1.6"><code style="font-family:Cascadia Code,Consolas,monospace;background:#0d1422;padding:0.2rem 0.5rem;border-radius:4px;color:#a87fff">npm install veloracss</code> — then import the CSS. Done.</div>
+  <div class="vel-sm-tab-panel" data-vel-panel="1" style="color:#94a3b8;font-size:0.875rem;line-height:1.6">VeloraCSS is a utility-first framework with Color Genetics, Container Intelligence, and zero-JS state machines built in.</div>
+  <div class="vel-sm-tab-panel" data-vel-panel="2" style="color:#94a3b8;font-size:0.875rem;line-height:1.6">300+ utilities · 29 components · 6 CSS innovations · 0 dependencies. Everything ships in one CSS file.</div>
+  <div class="vel-sm-tab-panel" data-vel-panel="3" style="color:#94a3b8;font-size:0.875rem;line-height:1.6"><code style="font-family:Cascadia Code,Consolas,monospace;background:#0d1422;padding:0.2rem 0.5rem;border-radius:4px;color:#a87fff">npm install veloracss</code> — then import the CSS. Done.</div>
 </div>`,
         },
         {
