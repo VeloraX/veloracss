@@ -9,14 +9,15 @@ export default function ColorGeneticsPage() {
       table={[
         { class: '--vel-dna-hue',            properties: 'Master hue angle (0–360). Default: 258 (violet)' },
         { class: '--vel-color-primary',      properties: 'oklch(65% 0.21 var(--vel-dna-hue))' },
-        { class: '--vel-color-primary-light',properties: 'oklch(80% 0.14 var(--vel-dna-hue))' },
-        { class: '--vel-color-primary-dim',  properties: 'oklch(50% 0.22 var(--vel-dna-hue))' },
+        { class: '--vel-color-primary-light',properties: 'oklch(65% 0.21 var(--vel-dna-hue) / 0.15)' },
+        { class: '--vel-color-primary-hover',properties: 'oklch(58% 0.21 var(--vel-dna-hue))' },
         { class: '--vel-surface-0',          properties: 'oklch(7% 0.02 var(--vel-dna-hue))' },
         { class: '--vel-surface-1',          properties: 'oklch(10% 0.025 var(--vel-dna-hue))' },
         { class: '--vel-surface-2',          properties: 'oklch(13% 0.03 var(--vel-dna-hue))' },
+        { class: '--vel-surface-3',          properties: 'oklch(17% 0.035 var(--vel-dna-hue))' },
         { class: '--vel-border-base',        properties: 'oklch(26% 0.045 var(--vel-dna-hue))' },
-        { class: '--vel-text-base',          properties: 'oklch(92% 0.015 var(--vel-dna-hue))' },
-        { class: '--vel-text-muted',         properties: 'oklch(50% 0.04 var(--vel-dna-hue))' },
+        { class: '--vel-color-text',         properties: 'oklch(92% 0.01 var(--vel-dna-hue))' },
+        { class: '--vel-color-muted',        properties: 'oklch(55% 0.03 var(--vel-dna-hue))' },
       ]}
       examples={[
         {
@@ -64,7 +65,7 @@ export default function ColorGeneticsPage() {
           label: 'Full component stack — all colors derived from one hue',
           html: `<div style="--vel-dna-hue:300" class="vel-card vel-p-5">
   <div class="vel-flex vel-items-center vel-gap-3 vel-mb-4">
-    <div class="vel-avatar vel-avatar-md vel-bg-primary vel-text-white vel-flex vel-items-center vel-justify-center vel-font-bold">VX</div>
+    <div class="vel-avatar vel-avatar-md vel-font-bold">VX</div>
     <div>
       <div class="vel-text-base vel-font-bold">VeloraX Team</div>
       <div class="vel-text-muted vel-text-sm">--vel-dna-hue: 300</div>
