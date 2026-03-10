@@ -94,6 +94,34 @@
                 <div class="val-text-base val-leading-copy val-text-muted">Builds now emit <code>dist/val-manifest.json</code> so utility groups and counts stay inspectable.</div>
               </div>
             </div>
+
+            <div class="val-grid val-gap-4 val-md:grid-cols-2">
+              <div class="val-card val-p-4 val-relative val-overflow-hidden">
+                <div class="val-text-sm val-text-muted val-mb-3">Effects and layering</div>
+                <div class="val-relative val-h-20 val-rounded-xl val-overflow-hidden val-bg-panel-alt">
+                  <div class="val-absolute val-inset-0 val-bg-brand val-opacity-25"></div>
+                  <div class="val-absolute val-inset-0 val-z-10 val-flex val-items-center val-justify-center">
+                    <span class="val-badge val-badge-brand">z-10 overlay</span>
+                  </div>
+                  <div class="val-absolute val-inset-0 val-z-20 val-flex val-items-end val-justify-end val-p-4">
+                    <span class="val-badge val-badge-accent">opacity-25</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="val-card val-p-4">
+                <div class="val-text-sm val-text-muted val-mb-3">Interaction helpers</div>
+                <div class="val-grid val-gap-3">
+                  <div class="val-relative val-p-4 val-rounded-xl val-bg-panel-alt val-select-none">
+                    <div class="val-text-base val-text-muted">Selection is disabled here with <code>val-select-none</code>.</div>
+                    <button class="val-btn val-btn-ghost val-mt-4 val-pointer-events-none val-opacity-50">Pointer events disabled</button>
+                  </div>
+                  <div class="val-text-sm val-text-muted val-leading-copy">
+                    Effects utilities now include opacity and z-index scales, while interaction coverage includes pointer events and user selection helpers.
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

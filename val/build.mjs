@@ -186,6 +186,28 @@ function buildOverflowUtilities(prefix, layout) {
   return Object.entries(layout.overflow).map(([name, value]) => createRule(`.${prefix}-overflow-${name}`, [`overflow: ${value};`]))
 }
 
+function buildOpacityUtilities(prefix, effects) {
+  return Object.entries(effects.opacity).map(([name, value]) => createRule(`.${prefix}-opacity-${name}`, [`opacity: ${value};`]))
+}
+
+function buildZIndexUtilities(prefix, layering) {
+  return Object.entries(layering.zIndex).map(([name, value]) => createRule(`.${prefix}-z-${name}`, [`z-index: ${value};`]))
+}
+
+function buildInteractionUtilities(prefix, interaction) {
+  const lines = []
+
+  for (const [name, value] of Object.entries(interaction.pointerEvents)) {
+    lines.push(createRule(`.${prefix}-pointer-events-${name}`, [`pointer-events: ${value};`]))
+  }
+
+  for (const [name, value] of Object.entries(interaction.userSelect)) {
+    lines.push(createRule(`.${prefix}-select-${name}`, [`user-select: ${value};`]))
+  }
+
+  return lines
+}
+
 function buildUtilities(prefix, config) {
   return {
     display: [
@@ -209,6 +231,8 @@ function buildUtilities(prefix, config) {
     ],
     positioning: buildPositionUtilities(prefix),
     overflow: buildOverflowUtilities(prefix, config.layout),
+    layering: buildZIndexUtilities(prefix, config.layering),
+    effects: buildOpacityUtilities(prefix, config.effects),
     grid: buildGridUtilities(prefix, config.layout),
     sizing: [
       ...buildWidthUtilities(prefix, config.theme.width),
@@ -235,6 +259,7 @@ function buildUtilities(prefix, config) {
     interaction: [
       createRule(`.${prefix}-transition`, ['transition: all 150ms ease;']),
       createRule(`.${prefix}-cursor-pointer`, ['cursor: pointer;']),
+      ...buildInteractionUtilities(prefix, config.interaction),
     ],
     spacing: buildSpacingUtilities(prefix),
   }

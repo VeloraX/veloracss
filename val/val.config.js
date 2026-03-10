@@ -14,6 +14,33 @@ export default {
       hidden: 'hidden',
     },
   },
+  layering: {
+    zIndex: {
+      0: '0',
+      10: '10',
+      20: '20',
+      30: '30',
+    },
+  },
+  effects: {
+    opacity: {
+      0: '0',
+      25: '0.25',
+      50: '0.5',
+      75: '0.75',
+      100: '1',
+    },
+  },
+  interaction: {
+    pointerEvents: {
+      none: 'none',
+      auto: 'auto',
+    },
+    userSelect: {
+      none: 'none',
+      text: 'text',
+    },
+  },
   sizing: {
     width: {
       auto: 'auto',

@@ -32,6 +32,9 @@ _Last updated: 2026-03-10. Updated at every milestone. Add items here whenever a
 - [x] Expand isolated Val layout and sizing coverage
   - Added layout, sizing, positioning, and overflow utility generation from `val.config.js`
   - Build now emits `val/dist/val-manifest.json` with utility groups and counts for coverage visibility
+- [x] Add isolated Val effects and layering utilities
+  - Added opacity, z-index, pointer-events, and user-select utility generation from `val.config.js`
+  - Verified generated selectors including `val-opacity-25`, `val-z-10`, `val-pointer-events-none`, and `val-select-none`
 
 ---
 
