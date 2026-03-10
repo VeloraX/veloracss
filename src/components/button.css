@@ -1,282 +1,33 @@
-/* VeloraCSS — Button Component */
-
-.vel-btn {
+.vel-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--vel-space-2);
-  padding: var(--vel-space-2) var(--vel-space-5);
-  font-size: var(--vel-text-sm);
-  font-weight: 600;
-  line-height: 1.25rem;
-  letter-spacing: 0.01em;
-  border-radius: var(--vel-radius-lg);
+  min-height: 2.75rem;
+  padding-inline: 1rem;
+  border-radius: 999px;
   border: 1px solid transparent;
   cursor: pointer;
   text-decoration: none;
-  white-space: nowrap;
-  transition: background 150ms var(--vel-ease-out),
-              filter 150ms ease,
-              border-color 150ms ease,
-              opacity 150ms ease;
-  user-select: none;
-  vertical-align: middle;
-  position: relative;
-  overflow: hidden;
+  transition: transform 160ms ease, background-color 160ms ease, border-color 160ms ease;
 }
 
-.vel-btn:focus-visible {
-  outline: none;
-  box-shadow: var(--vel-ring-primary);
+.vel-button:hover {
+  transform: translateY(-1px);
 }
 
-.vel-btn:disabled,
-.vel-btn.vel-btn-disabled {
-  opacity: 0.45;
-  pointer-events: none;
-  cursor: not-allowed;
+.vel-button-primary {
+  background: linear-gradient(135deg, var(--vel-color-primary), var(--vel-color-primary-strong));
+  color: var(--vel-color-primary-ink);
 }
 
-/* ─── Primary ─────────────────────────────── */
-
-.vel-btn-primary {
-  background: var(--vel-gradient-primary);
-  color: #ffffff;
-  border-color: transparent;
-}
-.vel-btn-primary:hover {
-  filter: brightness(1.1);
-}
-.vel-btn-primary:active {
-  filter: brightness(0.93);
-}
-
-/* ─── Secondary ───────────────────────────── */
-
-.vel-btn-secondary {
-  background: var(--vel-gradient-secondary);
-  color: #ffffff;
-  border-color: transparent;
-}
-.vel-btn-secondary:hover {
-  filter: brightness(1.1);
-}
-.vel-btn-secondary:active {
-  filter: brightness(0.93);
-}
-
-/* ─── Success ─────────────────────────────── */
-
-.vel-btn-success {
-  background: var(--vel-gradient-success);
-  color: #ffffff;
-  border-color: transparent;
-}
-.vel-btn-success:hover {
-  filter: brightness(1.1);
-}
-.vel-btn-success:active {
-  filter: brightness(0.93);
-}
-
-/* ─── Danger ──────────────────────────────── */
-
-.vel-btn-danger {
-  background: var(--vel-gradient-danger);
-  color: #ffffff;
-  border-color: transparent;
-}
-.vel-btn-danger:hover {
-  filter: brightness(1.1);
-}
-.vel-btn-danger:active {
-  filter: brightness(0.93);
-}
-
-/* ─── Warning ─────────────────────────────── */
-
-.vel-btn-warning {
-  background: var(--vel-gradient-warning);
-  color: #1c1200;
-  border-color: transparent;
-}
-.vel-btn-warning:hover {
-  filter: brightness(1.1);
-}
-.vel-btn-warning:active {
-  filter: brightness(0.93);
-}
-
-/* ─── Info ────────────────────────────────── */
-
-.vel-btn-info {
-  background: var(--vel-gradient-info);
-  color: #ffffff;
-  border-color: transparent;
-}
-.vel-btn-info:hover {
-  filter: brightness(1.1);
-}
-.vel-btn-info:active {
-  filter: brightness(0.93);
-}
-
-/* ─── Outline Variants ────────────────────── */
-
-.vel-btn-outline-primary {
-  background: transparent;
-  color: var(--vel-primary-400);
-  border-color: var(--vel-primary-500);
-  box-shadow: inset 0 0 0 0 rgba(124, 92, 252, 0);
-}
-.vel-btn-outline-primary:hover {
-  background: oklch(65% 0.21 var(--vel-dna-hue) / 0.1);
-  border-color: var(--vel-primary-400);
-}
-
-.vel-btn-outline-secondary {
-  background: transparent;
-  color: var(--vel-secondary-400);
-  border-color: var(--vel-secondary-500);
-}
-.vel-btn-outline-secondary:hover {
-  background: var(--vel-surface-3);
-}
-
-.vel-btn-outline-success {
-  background: transparent;
-  color: var(--vel-success-400);
-  border-color: var(--vel-success-400);
-}
-.vel-btn-outline-success:hover {
-  background: oklch(65% 0.2 160 / 0.1);
-}
-
-.vel-btn-outline-danger {
-  background: transparent;
-  color: var(--vel-danger-400);
-  border-color: var(--vel-danger-500);
-}
-.vel-btn-outline-danger:hover {
-  background: oklch(60% 0.22 25 / 0.1);
-}
-
-.vel-btn-outline-warning {
-  background: transparent;
-  color: var(--vel-warning-400);
-  border-color: var(--vel-warning-500);
-}
-.vel-btn-outline-warning:hover {
-  background: oklch(70% 0.18 75 / 0.1);
-}
-
-.vel-btn-outline-info {
-  background: transparent;
-  color: var(--vel-info-400);
-  border-color: var(--vel-info-400);
-}
-.vel-btn-outline-info:hover {
-  background: oklch(65% 0.15 220 / 0.1);
-}
-
-/* ─── Ghost ───────────────────────────────── */
-
-.vel-btn-ghost {
-  background: transparent;
-  color: var(--vel-color-muted);
-  border-color: transparent;
-}
-.vel-btn-ghost:hover {
-  background: var(--vel-surface-3);
+.vel-button-secondary {
+  background: var(--vel-color-surface-elevated);
+  border-color: var(--vel-color-border);
   color: var(--vel-color-text);
 }
 
-/* ─── Link ────────────────────────────────── */
-
-.vel-btn-link {
+.vel-button-ghost {
   background: transparent;
-  color: var(--vel-primary-400);
-  border-color: transparent;
-  padding-left: 0;
-  padding-right: 0;
-  box-shadow: none;
-}
-.vel-btn-link:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-/* ─── Glow (filled + glow always on) ─────── */
-
-.vel-btn-glow-primary {
-  background: var(--vel-gradient-primary);
-  color: #ffffff;
-  border-color: transparent;
-  box-shadow: var(--vel-glow-primary);
-}
-.vel-btn-glow-primary:hover {
-  filter: brightness(1.12);
-}
-
-/* ─── Sizes ───────────────────────────────── */
-
-.vel-btn-xs {
-  padding: var(--vel-space-1) var(--vel-space-3);
-  font-size: var(--vel-text-xs);
-  line-height: 1rem;
-  border-radius: var(--vel-radius-md);
-}
-
-.vel-btn-sm {
-  padding: calc(var(--vel-space-1) + 2px) var(--vel-space-4);
-  font-size: var(--vel-text-sm);
-  line-height: 1.25rem;
-}
-
-.vel-btn-lg {
-  padding: var(--vel-space-3) var(--vel-space-7);
-  font-size: var(--vel-text-base);
-  line-height: 1.5rem;
-  border-radius: var(--vel-radius-xl);
-}
-
-.vel-btn-xl {
-  padding: var(--vel-space-4) var(--vel-space-9);
-  font-size: var(--vel-text-lg);
-  line-height: 1.75rem;
-  border-radius: var(--vel-radius-xl);
-}
-
-/* ─── Block ───────────────────────────────── */
-
-.vel-btn-block {
-  display: flex;
-  width: 100%;
-}
-
-/* ─── Icon button ─────────────────────────── */
-
-.vel-btn-icon {
-  padding: var(--vel-space-2);
-  aspect-ratio: 1;
-}
-.vel-btn-icon.vel-btn-sm { padding: var(--vel-space-1); }
-.vel-btn-icon.vel-btn-lg { padding: var(--vel-space-3); }
-
-/* ─── Loading state ───────────────────────── */
-
-.vel-btn-loading {
-  pointer-events: none;
-  opacity: 0.75;
-}
-.vel-btn-loading::after {
-  content: '';
-  display: inline-block;
-  width: 0.8em;
-  height: 0.8em;
-  margin-left: var(--vel-space-2);
-  border: 2px solid currentColor;
-  border-right-color: transparent;
-  border-radius: 50%;
-  animation: vel-spin 0.6s linear infinite;
+  border-color: var(--vel-color-border);
+  color: var(--vel-color-text-muted);
 }

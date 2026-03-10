@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VeloraCSS Proof</title>
+    <link rel="stylesheet" href="./dist/velora.css" />
+    <style>
+      body {
+        margin: 0;
+        background: var(--vel-color-surface);
+        color: var(--vel-color-text);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="vel-shell vel-stack-lg">
+      <section class="vel-stack-sm">
+        <p class="vel-eyebrow">VeloraCSS</p>
+        <h1 class="vel-display">Clean-slate proof surface</h1>
+        <p class="vel-body-lg vel-text-muted">
+          The framework restart is in place. This page is the first validation harness for tokens,
+          utilities, components, and optional runtime behavior.
+        </p>
+        <div class="vel-cluster">
+          <button class="vel-button vel-button-primary">Primary action</button>
+          <button class="vel-button vel-button-secondary">Secondary action</button>
+          <button class="vel-button vel-button-ghost" data-vel-toggle="proof-panel" aria-expanded="false">
+            Toggle panel
+          </button>
+        </div>
+      </section>
+
+      <section class="vel-grid-two">
+        <article class="vel-card">
+          <p class="vel-card-eyebrow">Utilities</p>
+          <h2 class="vel-title">Layout primitives first</h2>
+          <p class="vel-body vel-text-muted">
+            Stack, cluster, grid, spacing, and typography are the first public layers.
+          </p>
+        </article>
+
+        <article class="vel-card" id="proof-panel" hidden>
+          <p class="vel-card-eyebrow">Runtime</p>
+          <h2 class="vel-title">Optional helper layer</h2>
+          <p class="vel-body vel-text-muted">
+            JavaScript stays additive. If CSS can solve it alone, CSS wins.
+          </p>
+        </article>
+      </section>
+    </main>
+
+    <script type="module" src="./dist/velora.js"></script>
+  </body>
+</html>
