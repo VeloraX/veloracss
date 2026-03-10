@@ -35,7 +35,7 @@
           <div class="val-grid val-gap-4">
             <div class="val-card val-card-panel val-p-6">
               <strong class="val-text-brand val-text-xl">Generated now</strong>
-              <p class="val-text-base val-text-muted val-mt-2 val-leading-copy">Colors, spacing, typography, widths, radii, shadows, and starter components are emitted by <code>val/build.mjs</code>.</p>
+              <p class="val-text-base val-text-muted val-mt-2 val-leading-copy">Colors, spacing, typography, layout, sizing, radii, shadows, and starter components are emitted by <code>val/build.mjs</code> together with a generated utility manifest.</p>
             </div>
 
             <div class="val-grid val-gap-4 val-lg:grid-cols-2">
@@ -70,6 +70,30 @@
                 </div>
               </div>
             </div>
+
+            <div class="val-grid val-gap-4 val-md:grid-cols-3">
+              <div class="val-card val-p-4 val-max-w-card">
+                <div class="val-text-sm val-text-muted val-mb-2">Sizing scale</div>
+                <div class="val-grid val-gap-2">
+                  <div class="val-bg-brand val-rounded-pill val-h-2 val-w-4"></div>
+                  <div class="val-bg-brand val-rounded-pill val-h-2 val-w-8"></div>
+                  <div class="val-bg-brand val-rounded-pill val-h-2 val-w-16"></div>
+                </div>
+              </div>
+
+              <div class="val-card val-p-4 val-relative val-overflow-hidden val-max-w-card">
+                <div class="val-absolute val-inset-0 val-bg-panel-alt" style="opacity: 0.45;"></div>
+                <div class="val-relative">
+                  <div class="val-text-sm val-text-muted val-mb-2">Layout shell</div>
+                  <div class="val-text-base val-leading-copy">Position and overflow utilities now support layered shells without writing custom CSS.</div>
+                </div>
+              </div>
+
+              <div class="val-card val-p-4 val-max-w-card">
+                <div class="val-text-sm val-text-muted val-mb-2">Manifest output</div>
+                <div class="val-text-base val-leading-copy val-text-muted">Builds now emit <code>dist/val-manifest.json</code> so utility groups and counts stay inspectable.</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -86,9 +110,9 @@
           <div class="val-card val-p-6">
             <div class="val-text-sm val-text-muted val-mb-2">Next expansion targets</div>
             <div class="val-grid val-gap-2 val-text-base val-text-muted">
-              <div>Responsive variants</div>
-              <div>More sizing utilities</div>
+              <div>Utility category expansion</div>
               <div>Component state variants</div>
+              <div>Root repo migration path</div>
               <div>CLI packaging at repo root</div>
             </div>
           </div>

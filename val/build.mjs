@@ -31,6 +31,15 @@ function utilityNameFromSelector(selector, prefix) {
   return match?.[1] ?? ''
 }
 
+function extractClassNames(cssText, prefix) {
+  const matches = cssText.match(new RegExp(`\\.${prefix}-[\\w-]+`, 'g')) ?? []
+  return Array.from(new Set(matches.map(match => match.slice(1)).sort()))
+}
+
+function flattenUtilityGroups(groups) {
+  return Object.values(groups).flat()
+}
+
 function readConfig() {
   return import(`${pathToFileURL(configFile).href}?t=${Date.now()}`).then(mod => mod.default ?? mod)
 }
@@ -87,6 +96,17 @@ function buildSpacingUtilities(prefix) {
   return lines
 }
 
+function buildDimensionScaleUtilities(prefix, spacing) {
+  const lines = []
+
+  for (const scale of Object.keys(spacing)) {
+    lines.push(createRule(`.${prefix}-w-${scale}`, [`width: var(--val-space-${scale});`]))
+    lines.push(createRule(`.${prefix}-h-${scale}`, [`height: var(--val-space-${scale});`]))
+  }
+
+  return lines
+}
+
 function buildColorUtilities(prefix, colors) {
   const lines = []
   for (const name of Object.keys(colors)) {
@@ -104,14 +124,32 @@ function buildRadiusUtilities(prefix, radius) {
 }
 
 function buildWidthUtilities(prefix, widths) {
-  const lines = [
-    createRule(`.${prefix}-w-full`, ['width: 100%;']),
-    createRule(`.${prefix}-min-h-screen`, ['min-height: 100vh;']),
-  ]
+  const lines = []
 
   for (const name of Object.keys(widths)) {
     const token = toKebabCase(name)
     lines.push(createRule(`.${prefix}-max-w-${token}`, [`width: var(--val-width-${token});`]))
+  }
+
+  return lines
+}
+
+function buildSizingAliasUtilities(prefix, sizing) {
+  const groups = [
+    ['w', sizing.width],
+    ['min-w', sizing.minWidth],
+    ['h', sizing.height],
+    ['min-h', sizing.minHeight],
+    ['max-w', sizing.maxWidth],
+    ['max-h', sizing.maxHeight],
+  ]
+
+  const lines = []
+  for (const [utility, values] of groups) {
+    for (const [name, value] of Object.entries(values)) {
+      const property = utility.replace(/-([a-z])/g, (_, char) => char.toUpperCase())
+      lines.push(createRule(`.${prefix}-${utility}-${name}`, [`${property}: ${value};`]))
+    }
   }
 
   return lines
@@ -131,41 +169,75 @@ function buildShadowUtilities(prefix, shadows) {
   return Object.keys(shadows).map(name => createRule(`.${prefix}-shadow-${toKebabCase(name)}`, [`box-shadow: var(--val-shadow-${toKebabCase(name)});`]))
 }
 
-function buildUtilities(prefix, theme) {
+function buildGridUtilities(prefix, layout) {
+  return layout.gridColumns.map(columns => createRule(`.${prefix}-grid-cols-${columns}`, [`grid-template-columns: repeat(${columns}, minmax(0, 1fr));`]))
+}
+
+function buildPositionUtilities(prefix) {
   return [
-    createRule(`.${prefix}-flex`, ['display: flex;']),
-    createRule(`.${prefix}-inline-flex`, ['display: inline-flex;']),
-    createRule(`.${prefix}-grid`, ['display: grid;']),
-    createRule(`.${prefix}-block`, ['display: block;']),
-    createRule(`.${prefix}-hidden`, ['display: none;']),
-    createRule(`.${prefix}-flex-row`, ['flex-direction: row;']),
-    createRule(`.${prefix}-flex-col`, ['flex-direction: column;']),
-    createRule(`.${prefix}-flex-wrap`, ['flex-wrap: wrap;']),
-    createRule(`.${prefix}-items-center`, ['align-items: center;']),
-    createRule(`.${prefix}-items-start`, ['align-items: flex-start;']),
-    createRule(`.${prefix}-justify-center`, ['justify-content: center;']),
-    createRule(`.${prefix}-justify-between`, ['justify-content: space-between;']),
-    createRule(`.${prefix}-justify-start`, ['justify-content: flex-start;']),
-    createRule(`.${prefix}-text-center`, ['text-align: center;']),
-    createRule(`.${prefix}-border`, ['border: 1px solid var(--val-color-border);']),
-    createRule(`.${prefix}-border-0`, ['border: 0;']),
-    createRule(`.${prefix}-font-semibold`, ['font-weight: 600;']),
-    createRule(`.${prefix}-font-bold`, ['font-weight: 700;']),
-    createRule(`.${prefix}-font-display`, ['font-family: var(--val-font-display);']),
-    createRule(`.${prefix}-font-mono`, ['font-family: var(--val-font-mono);']),
-    createRule(`.${prefix}-leading-tight`, ['line-height: 1.1;']),
-    createRule(`.${prefix}-leading-copy`, ['line-height: 1.7;']),
-    createRule(`.${prefix}-transition`, ['transition: all 150ms ease;']),
-    createRule(`.${prefix}-cursor-pointer`, ['cursor: pointer;']),
-    createRule(`.${prefix}-grid-cols-2`, ['grid-template-columns: repeat(2, minmax(0, 1fr));']),
-    createRule(`.${prefix}-grid-cols-3`, ['grid-template-columns: repeat(3, minmax(0, 1fr));']),
-    buildWidthUtilities(prefix, theme.width),
-    buildTextUtilities(prefix, theme.text),
-    buildColorUtilities(prefix, theme.colors),
-    buildRadiusUtilities(prefix, theme.radius),
-    buildShadowUtilities(prefix, theme.shadow),
-    buildSpacingUtilities(prefix),
-  ].flat()
+    createRule(`.${prefix}-static`, ['position: static;']),
+    createRule(`.${prefix}-relative`, ['position: relative;']),
+    createRule(`.${prefix}-absolute`, ['position: absolute;']),
+    createRule(`.${prefix}-inset-0`, ['inset: 0;']),
+  ]
+}
+
+function buildOverflowUtilities(prefix, layout) {
+  return Object.entries(layout.overflow).map(([name, value]) => createRule(`.${prefix}-overflow-${name}`, [`overflow: ${value};`]))
+}
+
+function buildUtilities(prefix, config) {
+  return {
+    display: [
+      createRule(`.${prefix}-flex`, ['display: flex;']),
+      createRule(`.${prefix}-inline-flex`, ['display: inline-flex;']),
+      createRule(`.${prefix}-grid`, ['display: grid;']),
+      createRule(`.${prefix}-block`, ['display: block;']),
+      createRule(`.${prefix}-hidden`, ['display: none;']),
+    ],
+    flex: [
+      createRule(`.${prefix}-flex-row`, ['flex-direction: row;']),
+      createRule(`.${prefix}-flex-col`, ['flex-direction: column;']),
+      createRule(`.${prefix}-flex-wrap`, ['flex-wrap: wrap;']),
+      createRule(`.${prefix}-items-center`, ['align-items: center;']),
+      createRule(`.${prefix}-items-start`, ['align-items: flex-start;']),
+      createRule(`.${prefix}-items-end`, ['align-items: flex-end;']),
+      createRule(`.${prefix}-justify-center`, ['justify-content: center;']),
+      createRule(`.${prefix}-justify-between`, ['justify-content: space-between;']),
+      createRule(`.${prefix}-justify-start`, ['justify-content: flex-start;']),
+      createRule(`.${prefix}-justify-end`, ['justify-content: flex-end;']),
+    ],
+    positioning: buildPositionUtilities(prefix),
+    overflow: buildOverflowUtilities(prefix, config.layout),
+    grid: buildGridUtilities(prefix, config.layout),
+    sizing: [
+      ...buildWidthUtilities(prefix, config.theme.width),
+      ...buildSizingAliasUtilities(prefix, config.sizing),
+      ...buildDimensionScaleUtilities(prefix, config.theme.spacing),
+    ],
+    typography: [
+      createRule(`.${prefix}-text-center`, ['text-align: center;']),
+      createRule(`.${prefix}-font-semibold`, ['font-weight: 600;']),
+      createRule(`.${prefix}-font-bold`, ['font-weight: 700;']),
+      createRule(`.${prefix}-font-display`, ['font-family: var(--val-font-display);']),
+      createRule(`.${prefix}-font-mono`, ['font-family: var(--val-font-mono);']),
+      createRule(`.${prefix}-leading-tight`, ['line-height: 1.1;']),
+      createRule(`.${prefix}-leading-copy`, ['line-height: 1.7;']),
+      ...buildTextUtilities(prefix, config.theme.text),
+    ],
+    colors: buildColorUtilities(prefix, config.theme.colors),
+    borders: [
+      createRule(`.${prefix}-border`, ['border: 1px solid var(--val-color-border);']),
+      createRule(`.${prefix}-border-0`, ['border: 0;']),
+    ],
+    radius: buildRadiusUtilities(prefix, config.theme.radius),
+    shadows: buildShadowUtilities(prefix, config.theme.shadow),
+    interaction: [
+      createRule(`.${prefix}-transition`, ['transition: all 150ms ease;']),
+      createRule(`.${prefix}-cursor-pointer`, ['cursor: pointer;']),
+    ],
+    spacing: buildSpacingUtilities(prefix),
+  }
 }
 
 function isStateVariantEligible(name) {
@@ -217,15 +289,41 @@ function buildComponents(prefix) {
   ].join('\n')
 }
 
+function buildManifest(prefix, utilityGroups, componentCss, responsiveVariants, stateVariants) {
+  const categories = Object.fromEntries(
+    Object.entries(utilityGroups).map(([groupName, rules]) => [
+      groupName,
+      Array.from(new Set(rules.map(rule => utilityNameFromSelector(parseRule(rule).selector, prefix)).filter(Boolean))),
+    ]),
+  )
+
+  return {
+    prefix,
+    utilityGroups: categories,
+    counts: {
+      utilityGroups: Object.keys(categories).length,
+      utilities: Object.values(categories).reduce((total, names) => total + names.length, 0),
+      responsiveVariants: responsiveVariants.length,
+      stateVariants: stateVariants.length,
+      components: extractClassNames(componentCss, prefix).length,
+    },
+    components: extractClassNames(componentCss, prefix),
+  }
+}
+
 async function build() {
   const config = await readConfig()
   const prefix = config.prefix ?? 'val'
   const outDir = resolve(__dirname, config.outDir ?? 'dist')
   const outFile = resolve(outDir, `${prefix}.css`)
+  const manifestFile = resolve(outDir, `${prefix}-manifest.json`)
   const sourceCss = readFileSync(sourceFile, 'utf8').trim()
-  const utilityRules = buildUtilities(prefix, config.theme)
+  const utilityGroups = buildUtilities(prefix, config)
+  const utilityRules = flattenUtilityGroups(utilityGroups)
   const responsiveVariants = buildResponsiveVariants(prefix, utilityRules, config.breakpoints ?? {})
   const stateVariants = buildStateVariants(prefix, utilityRules, config.states ?? [])
+  const componentCss = buildComponents(prefix)
+  const manifest = buildManifest(prefix, utilityGroups, componentCss, responsiveVariants, stateVariants)
 
   mkdirSync(outDir, { recursive: true })
 
@@ -239,11 +337,12 @@ async function build() {
     responsiveVariants.length > 0 ? ['@layer val.variants {', ...responsiveVariants, '}'].join('\n') : '',
     stateVariants.length > 0 ? ['@layer val.states {', ...stateVariants, '}'].join('\n') : '',
     '@layer val.components {',
-    buildComponents(prefix),
+    componentCss,
     '}',
   ].join('\n\n')
 
   writeFileSync(outFile, `${css}\n`)
+  writeFileSync(manifestFile, `${JSON.stringify(manifest, null, 2)}\n`)
   console.log(`Built ${outFile}`)
 }
 

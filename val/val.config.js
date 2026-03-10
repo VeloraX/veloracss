@@ -7,6 +7,41 @@ export default {
     lg: '1024px',
   },
   states: ['hover', 'focus', 'active'],
+  layout: {
+    gridColumns: [1, 2, 3, 4],
+    overflow: {
+      auto: 'auto',
+      hidden: 'hidden',
+    },
+  },
+  sizing: {
+    width: {
+      auto: 'auto',
+      full: '100%',
+      screen: '100vw',
+      fit: 'fit-content',
+    },
+    minWidth: {
+      0: '0',
+      full: '100%',
+    },
+    height: {
+      auto: 'auto',
+      full: '100%',
+      screen: '100vh',
+    },
+    minHeight: {
+      0: '0',
+      full: '100%',
+      screen: '100vh',
+    },
+    maxWidth: {
+      none: 'none',
+    },
+    maxHeight: {
+      screen: '100vh',
+    },
+  },
   theme: {
     colors: {
       canvas: '#0b1020',

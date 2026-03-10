@@ -29,6 +29,9 @@ _Last updated: 2026-03-10. Updated at every milestone. Add items here whenever a
 - [x] Add responsive and state-prefixed variants to the isolated Val scaffold
   - Added configurable `breakpoints` and `states` in `val/val.config.js`
   - Verified generated selectors including `val-lg:grid-cols-2`, `val-hover:bg-brand`, `val-focus:border-brand`, and `val-active:bg-accent`
+- [x] Expand isolated Val layout and sizing coverage
+  - Added layout, sizing, positioning, and overflow utility generation from `val.config.js`
+  - Build now emits `val/dist/val-manifest.json` with utility groups and counts for coverage visibility
 
 ---
 
