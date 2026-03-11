@@ -1,0 +1,10 @@
+@import "../../dist/velora.css";
+@import "../../site.css";
+
+.site-root {
+  min-height: 100vh;
+}
+
+.site-layout-main {
+  padding-bottom: var(--vel-space-10);
+}

@@ -27,17 +27,18 @@ Build a disciplined core that mixes:
 - The first public product shell now exists with a homepage, docs page, examples page, and shared site-only styling on top of the frozen framework API
 - A root-level docs audit now checks public docs and examples references against dist/velora.manifest.json to reduce docs drift
 - A separate SvelteKit site scaffold now exists under site/ and builds successfully against the existing Velora package outputs
+- The Svelte app now binds the helper runtime across navigation and renders real docs, examples, and proof content instead of placeholder routes
 
 ## Next focus
 
-- Expand and migrate the public site routes into the SvelteKit app without coupling the framework build to the app layer
+- Polish the Svelte site by extracting shared route components and tightening remaining static-output details without coupling the framework build to the app layer
 - Keep auditing docs and page claims against the shipped manifest
 - Keep package hardening and public API freeze in view as the next release-readiness checkpoints
 - Treat GitHub Projects and the Discord tracker app as a synchronized project surface, not separate planning systems
 
 ## Upcoming Queue
 
-- Next: port the docs, examples, and proof surfaces into the SvelteKit app route by route
+- Next: extract shared Svelte site components and clean up remaining route-output details
 - Next after that: audit docs coverage against the shipped manifest
 
 ## Product Requirement

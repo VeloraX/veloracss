@@ -11,7 +11,8 @@
 - [x] Build the public docs and examples site
 - [x] Harden npm release metadata and publishing flow
 - [x] Publish VeloraCSS 0.1.1 to npm
-- [ ] Migrate the public site shell into the SvelteKit app
+- [x] Migrate the public site shell into the SvelteKit app
+- [ ] Polish the Svelte site routes and shared components
 - [x] Reconcile npm package settings and owner visibility after first publish
 
 
