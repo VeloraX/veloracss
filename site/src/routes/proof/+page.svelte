@@ -1,6 +1,19 @@
 <script>
   import SiteShell from '$lib/SiteShell.svelte';
   import PageHero from '$lib/components/PageHero.svelte';
+  import {
+    proofCompositionPanels,
+    proofFeedbackAlerts,
+    proofFlowSteps,
+    proofOverlayMenuItems,
+    proofSnapshot,
+    proofSurfaceCards
+  } from '$lib/proofContent.js';
+
+  function splitToken(token) {
+    const [className, label] = token.split('::');
+    return { className, label };
+  }
 </script>
 
 <SiteShell title="VeloraCSS Proof" footerCopy="The proof route now exercises the framework inside the Svelte app instead of pointing back at a root-level placeholder.">
@@ -19,49 +32,42 @@
     <aside slot="aside" class="vel-card vel-stack-sm vel-shadow-2">
       <p class="vel-card-eyebrow">Snapshot</p>
       <div class="vel-row-between vel-flex-wrap">
-        <div class="vel-stack-xs">
-          <p class="vel-headline">0.1.1</p>
-          <p class="vel-text-sm vel-text-muted">live package</p>
-        </div>
-        <div class="vel-stack-xs vel-text-center">
-          <p class="vel-headline">3</p>
-          <p class="vel-text-sm vel-text-muted">runtime hooks</p>
-        </div>
-        <div class="vel-stack-xs vel-text-center">
-          <p class="vel-headline">1</p>
-          <p class="vel-text-sm vel-text-muted">npm package live</p>
-        </div>
+        {#each proofSnapshot as stat}
+          <div class:vel-text-center={stat.centered} class="vel-stack-xs">
+            <p class="vel-headline">{stat.value}</p>
+            <p class="vel-text-sm vel-text-muted">{stat.label}</p>
+          </div>
+        {/each}
       </div>
     </aside>
   </PageHero>
 
   <section class="site-section">
     <div class="vel-grid-three">
-      <article class="vel-card vel-stack-sm vel-shadow-1">
-        <p class="vel-card-eyebrow">Surfaces</p>
-        <h2 class="vel-title">Token-led backgrounds and borders</h2>
-        <div class="vel-row vel-flex-wrap">
-          <span class="vel-chip vel-bg-primary vel-text-on-primary">Primary</span>
-          <span class="vel-chip vel-bg-primary-soft vel-text-primary vel-border-primary">Soft</span>
-          <span class="vel-chip vel-bg-elevated vel-border">Elevated</span>
-        </div>
-      </article>
-
-      <article class="vel-card vel-stack-sm vel-shadow-1">
-        <p class="vel-card-eyebrow">Layout</p>
-        <h2 class="vel-title">Grid, rows, stacks, and auto-fit</h2>
-        <div class="vel-grid-auto">
-          <div class="vel-swatch vel-bg-soft vel-border vel-radius-md"></div>
-          <div class="vel-swatch vel-bg-elevated vel-border vel-radius-md"></div>
-          <div class="vel-swatch vel-bg-primary-soft vel-border-primary vel-radius-md"></div>
-        </div>
-      </article>
-
-      <article class="vel-card vel-stack-sm vel-shadow-1">
-        <p class="vel-card-eyebrow">Typography</p>
-        <h2 class="vel-title">Roles, tone, and readable defaults</h2>
-        <p class="vel-body vel-text-muted">The public grammar now has display, headline, title, body, small text, mono, and tone utilities.</p>
-      </article>
+      {#each proofSurfaceCards as card}
+        <article class="vel-card vel-stack-sm vel-shadow-1">
+          <p class="vel-card-eyebrow">{card.eyebrow}</p>
+          <h2 class="vel-title">{card.title}</h2>
+          {#if card.chips}
+            <div class="vel-row vel-flex-wrap">
+              {#each card.chips as token}
+                {@const chip = splitToken(token)}
+                <span class={chip.className}>{chip.label}</span>
+              {/each}
+            </div>
+          {/if}
+          {#if card.swatches}
+            <div class="vel-grid-auto">
+              {#each card.swatches as swatchClass}
+                <div class={swatchClass}></div>
+              {/each}
+            </div>
+          {/if}
+          {#if card.copy}
+            <p class="vel-body vel-text-muted">{card.copy}</p>
+          {/if}
+        </article>
+      {/each}
     </div>
   </section>
 
@@ -71,26 +77,12 @@
         <p class="vel-card-eyebrow">Composition</p>
         <h2 class="vel-title">Utilities are ready to assemble components</h2>
         <div class="vel-grid-auto">
-          <div class="vel-panel vel-stack-xs vel-shadow-1">
-            <p class="vel-text-sm vel-text-primary vel-font-medium">Sizing</p>
-            <p class="vel-body vel-text-muted">Width and readable max-width helpers are in place.</p>
-          </div>
-          <div class="vel-panel vel-stack-xs vel-shadow-1">
-            <p class="vel-text-sm vel-text-primary vel-font-medium">Spacing</p>
-            <p class="vel-body vel-text-muted">Padding, block rhythm, gaps, and top spacing utilities now exist.</p>
-          </div>
-          <div class="vel-panel vel-stack-xs vel-shadow-1">
-            <p class="vel-text-sm vel-text-primary vel-font-medium">Effects</p>
-            <p class="vel-body vel-text-muted">Shadows and ring primitives give the base visual depth.</p>
-          </div>
-          <div class="vel-panel vel-stack-xs vel-shadow-1">
-            <p class="vel-text-sm vel-text-primary vel-font-medium">Navigation</p>
-            <p class="vel-body vel-text-muted">Nav bars, tabs, breadcrumbs, and pagination now share the same grammar.</p>
-          </div>
-          <div class="vel-panel vel-stack-xs vel-shadow-1">
-            <p class="vel-text-sm vel-text-primary vel-font-medium">Overlay</p>
-            <p class="vel-body vel-text-muted">Menus, modals, and toasts inherit the same tighter corners and control rhythm.</p>
-          </div>
+          {#each proofCompositionPanels as panel}
+            <div class="vel-panel vel-stack-xs vel-shadow-1">
+              <p class="vel-text-sm vel-text-primary vel-font-medium">{panel.title}</p>
+              <p class="vel-body vel-text-muted">{panel.copy}</p>
+            </div>
+          {/each}
         </div>
       </article>
 
@@ -167,25 +159,12 @@
         </div>
 
         <div class="vel-stack-sm">
-          <section class="vel-alert vel-alert-info">
-            <p class="vel-alert-title">Info</p>
-            <p class="vel-alert-copy">The utility grammar is stable enough to support the site migration without changing the public API.</p>
-          </section>
-
-          <section class="vel-alert vel-alert-success">
-            <p class="vel-alert-title">Success</p>
-            <p class="vel-alert-copy">The package is live on npm and the org package view is reconciled.</p>
-          </section>
-
-          <section class="vel-alert vel-alert-warning">
-            <p class="vel-alert-title">Warning</p>
-            <p class="vel-alert-copy">The Svelte site still needs the remaining route-by-route content migration.</p>
-          </section>
-
-          <section class="vel-alert vel-alert-danger">
-            <p class="vel-alert-title">Blocked</p>
-            <p class="vel-alert-copy">Do not expand the public API casually while the proof and docs are being consolidated.</p>
-          </section>
+          {#each proofFeedbackAlerts as alert}
+            <section class={`vel-alert vel-alert-${alert.variant}`}>
+              <p class="vel-alert-title">{alert.title}</p>
+              <p class="vel-alert-copy">{alert.copy}</p>
+            </section>
+          {/each}
         </div>
       </article>
     </div>
@@ -259,41 +238,21 @@
         </div>
 
         <div class="vel-steps" aria-label="Release flow">
-          <section class="vel-step is-complete">
-            <div class="vel-step-marker">1</div>
-            <div class="vel-step-body">
-              <p class="vel-step-title">Utility base established</p>
-              <p class="vel-step-copy">Layout, spacing, flex, surfaces, effects, sizing, and typography give the framework a reusable composition layer.</p>
-              <div class="vel-step-meta">
-                <span class="vel-chip vel-bg-elevated vel-border">Complete</span>
-                <span class="vel-chip vel-bg-primary-soft vel-border-primary vel-text-primary">Core</span>
+          {#each proofFlowSteps as step}
+            <section class={`vel-step is-${step.state}`}>
+              <div class="vel-step-marker">{step.marker}</div>
+              <div class="vel-step-body">
+                <p class="vel-step-title">{step.title}</p>
+                <p class="vel-step-copy">{step.copy}</p>
+                <div class="vel-step-meta">
+                  {#each step.meta as token}
+                    {@const chip = splitToken(token)}
+                    <span class={chip.className}>{chip.label}</span>
+                  {/each}
+                </div>
               </div>
-            </div>
-          </section>
-
-          <section class="vel-step is-complete">
-            <div class="vel-step-marker">2</div>
-            <div class="vel-step-body">
-              <p class="vel-step-title">Release path and npm access finished</p>
-              <p class="vel-step-copy">The package is published, tagged, and wired into the npm org view.</p>
-              <div class="vel-step-meta">
-                <span class="vel-chip vel-bg-elevated vel-border">Complete</span>
-                <span class="vel-chip vel-bg-primary-soft vel-border-primary vel-text-primary">Release</span>
-              </div>
-            </div>
-          </section>
-
-          <section class="vel-step is-current">
-            <div class="vel-step-marker">3</div>
-            <div class="vel-step-body">
-              <p class="vel-step-title">Public site routes are being consolidated</p>
-              <p class="vel-step-copy">Docs, examples, and proof are moving into the Svelte app without changing the package API.</p>
-              <div class="vel-step-meta">
-                <span class="vel-chip vel-bg-primary vel-text-on-primary">Current</span>
-                <span class="vel-chip vel-bg-elevated vel-border">Migration</span>
-              </div>
-            </div>
-          </section>
+            </section>
+          {/each}
         </div>
       </article>
     </div>
@@ -346,9 +305,10 @@
             <button class="vel-button vel-button-secondary" type="button" data-vel-toggle="proof-menu" aria-expanded="false">Open menu</button>
 
             <div class="vel-dropdown-menu vel-stack-xs" id="proof-menu" hidden>
-              <button class="vel-dropdown-item" type="button">Duplicate layout<span class="vel-dropdown-hint">Ctrl+D</span></button>
-              <button class="vel-dropdown-item" type="button">Save preset<span class="vel-dropdown-hint">Ctrl+S</span></button>
-              <button class="vel-dropdown-item" type="button">Export proof<span class="vel-dropdown-hint">JSON</span></button>
+              {#each proofOverlayMenuItems as item}
+                {@const [label, hint] = item.split('::')}
+                <button class="vel-dropdown-item" type="button">{label}<span class="vel-dropdown-hint">{hint}</span></button>
+              {/each}
             </div>
           </div>
 
