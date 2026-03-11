@@ -71,3 +71,5 @@ Reference target from the tracker:
 - `npm publish --access public` succeeded for `veloracss@0.1.1`
 - `npm view veloracss version` returns `0.1.1`
 - `https://www.npmjs.com/package/veloracss` reflects the public package
+- `npm access list packages veloracss:developers --json` shows `veloracss` with `read-write` access
+- `https://www.npmjs.com/settings/veloracss/packages` now shows the package in the npm org view
