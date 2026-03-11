@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VeloraCSS</title>
+    <meta
+      name="description"
+      content="VeloraCSS is a sharper utility-first CSS framework with polished starter components, token-led theming, and optional progressive enhancement."
+    />
+    <link rel="stylesheet" href="./dist/velora.css" />
+    <link rel="stylesheet" href="./site.css" />
+  </head>
+  <body class="site-body">
+    <div class="site-shell">
+      <div class="site-frame vel-shell vel-stack-lg">
+        <header class="site-nav">
+          <nav class="vel-navbar" aria-label="Primary">
+            <a class="vel-navbar-brand" href="./index.html">
+              <span class="vel-navbar-mark">V</span>
+              <span>VeloraCSS</span>
+            </a>
+
+            <div class="vel-navbar-nav">
+              <a class="vel-navbar-link" href="./docs/index.html">Docs</a>
+              <a class="vel-navbar-link" href="./examples/index.html">Examples</a>
+              <a class="vel-navbar-link" href="./docs/index.html#rules">API</a>
+              <a class="vel-navbar-link" href="./docs/index.html#release">Release</a>
+            </div>
+
+            <div class="vel-navbar-actions">
+              <a class="vel-button vel-button-ghost" href="./proof.html">Proof</a>
+              <a class="vel-button vel-button-primary" href="./docs/index.html">Start with docs</a>
+            </div>
+          </nav>
+        </header>
+
+        <main class="site-main vel-stack-lg">
+          <section class="site-hero">
+            <div class="site-hero-copy">
+              <span class="site-kicker">Velora 0.1 Surface</span>
+              <div class="vel-stack-sm">
+                <p class="vel-eyebrow">Framework</p>
+                <h1 class="vel-display">Sharper utilities. Polished starters. No bloated chrome.</h1>
+              </div>
+              <p class="vel-body-lg vel-text-muted vel-max-w-copy">
+                VeloraCSS combines utility density with starter components, token-led theming, and a tighter visual language. The public 0.1 surface is now frozen and backed by a machine-readable manifest.
+              </p>
+              <div class="vel-cluster">
+                <a class="vel-button vel-button-primary" href="./docs/index.html">Read the docs</a>
+                <a class="vel-button vel-button-secondary" href="./examples/index.html">See examples</a>
+                <a class="vel-button vel-button-ghost" href="./dist/velora.manifest.json">View manifest</a>
+              </div>
+              <div class="site-command">npm install veloracss</div>
+            </div>
+
+            <aside class="site-stat-grid">
+              <article class="site-stat-card vel-stack-xs">
+                <p class="vel-text-sm vel-text-primary vel-font-medium">Public API</p>
+                <p class="vel-headline">0.1</p>
+                <p class="vel-body vel-text-muted">Frozen through `API_SURFACE.md` and `dist/velora.manifest.json`.</p>
+              </article>
+              <article class="site-stat-card vel-stack-xs">
+                <p class="vel-text-sm vel-text-primary vel-font-medium">Runtime</p>
+                <p class="vel-headline">3</p>
+                <p class="vel-body vel-text-muted">Focused helper hooks: `toggle`, `open`, and `close`.</p>
+              </article>
+              <article class="site-stat-card vel-stack-xs">
+                <p class="vel-text-sm vel-text-primary vel-font-medium">Product surface</p>
+                <p class="vel-headline">3</p>
+                <p class="vel-body vel-text-muted">Home, docs, and examples now exist as first-pass public pages.</p>
+              </article>
+            </aside>
+          </section>
+
+          <section class="site-section">
+            <div class="site-section-head">
+              <p class="vel-eyebrow">Why Velora</p>
+              <h2 class="vel-headline">Built for composition first, product second, and noise last.</h2>
+            </div>
+            <div class="site-feature-grid">
+              <article class="vel-card site-mast-card vel-stack-sm">
+                <p class="vel-card-eyebrow">Utilities</p>
+                <p class="site-card-title">A strict `vel-` grammar</p>
+                <p class="vel-body vel-text-muted">The public surface stays intentional. Utilities, tokens, and runtime hooks all follow one stable naming system.</p>
+              </article>
+              <article class="vel-card site-mast-card vel-stack-sm">
+                <p class="vel-card-eyebrow">Components</p>
+                <p class="site-card-title">Starter pieces, not visual sludge</p>
+                <p class="vel-body vel-text-muted">Buttons, forms, alerts, navigation, flow, overlays, and action surfaces are proofed in the same sharper geometry.</p>
+              </article>
+              <article class="vel-card site-mast-card vel-stack-sm">
+                <p class="vel-card-eyebrow">Release discipline</p>
+                <p class="site-card-title">Manifest-backed API freeze</p>
+                <p class="vel-body vel-text-muted">The build emits a selector and token manifest so the 0.1 package is defined by code, not vague intentions.</p>
+              </article>
+            </div>
+          </section>
+
+          <section class="site-section">
+            <div class="site-section-head">
+              <p class="vel-eyebrow">Slices</p>
+              <h2 class="vel-headline">What is already in the framework</h2>
+            </div>
+            <div class="site-chip-row">
+              <span class="vel-chip vel-bg-elevated vel-border">Tokens</span>
+              <span class="vel-chip vel-bg-elevated vel-border">Layout</span>
+              <span class="vel-chip vel-bg-elevated vel-border">Spacing</span>
+              <span class="vel-chip vel-bg-elevated vel-border">Typography</span>
+              <span class="vel-chip vel-bg-primary-soft vel-border-primary vel-text-primary">Forms</span>
+              <span class="vel-chip vel-bg-primary-soft vel-border-primary vel-text-primary">Feedback</span>
+              <span class="vel-chip vel-bg-primary-soft vel-border-primary vel-text-primary">Navigation</span>
+              <span class="vel-chip vel-bg-primary-soft vel-border-primary vel-text-primary">Flow</span>
+              <span class="vel-chip vel-bg-primary-soft vel-border-primary vel-text-primary">Overlay</span>
+            </div>
+          </section>
+
+          <section class="site-section">
+            <div class="site-section-head">
+              <p class="vel-eyebrow">Start</p>
+              <h2 class="vel-headline">Pick the right next page</h2>
+            </div>
+            <div class="site-doc-grid">
+              <article class="vel-card site-doc-card vel-stack-sm">
+                <p class="vel-card-eyebrow">Docs</p>
+                <p class="site-card-title">Install, API rules, and runtime hooks</p>
+                <p class="vel-body vel-text-muted">Read the frozen 0.1 contract, selector families, and package outputs.</p>
+                <a class="vel-button vel-button-secondary" href="./docs/index.html">Open docs</a>
+              </article>
+              <article class="vel-card site-doc-card vel-stack-sm">
+                <p class="vel-card-eyebrow">Examples</p>
+                <p class="site-card-title">See assembled patterns in context</p>
+                <p class="vel-body vel-text-muted">Browse dashboard, settings, and launch-oriented examples built from the starter surface.</p>
+                <a class="vel-button vel-button-secondary" href="./examples/index.html">Open examples</a>
+              </article>
+              <article class="vel-card site-doc-card vel-stack-sm">
+                <p class="vel-card-eyebrow">Proof</p>
+                <p class="site-card-title">Inspect the raw validation harness</p>
+                <p class="vel-body vel-text-muted">Go directly to the proof page used to validate utilities, components, and helper behavior.</p>
+                <a class="vel-button vel-button-secondary" href="./proof.html">Open proof</a>
+              </article>
+            </div>
+          </section>
+        </main>
+
+        <footer class="site-footer">
+          <div class="site-footer-panel">
+            <div class="vel-stack-xs">
+              <p class="vel-text-sm vel-text-primary vel-font-medium">VeloraCSS</p>
+              <p class="vel-body vel-text-muted">Sharper default geometry, frozen 0.1 surface, and public docs now started.</p>
+            </div>
+            <div class="site-link-row">
+              <a class="vel-button vel-button-ghost" href="./docs/index.html#rules">API surface</a>
+              <a class="vel-button vel-button-ghost" href="./docs/index.html#release">Publish</a>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+    <script type="module" src="./dist/velora.js"></script>
+  </body>
+</html>

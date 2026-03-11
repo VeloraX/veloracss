@@ -1,0 +1,64 @@
+# VeloraCSS NPM Publishing
+
+This document covers the repo-side publish flow and the remaining manual npmjs settings for VeloraCSS.
+
+## Repo-side flow
+
+Release verification:
+
+```bash
+npm run release:verify
+```
+
+This performs:
+
+- `npm run build`
+- `npm run audit:docs`
+- `npm pack --dry-run`
+
+The docs audit checks public docs and example surfaces for `vel-*`, `--vel-*`, and `data-vel-*` references that are not present in `dist/velora.manifest.json`.
+
+The package is configured to publish the compiled surface only:
+
+- `dist/`
+- `README.md`
+- `LICENSE`
+- `API_SURFACE.md`
+- `NPM_PUBLISHING.md`
+
+## GitHub Actions publish flow
+
+The repository includes `.github/workflows/publish-package.yml`.
+
+It will:
+
+1. install dependencies with `npm ci`
+2. run `npm run release:verify`
+3. publish to npm with provenance on release or manual dispatch
+
+Required secret:
+
+- `NPM_TOKEN`
+
+## Remaining manual npmjs settings
+
+Phase 7 is not fully complete until these are confirmed on npmjs.com for `veloracss`:
+
+1. package access and visibility are correct for public release
+2. trusted publishing or token-based publish path is confirmed
+3. owners/maintainers are correct
+4. package settings page reflects the intended public package identity
+5. first publish verification succeeds against the real npm registry
+
+Reference target from the tracker:
+
+- `https://www.npmjs.com/settings/veloracss/packages`
+
+## Release checklist
+
+1. run `npm run release:verify`
+2. confirm `dist/velora.manifest.json` reflects the intended public surface
+3. confirm `API_SURFACE.md` matches the manifest and release intent
+4. verify npmjs package settings page is configured correctly
+5. create a GitHub release or trigger the publish workflow manually
+6. verify the published package contents with `npm view veloracss --json`

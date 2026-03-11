@@ -4,6 +4,15 @@
   "description": "Utility-first CSS framework with polished starter components.",
   "type": "module",
   "license": "MIT",
+  "style": "./dist/velora.css",
+  "main": "./dist/velora.js",
+  "module": "./dist/velora.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ],
   "homepage": "https://github.com/VeloraX/veloracss#readme",
   "repository": {
     "type": "git",
@@ -22,19 +31,29 @@
   ],
   "files": [
     "dist",
-    "src",
-    "README.md"
+    "README.md",
+    "LICENSE",
+    "API_SURFACE.md",
+    "NPM_PUBLISHING.md"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "exports": {
     ".": {
       "style": "./dist/velora.css",
       "default": "./dist/velora.css"
     },
     "./css": "./dist/velora.css",
-    "./js": "./dist/velora.js"
+    "./js": "./dist/velora.js",
+    "./manifest": "./dist/velora.manifest.json"
   },
   "scripts": {
-    "build": "node build.mjs"
+    "build": "node build.mjs",
+    "audit:docs": "node scripts/audit-docs.mjs",
+    "prepack": "npm run build",
+    "pack:check": "npm pack --dry-run",
+    "release:verify": "npm run build && npm run audit:docs && npm run pack:check"
   },
   "devDependencies": {
     "esbuild": "^0.25.1",

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VeloraCSS Docs</title>
+    <meta name="description" content="VeloraCSS documentation for install, frozen API rules, utility families, components, and runtime hooks." />
+    <link rel="stylesheet" href="../dist/velora.css" />
+    <link rel="stylesheet" href="../site.css" />
+  </head>
+  <body class="site-body">
+    <div class="site-shell">
+      <div class="site-frame vel-shell vel-stack-lg">
+        <header class="site-nav">
+          <nav class="vel-navbar" aria-label="Primary">
+            <a class="vel-navbar-brand" href="../index.html">
+              <span class="vel-navbar-mark">V</span>
+              <span>VeloraCSS</span>
+            </a>
+
+            <div class="vel-navbar-nav">
+              <a class="vel-navbar-link" href="../index.html">Home</a>
+              <a class="vel-navbar-link" href="./index.html" aria-current="page">Docs</a>
+              <a class="vel-navbar-link" href="../examples/index.html">Examples</a>
+              <a class="vel-navbar-link" href="../proof.html">Proof</a>
+            </div>
+
+            <div class="vel-navbar-actions">
+              <a class="vel-button vel-button-ghost" href="../dist/velora.manifest.json">Manifest</a>
+              <a class="vel-button vel-button-primary" href="#rules">API surface</a>
+            </div>
+          </nav>
+        </header>
+
+        <main class="site-main vel-stack-lg">
+          <section class="site-hero">
+            <div class="site-hero-copy">
+              <div class="vel-breadcrumb" aria-label="Breadcrumb">
+                <a class="vel-breadcrumb-link" href="../index.html">Home</a>
+                <span class="vel-breadcrumb-separator">/</span>
+                <span class="vel-breadcrumb-current">Docs</span>
+              </div>
+              <div class="vel-stack-sm">
+                <p class="vel-eyebrow">Documentation</p>
+                <h1 class="vel-headline">Install the package, learn the rules, and work inside the frozen 0.1 surface.</h1>
+              </div>
+              <p class="vel-body-lg vel-text-muted vel-max-w-copy">
+                VeloraCSS ships as compiled CSS, optional runtime helpers, and a manifest-backed API. These docs cover the public rules that should not drift between releases.
+              </p>
+            </div>
+
+            <aside class="vel-card vel-stack-sm">
+              <p class="vel-card-eyebrow">Install</p>
+              <div class="site-command">npm install veloracss</div>
+              <div class="site-command">import "veloracss/css";</div>
+              <div class="site-command">import { initVelora } from "veloracss/js";</div>
+            </aside>
+          </section>
+
+          <section class="site-section" id="rules">
+            <div class="site-section-head">
+              <p class="vel-eyebrow">Rules</p>
+              <h2 class="vel-headline">Public rules</h2>
+            </div>
+            <div class="site-doc-grid">
+              <article class="site-doc-rule vel-stack-xs">
+                <p class="site-card-title">Prefixes are strict</p>
+                <p class="vel-body vel-text-muted">Selectors use <span class="site-inline-code">vel-</span>, tokens use <span class="site-inline-code">--vel-</span>, and runtime hooks use explicit <span class="site-inline-code">data-vel-*</span> attributes.</p>
+              </article>
+              <article class="site-doc-rule vel-stack-xs">
+                <p class="site-card-title">Geometry stays sharper</p>
+                <p class="vel-body vel-text-muted">Pill-heavy chrome is not the default. Rounded pills are opt-in rather than the baseline framework look.</p>
+              </article>
+              <article class="site-doc-rule vel-stack-xs">
+                <p class="site-card-title">The manifest is authority</p>
+                <p class="vel-body vel-text-muted">The full public selector and token surface is generated into <span class="site-inline-code">dist/velora.manifest.json</span> during build.</p>
+              </article>
+            </div>
+          </section>
+
+          <section class="site-section" id="families">
+            <div class="site-section-head">
+              <p class="vel-eyebrow">Families</p>
+              <h2 class="vel-headline">Stable 0.1 selector families</h2>
+            </div>
+            <div class="site-feature-grid">
+              <article class="vel-card vel-stack-sm">
+                <p class="vel-card-eyebrow">Foundation</p>
+                <p class="site-card-title">Layout and composition</p>
+                <p class="site-card-copy">Start with the page frame and spacing rhythm, then layer rows, grids, and alignment helpers on top.</p>
+                <div class="site-chip-row">
+                  <span class="site-code-chip">vel-shell</span>
+                  <span class="site-code-chip">vel-stack-*</span>
+                  <span class="site-code-chip">vel-grid-*</span>
+                  <span class="site-code-chip">vel-justify-*</span>
+                </div>
+                <p class="site-note">Think container, rhythm, layout, and alignment before components.</p>
+              </article>
+              <article class="vel-card vel-stack-sm">
+                <p class="vel-card-eyebrow">Tokens and utilities</p>
+                <p class="site-card-title">Spacing, sizing, surfaces, effects</p>
+                <p class="site-card-copy">These utilities control spacing, readable widths, surface tone, border treatment, and elevation.</p>
+                <div class="site-chip-row">
+                  <span class="site-code-chip">vel-p*</span>
+                  <span class="site-code-chip">vel-gap-*</span>
+                  <span class="site-code-chip">vel-max-w-*</span>
+                  <span class="site-code-chip">vel-bg-*</span>
+                  <span class="site-code-chip">vel-shadow-*</span>
+                </div>
+                <p class="site-note">Use these to shape density and hierarchy without custom one-off CSS.</p>
+              </article>
+              <article class="vel-card vel-stack-sm">
+                <p class="vel-card-eyebrow">Typography</p>
+                <p class="site-card-title">Readable roles and tone</p>
+                <p class="site-card-copy">Type roles cover large hero headings, section titles, body copy, supportive tone, and monospace accents.</p>
+                <div class="site-chip-row">
+                  <span class="site-code-chip">vel-display</span>
+                  <span class="site-code-chip">vel-headline</span>
+                  <span class="site-code-chip">vel-body</span>
+                  <span class="site-code-chip">vel-text-*</span>
+                  <span class="site-code-chip">vel-font-*</span>
+                </div>
+                <p class="site-note">The goal is consistent roles, not a giant bag of random font overrides.</p>
+              </article>
+              <article class="vel-card vel-stack-sm">
+                <p class="vel-card-eyebrow">Core UI</p>
+                <p class="site-card-title">Forms, cards, buttons, alerts</p>
+                <p class="site-card-copy">These are the starter controls for real product screens: actions, forms, validation copy, and status messaging.</p>
+                <div class="site-chip-row">
+                  <span class="site-code-chip">vel-button*</span>
+                  <span class="site-code-chip">vel-form</span>
+                  <span class="site-code-chip">vel-input*</span>
+                  <span class="site-code-chip">vel-alert*</span>
+                </div>
+                <p class="site-note">The baseline stays sharper and more restrained than pill-heavy UI kits.</p>
+              </article>
+              <article class="vel-card vel-stack-sm">
+                <p class="vel-card-eyebrow">Navigation and flow</p>
+                <p class="site-card-title">Shell orientation and progress</p>
+                <p class="site-card-copy">Use these pieces to orient the page, move between views, and show staged progress without a heavy runtime layer.</p>
+                <div class="site-chip-row">
+                  <span class="site-code-chip">vel-navbar*</span>
+                  <span class="site-code-chip">vel-breadcrumb*</span>
+                  <span class="site-code-chip">vel-tabs</span>
+                  <span class="site-code-chip">vel-steps</span>
+                </div>
+                <p class="site-note">They are meant for docs shells, dashboards, and setup flows.</p>
+              </article>
+              <article class="vel-card vel-stack-sm">
+                <p class="vel-card-eyebrow">Actions and overlays</p>
+                <p class="site-card-title">Focused interaction surfaces</p>
+                <p class="site-card-copy">This group covers toolbars, grouped actions, menus, modal shells, toast feedback, and the small runtime hooks that support them.</p>
+                <div class="site-chip-row">
+                  <span class="site-code-chip">vel-action-*</span>
+                  <span class="site-code-chip">vel-dropdown*</span>
+                  <span class="site-code-chip">vel-modal*</span>
+                  <span class="site-code-chip">data-vel-toggle</span>
+                </div>
+                <p class="site-note">The JS surface stays narrow: open, close, and toggle only.</p>
+              </article>
+            </div>
+          </section>
+
+          <section class="site-section" id="artifacts">
+            <div class="site-section-head">
+              <p class="vel-eyebrow">Artifacts</p>
+              <h2 class="vel-headline">Package outputs</h2>
+            </div>
+            <div class="site-doc-grid">
+              <article class="vel-card vel-stack-sm">
+                <p class="vel-card-eyebrow">CSS</p>
+                <p class="site-card-title">Stylesheet bundles</p>
+                <p class="site-card-copy">Ship the readable bundle for development and the minified bundle for distribution.</p>
+                <div class="site-artifact-stack">
+                  <div class="site-command">dist/velora.css</div>
+                  <div class="site-command">dist/velora.min.css</div>
+                </div>
+              </article>
+              <article class="vel-card vel-stack-sm">
+                <p class="vel-card-eyebrow">Runtime</p>
+                <p class="site-card-title">Optional helper runtime</p>
+                <p class="site-card-copy">Use this only when you need the small progressive-enhancement layer for menus, modals, and toasts.</p>
+                <div class="site-artifact-stack">
+                  <div class="site-command">dist/velora.js</div>
+                  <div class="site-command">dist/velora.min.js</div>
+                </div>
+              </article>
+              <article class="vel-card vel-stack-sm">
+                <p class="vel-card-eyebrow">Manifest</p>
+                <p class="site-card-title">Machine-readable API contract</p>
+                <p class="site-card-copy">This file is the exact shipped record of public classes, tokens, and runtime attributes.</p>
+                <div class="site-artifact-stack">
+                  <div class="site-command">dist/velora.manifest.json</div>
+                </div>
+                <a class="vel-button vel-button-secondary" href="../dist/velora.manifest.json">Open manifest</a>
+              </article>
+            </div>
+          </section>
+
+          <section class="site-section" id="release">
+            <div class="site-section-head">
+              <p class="vel-eyebrow">Release</p>
+              <h2 class="vel-headline">Repo-side publish flow and remaining blocker</h2>
+            </div>
+            <div class="site-doc-grid">
+              <article class="vel-card vel-stack-sm">
+                <p class="vel-card-eyebrow">Verify</p>
+                <div class="site-command">npm run release:verify</div>
+                <p class="vel-body vel-text-muted">This runs the build and a dry-run package check against the constrained release surface.</p>
+              </article>
+              <article class="vel-card vel-stack-sm">
+                <p class="vel-card-eyebrow">Publish</p>
+                <p class="site-card-title">GitHub workflow is wired</p>
+                <p class="vel-body vel-text-muted">The repository now includes a publish workflow that verifies the package before pushing to npm.</p>
+              </article>
+              <article class="vel-card vel-stack-sm">
+                <p class="vel-card-eyebrow">Blocker</p>
+                <p class="site-card-title">npm account-side settings still need completion</p>
+                <p class="vel-body vel-text-muted">The remaining phase is npm authentication, package settings confirmation, and first live publish verification.</p>
+                <a class="vel-button vel-button-secondary" href="../NPM_PUBLISHING.md">Detailed publishing notes</a>
+              </article>
+            </div>
+          </section>
+        </main>
+
+        <footer class="site-footer">
+          <div class="site-footer-panel">
+            <div class="vel-stack-xs">
+              <p class="vel-text-sm vel-text-primary vel-font-medium">Docs status</p>
+              <p class="vel-body vel-text-muted">Initial docs shell is now live and aligned to the frozen manifest-backed surface.</p>
+            </div>
+            <div class="site-link-row">
+              <a class="vel-button vel-button-ghost" href="#rules">API rules</a>
+              <a class="vel-button vel-button-ghost" href="#release">Publishing</a>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+    <script type="module" src="../dist/velora.js"></script>
+  </body>
+</html>

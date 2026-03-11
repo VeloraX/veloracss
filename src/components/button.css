@@ -4,7 +4,7 @@
   justify-content: center;
   min-height: 2.75rem;
   padding-inline: 1rem;
-  border-radius: 999px;
+  border-radius: var(--vel-radius-md);
   border: 1px solid transparent;
   cursor: pointer;
   text-decoration: none;
