@@ -13,7 +13,8 @@ export function readEnvironment(source = process.env) {
       publicKey: readOptionalString(source.DISCORD_PUBLIC_KEY),
       applicationId: readOptionalString(source.DISCORD_APPLICATION_ID),
       botToken: readOptionalString(source.DISCORD_BOT_TOKEN),
-      guildId: readOptionalString(source.DISCORD_GUILD_ID)
+      guildId: readOptionalString(source.DISCORD_GUILD_ID),
+      operatorRoleIds: readOptionalList(source.DISCORD_OPERATOR_ROLE_IDS)
     }
   };
 }
@@ -46,4 +47,17 @@ function readOptionalString(value) {
 
   const normalized = value.trim();
   return normalized.length > 0 ? normalized : null;
+}
+
+function readOptionalList(value) {
+  const normalized = readOptionalString(value);
+
+  if (normalized === null) {
+    return [];
+  }
+
+  return normalized
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0);
 }

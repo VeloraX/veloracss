@@ -1,18 +1,63 @@
 import http from 'node:http';
 
-import { trackerCommandRegistry } from './discord/commandRegistry.js';
+import { TRACKED_PROJECT_VIEW_COMMAND, trackerCommandRegistry } from './discord/commandRegistry.js';
+import { createInteractionSessionStore } from './discord/sessionStore.js';
 import { verifyDiscordSignature } from './discord/verifySignature.js';
 import { normalizeGitHubWebhook } from './github/normalizeWebhook.js';
+import {
+  createProjectDraftItem,
+  deleteProjectItem,
+  fetchGitHubProjectEditorData,
+  updateProjectDraftItem,
+  updateProjectItemFields
+} from './github/projectMutations.js';
+import { fetchGitHubProjectView } from './github/projectView.js';
 import { verifyGitHubSignature } from './github/verifySignature.js';
 import { createAuditLog } from './sync/auditLog.js';
 import { createMappingStore } from './sync/mappingStore.js';
 
 const MAX_BODY_SIZE_BYTES = 1024 * 1024;
+const DISCORD_EPHEMERAL_FLAG = 64;
+const DISCORD_COMPONENT_TYPE_BUTTON = 2;
+const DISCORD_COMPONENT_TYPE_STRING_SELECT = 3;
+const DISCORD_COMPONENT_TYPE_TEXT_INPUT = 4;
+const DISCORD_MESSAGE_UPDATE_TYPE = 7;
+const DISCORD_MODAL_RESPONSE_TYPE = 9;
+const DISCORD_TEXT_STYLE_SHORT = 1;
+const DISCORD_TEXT_STYLE_PARAGRAPH = 2;
+const TRACKER_REFRESH_COMPONENT_ID = 'tpv.refresh.v1';
+const TRACKER_STATUS_COMPONENT_ID = 'tpv.status.v1';
+const TRACKER_MANAGE_COMPONENT_ID = 'tpv.manage.v1';
+const TRACKER_MANAGER_REFRESH_COMPONENT_ID = 'tpv.manager.refresh.v1';
+const TRACKER_MANAGER_ITEM_COMPONENT_ID = 'tpv.manager.item.v1';
+const TRACKER_MANAGER_STATUS_COMPONENT_ID = 'tpv.manager.status.v1';
+const TRACKER_MANAGER_PRIORITY_COMPONENT_ID = 'tpv.manager.priority.v1';
+const TRACKER_MANAGER_CREATE_COMPONENT_ID = 'tpv.manager.create.v1';
+const TRACKER_MANAGER_EDIT_COMPONENT_ID = 'tpv.manager.edit.v1';
+const TRACKER_MANAGER_DELETE_COMPONENT_ID = 'tpv.manager.delete.v1';
+const TRACKER_MANAGER_DELETE_CONFIRM_COMPONENT_ID = 'tpv.manager.delete.confirm.v1';
+const TRACKER_MANAGER_DELETE_CANCEL_COMPONENT_ID = 'tpv.manager.delete.cancel.v1';
+const TRACKER_MANAGER_CREATE_MODAL_ID = 'tpv.manager.modal.create.v1';
+const TRACKER_MANAGER_EDIT_MODAL_ID = 'tpv.manager.modal.edit.v1';
+const TRACKER_CLEAR_PRIORITY_VALUE = '__clear__';
+const TRUSTED_DISCORD_PERMISSION_BITS = [8n, 16n, 32n, 8192n, 1099511627776n];
+const STATUS_EMBED_COLORS = Object.freeze({
+  all: 0x2563eb,
+  todo: 0xf59e0b,
+  in_progress: 0xea580c,
+  done: 0x16a34a
+});
+const LANE_EMBED_COLORS = Object.freeze({
+  todo: 0xf59e0b,
+  in_progress: 0xea580c,
+  done: 0x16a34a
+});
 
 export function createTrackerServer({
   environment,
   mappingStore = createMappingStore(),
   auditLog = createAuditLog(),
+  interactionSessionStore = createInteractionSessionStore(),
   clock = () => new Date().toISOString()
 }) {
   return http.createServer(async (request, response) => {
@@ -30,10 +75,12 @@ export function createTrackerServer({
             githubToken: Boolean(environment.github.token),
             githubOrg: environment.github.org,
             githubProjectNumber: environment.github.projectNumber,
+            githubProjectReadReady: Boolean(environment.github.token && Number.isInteger(environment.github.projectNumber)),
             discordPublicKey: Boolean(environment.discord.publicKey),
             discordApplicationId: Boolean(environment.discord.applicationId),
             discordBotToken: Boolean(environment.discord.botToken),
-            discordGuildId: Boolean(environment.discord.guildId)
+            discordGuildId: Boolean(environment.discord.guildId),
+            discordOperatorRoleIds: environment.discord.operatorRoleIds.length
           },
           state: {
             mappingCount: mappingStore.size(),
@@ -46,6 +93,20 @@ export function createTrackerServer({
         return sendJson(response, 200, {
           commands: trackerCommandRegistry
         });
+      }
+
+      if (request.method === 'GET' && url.pathname === '/github/project') {
+        const status = url.searchParams.get('status') ?? 'all';
+        const limit = readOptionalInteger(url.searchParams.get('limit'));
+        const projectView = await fetchGitHubProjectView({
+          token: environment.github.token,
+          org: environment.github.org,
+          projectNumber: environment.github.projectNumber,
+          status,
+          limit: limit ?? undefined
+        });
+
+        return sendJson(response, 200, projectView);
       }
 
       if (request.method === 'POST' && url.pathname === '/discord/interactions') {
@@ -72,7 +133,13 @@ export function createTrackerServer({
         }
 
         const payload = parseJson(payloadBuffer);
-        const interactionResponse = buildDiscordInteractionResponse(payload, auditLog, clock);
+        const interactionResponse = await buildDiscordInteractionResponse({
+          payload,
+          environment,
+          auditLog,
+          interactionSessionStore,
+          clock
+        });
         return sendJson(response, 200, interactionResponse);
       }
 
@@ -191,7 +258,7 @@ function parseJson(payloadBuffer) {
   }
 }
 
-function buildDiscordInteractionResponse(payload, auditLog, clock) {
+async function buildDiscordInteractionResponse({ payload, environment, auditLog, interactionSessionStore, clock }) {
   auditLog.record({
     kind: 'discord_interaction',
     interactionId: payload.id ?? null,
@@ -209,52 +276,1236 @@ function buildDiscordInteractionResponse(payload, auditLog, clock) {
   }
 
   if (payload.type === 2) {
-    return {
-      type: 4,
-      data: {
-        content: buildInteractionStubMessage(payload.data?.name, payload.data?.options),
-        flags: 64
-      }
-    };
+    return buildDiscordCommandInteractionResponse(payload, environment);
+  }
+
+  if (payload.type === 3) {
+    return buildDiscordComponentInteractionResponse(payload, environment, interactionSessionStore);
+  }
+
+  if (payload.type === 5) {
+    return buildDiscordModalInteractionResponse(payload, environment, interactionSessionStore);
   }
 
   return {
     type: 4,
     data: {
       content: 'The tracker scaffold received the interaction, but this type is not implemented yet.',
-      flags: 64
+      flags: DISCORD_EPHEMERAL_FLAG
     }
   };
 }
 
-function buildInteractionStubMessage(commandName, options) {
-  if (!commandName) {
-    return 'The tracker scaffold received an unnamed Discord interaction.';
+async function buildDiscordCommandInteractionResponse(payload, environment) {
+  if (environment.discord.guildId && payload.guild_id !== environment.discord.guildId) {
+    return createEphemeralDiscordResponse('This tracker is restricted to the configured Discord guild.');
   }
 
-  const optionSummary = Array.isArray(options)
-    ? options
-        .map((option) => `${option.name}=${stringifyInteractionOption(option.value)}`)
-        .join(', ')
-    : '';
-
-  if (!optionSummary) {
-    return `Tracker scaffold received ${commandName}.`;
+  if (payload.data?.name !== TRACKED_PROJECT_VIEW_COMMAND) {
+    return createEphemeralDiscordResponse(`Tracker command not implemented: ${payload.data?.name ?? 'unknown'}.`);
   }
 
-  return `Tracker scaffold received ${commandName} with ${optionSummary}.`;
+  try {
+    const status = readInteractionOptionValue(payload.data?.options, 'status') ?? 'all';
+    const projectView = await fetchGitHubProjectView({
+      token: environment.github.token,
+      org: environment.github.org,
+      projectNumber: environment.github.projectNumber,
+      status
+    });
+
+    return {
+      type: 4,
+      data: buildProjectDashboardMessage(projectView, status)
+    };
+  } catch (error) {
+    return createEphemeralDiscordResponse(`Tracker could not load GitHub Project ${environment.github.projectNumber ?? 'unknown'}: ${error.message}`);
+  }
 }
 
-function stringifyInteractionOption(value) {
-  if (typeof value === 'string') {
+async function buildDiscordComponentInteractionResponse(payload, environment, interactionSessionStore) {
+  if (environment.discord.guildId && payload.guild_id !== environment.discord.guildId) {
+    return createEphemeralDiscordResponse('This tracker is restricted to the configured Discord guild.');
+  }
+
+  const componentType = payload.data?.component_type;
+  const customId = payload.data?.custom_id ?? '';
+
+  try {
+    if (componentType === DISCORD_COMPONENT_TYPE_BUTTON && customId.startsWith(TRACKER_REFRESH_COMPONENT_ID)) {
+      const status = readComponentStatus(customId, TRACKER_REFRESH_COMPONENT_ID) ?? 'all';
+      const projectView = await fetchGitHubProjectView({
+        token: environment.github.token,
+        org: environment.github.org,
+        projectNumber: environment.github.projectNumber,
+        status
+      });
+
+      return {
+        type: DISCORD_MESSAGE_UPDATE_TYPE,
+        data: buildProjectDashboardMessage(projectView, status)
+      };
+    }
+
+    if (componentType === DISCORD_COMPONENT_TYPE_STRING_SELECT && customId === TRACKER_STATUS_COMPONENT_ID) {
+      const status = normalizeDashboardStatusKey(payload.data?.values?.[0] ?? 'all');
+      const projectView = await fetchGitHubProjectView({
+        token: environment.github.token,
+        org: environment.github.org,
+        projectNumber: environment.github.projectNumber,
+        status
+      });
+
+      return {
+        type: DISCORD_MESSAGE_UPDATE_TYPE,
+        data: buildProjectDashboardMessage(projectView, status)
+      };
+    }
+
+    if (componentType === DISCORD_COMPONENT_TYPE_BUTTON && customId.startsWith(TRACKER_MANAGE_COMPONENT_ID)) {
+      if (!hasTrackerOperatorAccess(payload, environment)) {
+        return createEphemeralDiscordResponse('Everyone can view the dashboard, but only admins or configured operator roles can change GitHub from Discord.');
+      }
+
+      const status = readComponentStatus(customId, TRACKER_MANAGE_COMPONENT_ID) ?? 'all';
+      return openManagerPanel({ payload, environment, interactionSessionStore, status });
+    }
+
+    if (customId.startsWith(`${TRACKER_MANAGER_REFRESH_COMPONENT_ID}|k=`)) {
+      return refreshManagerPanel({ payload, environment, interactionSessionStore });
+    }
+
+    if (componentType === DISCORD_COMPONENT_TYPE_STRING_SELECT && customId.startsWith(`${TRACKER_MANAGER_ITEM_COMPONENT_ID}|k=`)) {
+      return selectManagerItem({ payload, environment, interactionSessionStore });
+    }
+
+    if (componentType === DISCORD_COMPONENT_TYPE_STRING_SELECT && customId.startsWith(`${TRACKER_MANAGER_STATUS_COMPONENT_ID}|k=`)) {
+      return updateManagerStatus({ payload, environment, interactionSessionStore });
+    }
+
+    if (componentType === DISCORD_COMPONENT_TYPE_STRING_SELECT && customId.startsWith(`${TRACKER_MANAGER_PRIORITY_COMPONENT_ID}|k=`)) {
+      return updateManagerPriority({ payload, environment, interactionSessionStore });
+    }
+
+    if (componentType === DISCORD_COMPONENT_TYPE_BUTTON && customId.startsWith(`${TRACKER_MANAGER_CREATE_COMPONENT_ID}|k=`)) {
+      return openCreateManagerModal({ payload, interactionSessionStore });
+    }
+
+    if (componentType === DISCORD_COMPONENT_TYPE_BUTTON && customId.startsWith(`${TRACKER_MANAGER_EDIT_COMPONENT_ID}|k=`)) {
+      return openEditManagerModal({ payload, environment, interactionSessionStore });
+    }
+
+    if (componentType === DISCORD_COMPONENT_TYPE_BUTTON && customId.startsWith(`${TRACKER_MANAGER_DELETE_COMPONENT_ID}|k=`)) {
+      return askManagerDelete({ payload, environment, interactionSessionStore });
+    }
+
+    if (componentType === DISCORD_COMPONENT_TYPE_BUTTON && customId.startsWith(`${TRACKER_MANAGER_DELETE_CONFIRM_COMPONENT_ID}|k=`)) {
+      return confirmManagerDelete({ payload, environment, interactionSessionStore });
+    }
+
+    if (componentType === DISCORD_COMPONENT_TYPE_BUTTON && customId.startsWith(`${TRACKER_MANAGER_DELETE_CANCEL_COMPONENT_ID}|k=`)) {
+      return cancelManagerDelete({ payload, environment, interactionSessionStore });
+    }
+
+    return createEphemeralDiscordResponse(`Tracker dashboard control not implemented: ${customId || 'unknown'}.`);
+  } catch (error) {
+    return createEphemeralDiscordResponse(`Tracker could not refresh GitHub Project ${environment.github.projectNumber ?? 'unknown'}: ${error.message}`);
+  }
+}
+
+async function buildDiscordModalInteractionResponse(payload, environment, interactionSessionStore) {
+  if (environment.discord.guildId && payload.guild_id !== environment.discord.guildId) {
+    return createEphemeralDiscordResponse('This tracker is restricted to the configured Discord guild.');
+  }
+
+  if (!hasTrackerOperatorAccess(payload, environment)) {
+    return createEphemeralDiscordResponse('Everyone can view the dashboard, but only admins or configured operator roles can change GitHub from Discord.');
+  }
+
+  const customId = payload.data?.custom_id ?? '';
+
+  try {
+    if (customId.startsWith(`${TRACKER_MANAGER_CREATE_MODAL_ID}|k=`)) {
+      return submitCreateManagerModal({ payload, environment, interactionSessionStore });
+    }
+
+    if (customId.startsWith(`${TRACKER_MANAGER_EDIT_MODAL_ID}|k=`)) {
+      return submitEditManagerModal({ payload, environment, interactionSessionStore });
+    }
+
+    return createEphemeralDiscordResponse(`Tracker modal not implemented: ${customId || 'unknown'}.`);
+  } catch (error) {
+    return createEphemeralDiscordResponse(`Tracker could not apply the requested GitHub change: ${error.message}`);
+  }
+}
+
+function buildProjectDashboardMessage(projectView, selectedStatus) {
+  const normalizedStatus = normalizeDashboardStatusKey(selectedStatus);
+
+  return {
+    allowed_mentions: {
+      parse: []
+    },
+    embeds: buildDashboardEmbeds(projectView, normalizedStatus),
+    components: buildDashboardComponents(projectView, normalizedStatus)
+  };
+}
+
+function buildDashboardEmbeds(projectView, selectedStatus) {
+  const embeds = [buildDashboardOverviewEmbed(projectView, selectedStatus)];
+
+  if (selectedStatus === 'all') {
+    for (const lane of projectView.lanes) {
+      embeds.push(buildLaneEmbed(lane));
+    }
+  } else {
+    embeds.push(buildFilteredResultsEmbed(projectView, selectedStatus));
+  }
+
+  return embeds;
+}
+
+function buildDashboardOverviewEmbed(projectView, selectedStatus) {
+  return {
+    type: 'rich',
+    title: projectView.title,
+    url: projectView.url,
+    description: 'Live planning dashboard for the Velora team board.',
+    color: STATUS_EMBED_COLORS[selectedStatus] ?? STATUS_EMBED_COLORS.all,
+    fields: [
+      {
+        name: 'View',
+        value: formatStatusFilterLabel(selectedStatus),
+        inline: true
+      },
+      {
+        name: 'Visible items',
+        value: `${projectView.items.length}/${projectView.matchingCount}`,
+        inline: true
+      },
+      {
+        name: 'Total items',
+        value: String(projectView.totalCount),
+        inline: true
+      },
+      {
+        name: 'Status counts',
+        value: `In progress ${projectView.statusCounts['In progress']}\nTodo ${projectView.statusCounts.Todo}\nDone ${projectView.statusCounts.Done}${projectView.statusCounts.Other > 0 ? `\nOther ${projectView.statusCounts.Other}` : ''}`,
+        inline: false
+      }
+    ],
+    footer: {
+      text: 'Dashboard v1 · Refresh to pull the latest GitHub state'
+    }
+  };
+}
+
+function buildLaneEmbed(lane) {
+  return {
+    type: 'rich',
+    title: `${lane.label} · ${lane.count}`,
+    color: LANE_EMBED_COLORS[lane.key] ?? STATUS_EMBED_COLORS.all,
+    description: buildLaneDescription(lane)
+  };
+}
+
+function buildFilteredResultsEmbed(projectView, selectedStatus) {
+  return {
+    type: 'rich',
+    title: `${formatStatusFilterLabel(selectedStatus)} focus`,
+    color: STATUS_EMBED_COLORS[selectedStatus] ?? STATUS_EMBED_COLORS.all,
+    description: buildFilteredDescription(projectView, selectedStatus)
+  };
+}
+
+function buildLaneDescription(lane) {
+  if (lane.items.length === 0) {
+    return 'No items in this lane.';
+  }
+
+  const lines = lane.items.map((item) => formatProjectItemLine(item));
+
+  if (lane.count > lane.items.length) {
+    lines.push(`…and ${lane.count - lane.items.length} more.`);
+  }
+
+  return lines.join('\n').slice(0, 4000);
+}
+
+function buildFilteredDescription(projectView, selectedStatus) {
+  if (projectView.items.length === 0) {
+    return `No ${formatStatusFilterLabel(selectedStatus).toLowerCase()} items matched that filter.`;
+  }
+
+  const lines = projectView.items.map((item) => formatProjectItemLine(item));
+
+  if (projectView.matchingCount > projectView.items.length) {
+    lines.push(`…and ${projectView.matchingCount - projectView.items.length} more.`);
+  }
+
+  return lines.join('\n').slice(0, 4000);
+}
+
+function buildDashboardComponents(projectView, selectedStatus) {
+  return [
+    {
+      type: 1,
+      components: [
+        {
+          type: 2,
+          style: 1,
+          label: 'Refresh',
+          custom_id: `${TRACKER_REFRESH_COMPONENT_ID}|s=${selectedStatus}`
+        },
+        {
+          type: 2,
+          style: 5,
+          label: 'Open GitHub Board',
+          url: projectView.url
+        },
+        {
+          type: 2,
+          style: 2,
+          label: 'Manage',
+          custom_id: `${TRACKER_MANAGE_COMPONENT_ID}|s=${selectedStatus}`
+        }
+      ]
+    },
+    {
+      type: 1,
+      components: [
+        {
+          type: 3,
+          custom_id: TRACKER_STATUS_COMPONENT_ID,
+          placeholder: 'Switch dashboard view',
+          min_values: 1,
+          max_values: 1,
+          options: buildStatusOptions(selectedStatus)
+        }
+      ]
+    }
+  ];
+}
+
+function buildStatusOptions(selectedStatus) {
+  return [
+    createStatusOption('All lanes', 'all', selectedStatus),
+    createStatusOption('In progress', 'in_progress', selectedStatus),
+    createStatusOption('Todo', 'todo', selectedStatus),
+    createStatusOption('Done', 'done', selectedStatus)
+  ];
+}
+
+function createStatusOption(label, value, selectedStatus) {
+  return {
+    label,
+    value,
+    default: value === selectedStatus
+  };
+}
+
+function formatProjectItemLine(item) {
+  const metadata = [];
+
+  if (item.priority) {
+    metadata.push(item.priority);
+  }
+
+  if (item.driver) {
+    metadata.push(item.driver);
+  }
+
+  if (item.targetDate) {
+    metadata.push(`due ${item.targetDate}`);
+  } else if (item.iteration) {
+    metadata.push(item.iteration);
+  }
+
+  const prefix = metadata.length > 0 ? `${metadata.join(' · ')} · ` : '';
+  const title = item.url ? `[${escapeMarkdown(item.title)}](${item.url})` : escapeMarkdown(item.title);
+  return `• ${prefix}${truncateText(title, 180)}`;
+}
+
+function formatStatusFilterLabel(status) {
+  switch (normalizeDashboardStatusKey(status)) {
+    case 'todo':
+      return 'Todo';
+    case 'in_progress':
+      return 'In progress';
+    case 'done':
+      return 'Done';
+    default:
+      return 'All lanes';
+  }
+}
+
+function normalizeDashboardStatusKey(value) {
+  switch (value) {
+    case 'todo':
+    case 'Todo':
+      return 'todo';
+    case 'in_progress':
+    case 'In progress':
+    case 'in progress':
+      return 'in_progress';
+    case 'done':
+    case 'Done':
+      return 'done';
+    default:
+      return 'all';
+  }
+}
+
+function readComponentStatus(customId, prefix) {
+  if (!customId.startsWith(`${prefix}|s=`)) {
+    return 'all';
+  }
+
+  const encodedStatus = customId.slice(`${prefix}|s=`.length);
+  return normalizeDashboardStatusKey(encodedStatus ?? 'all');
+}
+
+function hasTrackerOperatorAccess(payload, environment) {
+  const roleIds = environment.discord.operatorRoleIds;
+  const memberRoleIds = Array.isArray(payload.member?.roles) ? payload.member.roles : [];
+
+  if (roleIds.length > 0 && memberRoleIds.some((roleId) => roleIds.includes(roleId))) {
+    return true;
+  }
+
+  const rawPermissions = payload.member?.permissions;
+
+  if (typeof rawPermissions !== 'string' || rawPermissions.length === 0) {
+    return roleIds.length === 0;
+  }
+
+  try {
+    const permissionBits = BigInt(rawPermissions);
+    return TRUSTED_DISCORD_PERMISSION_BITS.some((requiredBit) => (permissionBits & requiredBit) === requiredBit);
+  } catch {
+    return false;
+  }
+}
+
+function escapeMarkdown(value) {
+  if (typeof value !== 'string') {
     return value;
   }
 
-  if (typeof value === 'number' || typeof value === 'boolean') {
-    return String(value);
+  return value.replace(/[\\`*_{}\[\]()#+\-.!|>]/g, '\\$&');
+}
+
+function createEphemeralDiscordResponse(content) {
+  return {
+    type: 4,
+    data: {
+      content,
+      flags: DISCORD_EPHEMERAL_FLAG
+    }
+  };
+}
+
+async function openManagerPanel({ payload, environment, interactionSessionStore, status }) {
+  const editorData = await fetchGitHubProjectEditorData({
+    token: environment.github.token,
+    org: environment.github.org,
+    projectNumber: environment.github.projectNumber,
+    status
+  });
+  const selectedItem = resolveSelectedItem(editorData.items, null);
+  const token = interactionSessionStore.create({
+    guildId: payload.guild_id ?? null,
+    userId: readInteractionUserId(payload),
+    status: normalizeDashboardStatusKey(status),
+    selectedItemId: selectedItem?.id ?? null,
+    confirmDelete: false
+  });
+
+  return {
+    type: 4,
+    data: createEphemeralDiscordData(buildManagerMessage({
+      editorData,
+      token,
+      selectedItemId: selectedItem?.id ?? null,
+      confirmDelete: false,
+      notice: 'Writer panel opened. Status and priority changes write directly to GitHub Projects.'
+    }))
+  };
+}
+
+async function refreshManagerPanel({ payload, environment, interactionSessionStore, notice = null }) {
+  const { token, session } = readRequiredSession({ payload, interactionSessionStore, customId: payload.data?.custom_id ?? '' });
+  const editorData = await fetchGitHubProjectEditorData({
+    token: environment.github.token,
+    org: environment.github.org,
+    projectNumber: environment.github.projectNumber,
+    status: session.status
+  });
+  const selectedItem = resolveSelectedItem(editorData.items, session.selectedItemId);
+  interactionSessionStore.update(token, {
+    selectedItemId: selectedItem?.id ?? null,
+    confirmDelete: false
+  });
+
+  return {
+    type: DISCORD_MESSAGE_UPDATE_TYPE,
+    data: buildManagerMessage({
+      editorData,
+      token,
+      selectedItemId: selectedItem?.id ?? null,
+      confirmDelete: false,
+      notice
+    })
+  };
+}
+
+async function selectManagerItem({ payload, environment, interactionSessionStore }) {
+  const { token, session } = readRequiredSession({ payload, interactionSessionStore, customId: payload.data?.custom_id ?? '' });
+  const nextSelectedItemId = payload.data?.values?.[0] ?? null;
+  interactionSessionStore.update(token, {
+    selectedItemId: nextSelectedItemId,
+    confirmDelete: false,
+    status: session.status
+  });
+
+  return refreshManagerPanel({ payload, environment, interactionSessionStore });
+}
+
+async function updateManagerStatus({ payload, environment, interactionSessionStore }) {
+  ensureWriterAccess(payload, environment);
+  const { token, session } = readRequiredSession({ payload, interactionSessionStore, customId: payload.data?.custom_id ?? '' });
+  const editorData = await fetchGitHubProjectEditorData({
+    token: environment.github.token,
+    org: environment.github.org,
+    projectNumber: environment.github.projectNumber,
+    status: session.status
+  });
+  const selectedItem = requireSelectedItem(editorData.items, session.selectedItemId);
+  const nextStatus = payload.data?.values?.[0] ?? null;
+
+  await updateProjectItemFields({
+    token: environment.github.token,
+    projectId: editorData.projectId,
+    itemId: selectedItem.id,
+    fields: editorData.fields,
+    updates: {
+      status: nextStatus
+    }
+  });
+
+  return refreshManagerPanel({
+    payload,
+    environment,
+    interactionSessionStore,
+    notice: `Updated ${selectedItem.title} to ${nextStatus}.`
+  });
+}
+
+async function updateManagerPriority({ payload, environment, interactionSessionStore }) {
+  ensureWriterAccess(payload, environment);
+  const { session } = readRequiredSession({ payload, interactionSessionStore, customId: payload.data?.custom_id ?? '' });
+  const editorData = await fetchGitHubProjectEditorData({
+    token: environment.github.token,
+    org: environment.github.org,
+    projectNumber: environment.github.projectNumber,
+    status: session.status
+  });
+  const selectedItem = requireSelectedItem(editorData.items, session.selectedItemId);
+  const rawPriority = payload.data?.values?.[0] ?? TRACKER_CLEAR_PRIORITY_VALUE;
+  const nextPriority = rawPriority === TRACKER_CLEAR_PRIORITY_VALUE ? '' : rawPriority;
+
+  await updateProjectItemFields({
+    token: environment.github.token,
+    projectId: editorData.projectId,
+    itemId: selectedItem.id,
+    fields: editorData.fields,
+    updates: {
+      priority: nextPriority
+    }
+  });
+
+  return refreshManagerPanel({
+    payload,
+    environment,
+    interactionSessionStore,
+    notice: nextPriority ? `Updated ${selectedItem.title} to priority ${nextPriority}.` : `Cleared priority for ${selectedItem.title}.`
+  });
+}
+
+function openCreateManagerModal({ payload, interactionSessionStore }) {
+  const { token } = readRequiredSession({ payload, interactionSessionStore, customId: payload.data?.custom_id ?? '' });
+
+  return {
+    type: DISCORD_MODAL_RESPONSE_TYPE,
+    data: {
+      custom_id: `${TRACKER_MANAGER_CREATE_MODAL_ID}|k=${token}`,
+      title: 'Create GitHub draft item',
+      components: buildCreateManagerModalComponents()
+    }
+  };
+}
+
+async function openEditManagerModal({ payload, environment, interactionSessionStore }) {
+  ensureWriterAccess(payload, environment);
+  const { token, session } = readRequiredSession({ payload, interactionSessionStore, customId: payload.data?.custom_id ?? '' });
+  const editorData = await fetchGitHubProjectEditorData({
+    token: environment.github.token,
+    org: environment.github.org,
+    projectNumber: environment.github.projectNumber,
+    status: session.status
+  });
+  const selectedItem = requireSelectedItem(editorData.items, session.selectedItemId);
+
+  if (!isDraftProjectItem(selectedItem)) {
+    return createEphemeralDiscordResponse('Status and priority can be changed for any item, but detailed title and notes edits are draft-only in this slice.');
   }
 
-  return 'unsupported';
+  return {
+    type: DISCORD_MODAL_RESPONSE_TYPE,
+    data: {
+      custom_id: `${TRACKER_MANAGER_EDIT_MODAL_ID}|k=${token}`,
+      title: 'Edit draft item',
+      components: buildEditManagerModalComponents(selectedItem)
+    }
+  };
+}
+
+async function askManagerDelete({ payload, environment, interactionSessionStore }) {
+  ensureWriterAccess(payload, environment);
+  const { token, session } = readRequiredSession({ payload, interactionSessionStore, customId: payload.data?.custom_id ?? '' });
+  const editorData = await fetchGitHubProjectEditorData({
+    token: environment.github.token,
+    org: environment.github.org,
+    projectNumber: environment.github.projectNumber,
+    status: session.status
+  });
+  const selectedItem = requireSelectedItem(editorData.items, session.selectedItemId);
+
+  if (!isDraftProjectItem(selectedItem)) {
+    return createEphemeralDiscordResponse('Delete is restricted to draft items in this slice so linked issues and pull requests stay safe.');
+  }
+
+  interactionSessionStore.update(token, {
+    confirmDelete: true,
+    selectedItemId: selectedItem.id
+  });
+
+  return {
+    type: DISCORD_MESSAGE_UPDATE_TYPE,
+    data: buildManagerMessage({
+      editorData,
+      token,
+      selectedItemId: selectedItem.id,
+      confirmDelete: true,
+      notice: `Confirm deletion for ${selectedItem.title}. This removes the card from GitHub Projects.`
+    })
+  };
+}
+
+async function confirmManagerDelete({ payload, environment, interactionSessionStore }) {
+  ensureWriterAccess(payload, environment);
+  const { token, session } = readRequiredSession({ payload, interactionSessionStore, customId: payload.data?.custom_id ?? '' });
+  const editorData = await fetchGitHubProjectEditorData({
+    token: environment.github.token,
+    org: environment.github.org,
+    projectNumber: environment.github.projectNumber,
+    status: session.status
+  });
+  const selectedItem = requireSelectedItem(editorData.items, session.selectedItemId);
+
+  if (!isDraftProjectItem(selectedItem)) {
+    return createEphemeralDiscordResponse('Delete is restricted to draft items in this slice so linked issues and pull requests stay safe.');
+  }
+
+  await deleteProjectItem({
+    token: environment.github.token,
+    projectId: editorData.projectId,
+    itemId: selectedItem.id
+  });
+
+  const refreshedEditorData = await fetchGitHubProjectEditorData({
+    token: environment.github.token,
+    org: environment.github.org,
+    projectNumber: environment.github.projectNumber,
+    status: session.status
+  });
+  const nextSelectedItem = resolveSelectedItem(refreshedEditorData.items, null);
+  interactionSessionStore.update(token, {
+    selectedItemId: nextSelectedItem?.id ?? null,
+    confirmDelete: false
+  });
+
+  return {
+    type: DISCORD_MESSAGE_UPDATE_TYPE,
+    data: buildManagerMessage({
+      editorData: refreshedEditorData,
+      token,
+      selectedItemId: nextSelectedItem?.id ?? null,
+      confirmDelete: false,
+      notice: `Deleted ${selectedItem.title} from the GitHub Project board.`
+    })
+  };
+}
+
+async function cancelManagerDelete({ payload, environment, interactionSessionStore }) {
+  const { token } = readRequiredSession({ payload, interactionSessionStore, customId: payload.data?.custom_id ?? '' });
+  interactionSessionStore.update(token, {
+    confirmDelete: false
+  });
+
+  return refreshManagerPanel({ payload, environment, interactionSessionStore, notice: 'Delete cancelled.' });
+}
+
+async function submitCreateManagerModal({ payload, environment, interactionSessionStore }) {
+  ensureWriterAccess(payload, environment);
+  const { token, session } = readRequiredSession({ payload, interactionSessionStore, customId: payload.data?.custom_id ?? '' });
+  const editorData = await fetchGitHubProjectEditorData({
+    token: environment.github.token,
+    org: environment.github.org,
+    projectNumber: environment.github.projectNumber,
+    status: session.status
+  });
+  const formValues = readManagerModalValues(payload.data?.components ?? []);
+  const createdStatus = session.status === 'all' ? 'Todo' : formatStatusFilterLabel(session.status);
+  const created = await createProjectDraftItem({
+    token: environment.github.token,
+    projectId: editorData.projectId,
+    fields: editorData.fields,
+    input: {
+      title: formValues.title,
+      status: createdStatus,
+      driver: formValues.driver,
+      targetDate: formValues.targetDate,
+      notes: formValues.notes
+    }
+  });
+
+  const refreshedEditorData = await fetchGitHubProjectEditorData({
+    token: environment.github.token,
+    org: environment.github.org,
+    projectNumber: environment.github.projectNumber,
+    status: session.status
+  });
+  const nextSelectedItem = resolveSelectedItem(refreshedEditorData.items, created.itemId);
+  interactionSessionStore.update(token, {
+    selectedItemId: nextSelectedItem?.id ?? null,
+    confirmDelete: false
+  });
+
+  return {
+    type: 4,
+    data: createEphemeralDiscordData(buildManagerMessage({
+      editorData: refreshedEditorData,
+      token,
+      selectedItemId: nextSelectedItem?.id ?? null,
+      confirmDelete: false,
+      notice: `Created ${formValues.title} in GitHub Projects.`
+    }))
+  };
+}
+
+async function submitEditManagerModal({ payload, environment, interactionSessionStore }) {
+  ensureWriterAccess(payload, environment);
+  const { token, session } = readRequiredSession({ payload, interactionSessionStore, customId: payload.data?.custom_id ?? '' });
+  const editorData = await fetchGitHubProjectEditorData({
+    token: environment.github.token,
+    org: environment.github.org,
+    projectNumber: environment.github.projectNumber,
+    status: session.status
+  });
+  const selectedItem = requireSelectedItem(editorData.items, session.selectedItemId);
+
+  if (!isDraftProjectItem(selectedItem)) {
+    return createEphemeralDiscordResponse('Detailed edits are draft-only in this slice. Use status and priority for linked issues or pull requests.');
+  }
+
+  const formValues = readManagerModalValues(payload.data?.components ?? []);
+  await updateProjectDraftItem({
+    token: environment.github.token,
+    draftIssueId: selectedItem.contentId,
+    title: formValues.title,
+    notes: formValues.notes
+  });
+  await updateProjectItemFields({
+    token: environment.github.token,
+    projectId: editorData.projectId,
+    itemId: selectedItem.id,
+    fields: editorData.fields,
+    updates: {
+      driver: formValues.driver,
+      targetDate: formValues.targetDate,
+      notes: formValues.notes
+    }
+  });
+
+  const refreshedEditorData = await fetchGitHubProjectEditorData({
+    token: environment.github.token,
+    org: environment.github.org,
+    projectNumber: environment.github.projectNumber,
+    status: session.status
+  });
+  const nextSelectedItem = resolveSelectedItem(refreshedEditorData.items, selectedItem.id);
+  interactionSessionStore.update(token, {
+    selectedItemId: nextSelectedItem?.id ?? null,
+    confirmDelete: false
+  });
+
+  return {
+    type: 4,
+    data: createEphemeralDiscordData(buildManagerMessage({
+      editorData: refreshedEditorData,
+      token,
+      selectedItemId: nextSelectedItem?.id ?? null,
+      confirmDelete: false,
+      notice: `Updated ${formValues.title || selectedItem.title}.`
+    }))
+  };
+}
+
+function buildManagerMessage({ editorData, token, selectedItemId, confirmDelete, notice }) {
+  const selectedItem = resolveSelectedItem(editorData.items, selectedItemId);
+
+  return {
+    allowed_mentions: {
+      parse: []
+    },
+    content: notice ?? undefined,
+    embeds: buildManagerEmbeds(editorData, selectedItem, confirmDelete),
+    components: buildManagerComponents(editorData, selectedItem, token, confirmDelete)
+  };
+}
+
+function buildManagerEmbeds(editorData, selectedItem, confirmDelete) {
+  return [
+    {
+      type: 'rich',
+      title: 'Velora Tracker Manager',
+      description: 'Private writer panel for GitHub Project mutations from Discord.',
+      color: confirmDelete ? 0xdc2626 : 0x1d4ed8,
+      fields: [
+        {
+          name: 'Filter',
+          value: formatStatusFilterLabel(editorData.appliedStatusFilter),
+          inline: true
+        },
+        {
+          name: 'Visible items',
+          value: String(editorData.items.length),
+          inline: true
+        },
+        {
+          name: 'Write scope',
+          value: 'Status and priority for any card. Full edit and delete for drafts only.',
+          inline: false
+        }
+      ]
+    },
+    buildSelectedItemEmbed(selectedItem, confirmDelete)
+  ];
+}
+
+function buildSelectedItemEmbed(selectedItem, confirmDelete) {
+  if (!selectedItem) {
+    return {
+      type: 'rich',
+      title: 'No item selected',
+      description: 'Create a new draft or pick an item from the selector to manage it.',
+      color: 0x475569
+    };
+  }
+
+  const notes = normalizeNotesPreview(selectedItem.notes ?? selectedItem.body);
+
+  return {
+    type: 'rich',
+    title: selectedItem.title,
+    description: confirmDelete
+      ? 'Delete confirmation is armed for this draft item.'
+      : 'Use the controls below to update this card from Discord.',
+    color: confirmDelete ? 0xdc2626 : 0x0f172a,
+    fields: [
+      {
+        name: 'Type',
+        value: formatProjectItemType(selectedItem.type),
+        inline: true
+      },
+      {
+        name: 'Status',
+        value: selectedItem.status ?? 'Unset',
+        inline: true
+      },
+      {
+        name: 'Priority',
+        value: selectedItem.priority ?? 'Unset',
+        inline: true
+      },
+      {
+        name: 'Driver',
+        value: selectedItem.driver ?? 'Unset',
+        inline: true
+      },
+      {
+        name: 'Target date',
+        value: selectedItem.targetDate ?? 'Unset',
+        inline: true
+      },
+      {
+        name: 'Linked URL',
+        value: selectedItem.url ?? 'Draft-only item',
+        inline: false
+      },
+      {
+        name: 'Notes',
+        value: notes,
+        inline: false
+      }
+    ]
+  };
+}
+
+function buildManagerComponents(editorData, selectedItem, token, confirmDelete) {
+  const canEditDraft = Boolean(selectedItem && isDraftProjectItem(selectedItem));
+  const hasStatusField = Boolean(editorData.fields.status);
+  const hasPriorityField = Boolean(editorData.fields.priority);
+
+  if (confirmDelete) {
+    return [
+      {
+        type: 1,
+        components: [
+          {
+            type: 2,
+            style: 4,
+            label: 'Confirm delete',
+            custom_id: `${TRACKER_MANAGER_DELETE_CONFIRM_COMPONENT_ID}|k=${token}`
+          },
+          {
+            type: 2,
+            style: 2,
+            label: 'Cancel',
+            custom_id: `${TRACKER_MANAGER_DELETE_CANCEL_COMPONENT_ID}|k=${token}`
+          }
+        ]
+      }
+    ];
+  }
+
+  return [
+    {
+      type: 1,
+      components: [
+        {
+          type: 2,
+          style: 1,
+          label: 'Refresh',
+          custom_id: `${TRACKER_MANAGER_REFRESH_COMPONENT_ID}|k=${token}`
+        },
+        {
+          type: 2,
+          style: 3,
+          label: 'New draft',
+          custom_id: `${TRACKER_MANAGER_CREATE_COMPONENT_ID}|k=${token}`
+        },
+        {
+          type: 2,
+          style: 2,
+          label: 'Edit draft',
+          custom_id: `${TRACKER_MANAGER_EDIT_COMPONENT_ID}|k=${token}`,
+          disabled: !canEditDraft
+        },
+        {
+          type: 2,
+          style: 4,
+          label: 'Delete draft',
+          custom_id: `${TRACKER_MANAGER_DELETE_COMPONENT_ID}|k=${token}`,
+          disabled: !canEditDraft
+        }
+      ]
+    },
+    {
+      type: 1,
+      components: [
+        {
+          type: 3,
+          custom_id: `${TRACKER_MANAGER_ITEM_COMPONENT_ID}|k=${token}`,
+          placeholder: editorData.items.length > 0 ? 'Select an item to manage' : 'No items in this filter',
+          min_values: 1,
+          max_values: 1,
+          options: buildManagerItemOptions(editorData.items, selectedItem?.id ?? null),
+          disabled: editorData.items.length === 0
+        }
+      ]
+    },
+    {
+      type: 1,
+      components: [
+        {
+          type: 3,
+          custom_id: `${TRACKER_MANAGER_STATUS_COMPONENT_ID}|k=${token}`,
+          placeholder: 'Change status',
+          min_values: 1,
+          max_values: 1,
+          options: buildManagerFieldOptions(editorData.fields.status, selectedItem?.status ?? null, false),
+          disabled: !selectedItem || !hasStatusField
+        }
+      ]
+    },
+    {
+      type: 1,
+      components: [
+        {
+          type: 3,
+          custom_id: `${TRACKER_MANAGER_PRIORITY_COMPONENT_ID}|k=${token}`,
+          placeholder: 'Change priority',
+          min_values: 1,
+          max_values: 1,
+          options: buildManagerFieldOptions(editorData.fields.priority, selectedItem?.priority ?? null, true),
+          disabled: !selectedItem || !hasPriorityField
+        }
+      ]
+    }
+  ];
+}
+
+function buildManagerItemOptions(items, selectedItemId) {
+  if (items.length === 0) {
+    return [
+      {
+        label: 'No items available',
+        value: 'none',
+        default: true
+      }
+    ];
+  }
+
+  return items.map((item) => ({
+    label: truncateText(item.title, 95),
+    value: item.id,
+    description: truncateText(`${item.status ?? 'Unset'} · ${item.priority ?? 'Unset'} · ${item.driver ?? 'No driver'}`, 100),
+    default: item.id === selectedItemId
+  }));
+}
+
+function buildManagerFieldOptions(field, selectedValue, includeClearOption) {
+  if (!field?.options || field.options.length === 0) {
+    return [
+      {
+        label: 'No options configured',
+        value: 'none',
+        default: true
+      }
+    ];
+  }
+
+  const options = [];
+
+  if (includeClearOption) {
+    options.push({
+      label: 'Clear priority',
+      value: TRACKER_CLEAR_PRIORITY_VALUE,
+      default: !selectedValue
+    });
+  }
+
+  for (const option of field.options) {
+    options.push({
+      label: option.name,
+      value: option.name,
+      default: option.name === selectedValue
+    });
+  }
+
+  if (!options.some((option) => option.default) && options.length > 0) {
+    options[0].default = true;
+  }
+
+  return options;
+}
+
+function buildCreateManagerModalComponents() {
+  return [
+    createTextInputRow('title', 'Title', DISCORD_TEXT_STYLE_SHORT, true),
+    createTextInputRow('driver', 'Driver', DISCORD_TEXT_STYLE_SHORT, false),
+    createTextInputRow('targetDate', 'Target date (YYYY-MM-DD)', DISCORD_TEXT_STYLE_SHORT, false),
+    createTextInputRow('notes', 'Notes', DISCORD_TEXT_STYLE_PARAGRAPH, false)
+  ];
+}
+
+function buildEditManagerModalComponents(selectedItem) {
+  return [
+    createTextInputRow('title', 'Title', DISCORD_TEXT_STYLE_SHORT, true, selectedItem.title),
+    createTextInputRow('driver', 'Driver', DISCORD_TEXT_STYLE_SHORT, false, selectedItem.driver ?? ''),
+    createTextInputRow('targetDate', 'Target date (YYYY-MM-DD)', DISCORD_TEXT_STYLE_SHORT, false, selectedItem.targetDate ?? ''),
+    createTextInputRow('notes', 'Notes', DISCORD_TEXT_STYLE_PARAGRAPH, false, selectedItem.notes ?? selectedItem.body ?? '')
+  ];
+}
+
+function createTextInputRow(customId, label, style, required, value = undefined) {
+  return {
+    type: 1,
+    components: [
+      {
+        type: DISCORD_COMPONENT_TYPE_TEXT_INPUT,
+        custom_id: customId,
+        label,
+        style,
+        required,
+        value
+      }
+    ]
+  };
+}
+
+function readRequiredSession({ payload, interactionSessionStore, customId }) {
+  const token = readTokenFromCustomId(customId);
+
+  if (!token) {
+    const error = new Error('Tracker session token was missing from the Discord interaction.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const session = interactionSessionStore.read(token);
+
+  if (!session) {
+    const error = new Error('This Discord tracker session expired. Open Manage again from the dashboard.');
+    error.statusCode = 410;
+    throw error;
+  }
+
+  if (session.guildId && session.guildId !== payload.guild_id) {
+    const error = new Error('This tracker session belongs to a different Discord guild.');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  if (session.userId && session.userId !== readInteractionUserId(payload)) {
+    const error = new Error('This writer panel belongs to a different Discord user.');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  return {
+    token,
+    session
+  };
+}
+
+function ensureWriterAccess(payload, environment) {
+  if (!hasTrackerOperatorAccess(payload, environment)) {
+    const error = new Error('Everyone can view the dashboard, but only admins or configured operator roles can change GitHub from Discord.');
+    error.statusCode = 403;
+    throw error;
+  }
+}
+
+function readInteractionUserId(payload) {
+  return payload.member?.user?.id ?? payload.user?.id ?? null;
+}
+
+function readTokenFromCustomId(customId) {
+  const [, token] = customId.split('|k=');
+  return typeof token === 'string' && token.length > 0 ? token : null;
+}
+
+function resolveSelectedItem(items, selectedItemId) {
+  if (!Array.isArray(items) || items.length === 0) {
+    return null;
+  }
+
+  return items.find((item) => item.id === selectedItemId) ?? items[0];
+}
+
+function requireSelectedItem(items, selectedItemId) {
+  const selectedItem = resolveSelectedItem(items, selectedItemId);
+
+  if (!selectedItem) {
+    const error = new Error('Pick a project item in the manager panel before using that action.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  return selectedItem;
+}
+
+function isDraftProjectItem(item) {
+  return item?.type === 'DraftIssue';
+}
+
+function formatProjectItemType(type) {
+  switch (type) {
+    case 'DraftIssue':
+      return 'Draft item';
+    case 'Issue':
+      return 'Linked issue';
+    case 'PullRequest':
+      return 'Linked pull request';
+    default:
+      return type ?? 'Project item';
+  }
+}
+
+function normalizeNotesPreview(value) {
+  const normalized = typeof value === 'string' && value.trim().length > 0 ? value.trim() : 'No notes set.';
+  return truncateText(normalized, 1000);
+}
+
+function readManagerModalValues(rows) {
+  return {
+    title: readTextInputValue(rows, 'title') ?? '',
+    driver: readTextInputValue(rows, 'driver') ?? '',
+    targetDate: readTextInputValue(rows, 'targetDate') ?? '',
+    notes: readTextInputValue(rows, 'notes') ?? ''
+  };
+}
+
+function readTextInputValue(rows, customId) {
+  if (!Array.isArray(rows)) {
+    return null;
+  }
+
+  for (const row of rows) {
+    const component = row?.components?.find((candidate) => candidate.custom_id === customId);
+
+    if (component) {
+      return typeof component.value === 'string' ? component.value : null;
+    }
+  }
+
+  return null;
+}
+
+function createEphemeralDiscordData(data) {
+  return {
+    flags: DISCORD_EPHEMERAL_FLAG,
+    ...data
+  };
+}
+
+function readInteractionOptionValue(options, name) {
+  if (!Array.isArray(options)) {
+    return null;
+  }
+
+  const option = options.find((candidate) => candidate.name === name);
+  return option?.value ?? null;
+}
+
+function truncateText(value, maxLength) {
+  if (typeof value !== 'string' || value.length <= maxLength) {
+    return value;
+  }
+
+  return `${value.slice(0, Math.max(0, maxLength - 1))}…`;
+}
+
+function readOptionalInteger(value) {
+  if (typeof value !== 'string') {
+    return null;
+  }
+
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 function sendJson(response, statusCode, payload) {

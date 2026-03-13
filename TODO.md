@@ -30,7 +30,11 @@
 - [ ] Publish a 1.0 migration guide from Velora 0.1 to the replatformed surface
 - [ ] Build the first Discord <-> GitHub Projects sync broker slice
 - [x] Add Discord interaction verification to the tracker scaffold
-- [ ] Register the Discord command set against the Discord API
+- [x] Add a read-only Discord project view command for the VeloraCSS Team Planning board
+- [x] Register the Discord command set against the Discord API
+- [x] Upgrade the Discord project view into a dashboard-style message with lane summaries and filter controls
+- [x] Add a Discord writer panel with modal-based create/edit/delete flows for GitHub Project items
+- [x] Add a repo-owned always-on hosting blueprint for the tracker service
 - [ ] Persist tracker mappings and audit logs beyond memory
 
 

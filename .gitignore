@@ -6,3 +6,5 @@ site/build/
 .env.*
 !.env.example
 .claude/settings.local.json
+.cloudflared.log
+.localtunnel.log

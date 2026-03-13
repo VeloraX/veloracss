@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
-    "commands:preview": "node scripts/print-command-registry.mjs"
+    "commands:preview": "node scripts/print-command-registry.mjs",
+    "commands:register": "node scripts/register-commands.mjs"
   }
 }

@@ -38,7 +38,8 @@ It focuses on the foundation needed for the full framework merge:
 
 - Root package: builds the framework, proof surface, manifest, and release verification flow
 - `site/`: SvelteKit docs app with home, docs, examples, and proof routes
-- `tracker/`: Node 20 service scaffold for GitHub Projects <-> Discord sync work, now paused behind the framework replatform priority
+- `tracker/`: Node 20 service scaffold for GitHub Projects <-> Discord sync work, now able to render a shared dashboard-style Team Planning view in Discord and open a private writer panel with modal-based create/edit/delete actions while loop-safe message mapping remains unfinished
+- `render.yaml`: repo-owned auto-deploy blueprint for hosting the tracker as an always-on web service instead of requiring a local Cloudflare tunnel
 
 ## Next focus
 
