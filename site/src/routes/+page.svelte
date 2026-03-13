@@ -1,4 +1,5 @@
 <script>
+  import { base } from '$app/paths';
   import { onDestroy } from 'svelte';
   import SiteShell from '$lib/SiteShell.svelte';
   import {
@@ -10,6 +11,7 @@
 
   let copyLabel = 'Copy';
   let copyResetTimer;
+  const docsHref = `${base}/docs`;
 
   async function handleCopyCode() {
     try {
@@ -37,7 +39,7 @@
       <h1 class="site-home-display">Rapidly build modern interfaces without ever leaving your HTML.</h1>
       <p class="site-home-subtitle">Utility-first classes, starter components, and theme tokens that let you build polished UI directly in your markup.</p>
       <div class="site-home-hero-actions">
-        <a class="vel-button vel-button-primary" href="/docs">Get started</a>
+        <a class="vel-button vel-button-primary" href={docsHref}>Get started</a>
         <div class="site-home-install-cmd">npm install veloracss</div>
       </div>
     </div>

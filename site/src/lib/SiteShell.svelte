@@ -12,11 +12,11 @@
   <title>{title}</title>
 </svelte:head>
 
-<div class:site-body-docs={shellVariant === 'docs'} class="site-body site-root">
+<div class:site-body-docs={shellVariant === 'docs'} class:site-body-app={shellVariant === 'app'} class="site-body site-root">
   <SiteHeader />
 
-  <div class:site-shell-docs={shellVariant === 'docs'} class="site-shell">
-    <div class:site-frame-docs={shellVariant === 'docs'} class="site-frame vel-shell vel-stack-lg">
+  <div class:site-shell-docs={shellVariant === 'docs'} class:site-shell-app={shellVariant === 'app'} class="site-shell">
+    <div class:site-frame-docs={shellVariant === 'docs'} class:site-frame-app={shellVariant === 'app'} class="site-frame vel-shell vel-stack-lg">
       <main class="site-layout-main vel-stack-lg">
         <slot />
       </main>

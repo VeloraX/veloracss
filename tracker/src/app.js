@@ -57,6 +57,7 @@ const LANE_EMBED_COLORS = Object.freeze({
   done: 0x16a34a
 });
 const SETTINGS_EMBED_COLOR = 0x0f766e;
+const PUBLIC_JSON_ROUTES = new Set(['/health', '/discord/commands', '/github/project', '/mappings', '/audit']);
 
 export function createTrackerHandler({
   environment,
@@ -69,13 +70,17 @@ export function createTrackerHandler({
     try {
       const requestUrl = new URL(url, 'http://localhost');
 
+      if (method === 'OPTIONS' && PUBLIC_JSON_ROUTES.has(requestUrl.pathname)) {
+        return createJsonResult(204, null, createPublicCorsHeaders());
+      }
+
       if (method === 'GET' && requestUrl.pathname === '/health') {
         const [mappingCount, auditEntryCount] = await Promise.all([
           mappingStore.size(),
           auditLog.size()
         ]);
 
-        return createJsonResult(200, {
+        return createPublicJsonResult(200, {
           status: 'ok',
           service: 'veloracss-tracker',
           now: clock(),
@@ -102,7 +107,7 @@ export function createTrackerHandler({
       }
 
       if (method === 'GET' && requestUrl.pathname === '/discord/commands') {
-        return createJsonResult(200, {
+        return createPublicJsonResult(200, {
           commands: trackerCommandRegistry
         });
       }
@@ -118,7 +123,7 @@ export function createTrackerHandler({
           limit: limit ?? undefined
         });
 
-        return createJsonResult(200, projectView);
+        return createPublicJsonResult(200, projectView);
       }
 
       if (method === 'POST' && requestUrl.pathname === '/discord/interactions') {
@@ -156,13 +161,13 @@ export function createTrackerHandler({
       }
 
       if (method === 'GET' && requestUrl.pathname === '/mappings') {
-        return createJsonResult(200, {
+        return createPublicJsonResult(200, {
           items: await mappingStore.list()
         });
       }
 
       if (method === 'GET' && requestUrl.pathname === '/audit') {
-        return createJsonResult(200, {
+        return createPublicJsonResult(200, {
           entries: await auditLog.list(50)
         });
       }
@@ -226,10 +231,23 @@ export function createTrackerHandler({
   };
 }
 
-function createJsonResult(statusCode, payload) {
+function createJsonResult(statusCode, payload, headers = {}) {
   return {
     statusCode,
-    payload
+    payload,
+    headers
+  };
+}
+
+function createPublicJsonResult(statusCode, payload) {
+  return createJsonResult(statusCode, payload, createPublicCorsHeaders());
+}
+
+function createPublicCorsHeaders() {
+  return {
+    'access-control-allow-origin': '*',
+    'access-control-allow-methods': 'GET, OPTIONS',
+    'access-control-allow-headers': 'content-type'
   };
 }
 

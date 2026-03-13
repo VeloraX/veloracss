@@ -9,6 +9,11 @@
   overflow: visible;
 }
 
+.site-shell-app,
+.vel-page-shell-app {
+  overflow: visible;
+}
+
 .site-shell::before,
 .site-shell::after,
 .vel-page-shell::before,
@@ -59,6 +64,12 @@
 .site-frame-docs.site-frame.vel-shell,
 .vel-page-frame-docs.vel-page-frame.vel-shell {
   width: 100%;
+  max-width: none;
+}
+
+.site-frame-app.site-frame.vel-shell,
+.vel-page-frame-app.vel-page-frame.vel-shell {
+  width: calc(100% - clamp(1rem, 2vw, 2.5rem));
   max-width: none;
 }
 

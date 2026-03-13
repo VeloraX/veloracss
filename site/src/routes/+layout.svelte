@@ -1,5 +1,6 @@
 <script>
   import '../app.css';
+  import { base } from '$app/paths';
   import { afterNavigate } from '$app/navigation';
   import { onMount } from 'svelte';
 
@@ -29,8 +30,8 @@
 </script>
 
 <svelte:head>
-  <link rel="icon" type="image/png" href="/brand/velora-sm-logo.png" />
-  <link rel="apple-touch-icon" href="/brand/velora-sm-logo.png" />
+  <link rel="icon" type="image/png" href={`${base}/brand/velora-sm-logo.png`} />
+  <link rel="apple-touch-icon" href={`${base}/brand/velora-sm-logo.png`} />
 </svelte:head>
 
 <slot />

@@ -1,4 +1,5 @@
 <script>
+  import { base } from '$app/paths';
   import SiteShell from '$lib/SiteShell.svelte';
   import PageHero from '$lib/components/PageHero.svelte';
   import {
@@ -14,6 +15,16 @@
     const [className, label] = token.split('::');
     return { className, label };
   }
+
+  const homeHref = base || '/';
+  const docsHref = `${base}/docs`;
+  const docsFamiliesHref = `${base}/docs#families`;
+  const examplesHref = `${base}/examples`;
+  const optionalRuntimeHref = `${base}/docs#optional-runtime`;
+  const proofHref = `${base}/proof`;
+  const proofFlowHref = `${base}/proof#flow`;
+  const proofReleaseToastHref = `${base}/proof#release-toast`;
+  const brandMarkSrc = `${base}/brand/velora-sm-logo.png`;
 </script>
 
 <SiteShell title="VeloraCSS Proof" footerCopy="The proof route now exercises the framework inside the Svelte app instead of pointing back at a root-level placeholder.">
@@ -94,7 +105,7 @@
             alt="Deep blue ocean swell moving across the water"
           />
           <div class="site-proof-visual-brand">
-            <img class="site-proof-visual-mark" src="/brand/velora-sm-logo.png" alt="Velora icon" />
+            <img class="site-proof-visual-mark" src={brandMarkSrc} alt="Velora icon" />
             <div class="vel-stack-xs">
               <p class="site-proof-visual-kicker">VeloraCSS</p>
               <p class="site-proof-visual-caption">Oceanic calm with product-grade control.</p>
@@ -193,28 +204,28 @@
 
         <div class="vel-stack-md">
           <nav class="vel-navbar" aria-label="Primary">
-            <a class="vel-navbar-brand" href="/">
+            <a class="vel-navbar-brand" href={homeHref}>
               <span class="vel-navbar-mark">V</span>
               <span>VeloraCSS</span>
             </a>
 
             <div class="vel-navbar-nav">
-              <a class="vel-navbar-link" href="/docs">Docs</a>
-              <a class="vel-navbar-link" href="/docs#families">Components</a>
-              <a class="vel-navbar-link" href="/examples" aria-current="page">Examples</a>
-              <a class="vel-navbar-link" href="/docs#optional-runtime">Themes</a>
+              <a class="vel-navbar-link" href={docsHref}>Docs</a>
+              <a class="vel-navbar-link" href={docsFamiliesHref}>Components</a>
+              <a class="vel-navbar-link" href={examplesHref} aria-current="page">Examples</a>
+              <a class="vel-navbar-link" href={optionalRuntimeHref}>Themes</a>
             </div>
 
             <div class="vel-navbar-actions">
               <a class="vel-button vel-button-ghost" href="https://github.com/VeloraX/veloracss">GitHub</a>
-              <a class="vel-button vel-button-primary" href="/docs">Install</a>
+              <a class="vel-button vel-button-primary" href={docsHref}>Install</a>
             </div>
           </nav>
 
           <div class="vel-breadcrumb" aria-label="Breadcrumb">
-            <a class="vel-breadcrumb-link" href="/docs">Docs</a>
+            <a class="vel-breadcrumb-link" href={docsHref}>Docs</a>
             <span class="vel-breadcrumb-separator">/</span>
-            <a class="vel-breadcrumb-link" href="/docs#families">Patterns</a>
+            <a class="vel-breadcrumb-link" href={docsFamiliesHref}>Patterns</a>
             <span class="vel-breadcrumb-separator">/</span>
             <span class="vel-breadcrumb-current">Navigation</span>
           </div>
@@ -233,11 +244,11 @@
           </div>
 
           <div class="vel-pagination" aria-label="Pagination">
-            <a class="vel-page-link" href="/docs#families">Prev</a>
-            <a class="vel-page-link" href="/proof">1</a>
-            <a class="vel-page-link" href="/proof#flow" aria-current="page">2</a>
-            <a class="vel-page-link" href="/proof#release-toast">3</a>
-            <a class="vel-page-link" href="/examples">Next</a>
+            <a class="vel-page-link" href={docsFamiliesHref}>Prev</a>
+            <a class="vel-page-link" href={proofHref}>1</a>
+            <a class="vel-page-link" href={proofFlowHref} aria-current="page">2</a>
+            <a class="vel-page-link" href={proofReleaseToastHref}>3</a>
+            <a class="vel-page-link" href={examplesHref}>Next</a>
           </div>
         </div>
       </article>

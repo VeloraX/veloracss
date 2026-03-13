@@ -37,7 +37,7 @@ export function createTrackerServer({
         bodyBuffer
       });
 
-      sendJson(response, result.statusCode, result.payload);
+      sendJson(response, result.statusCode, result.payload, result.headers);
     } catch (error) {
       sendJson(response, error.statusCode ?? 500, {
         error: 'server_error',
@@ -106,10 +106,11 @@ async function readRequestBody(request) {
   return Buffer.concat(chunks);
 }
 
-function sendJson(response, statusCode, payload) {
+function sendJson(response, statusCode, payload, headers = {}) {
   const body = JSON.stringify(payload, null, 2);
 
   response.writeHead(statusCode, {
+    ...headers,
     'content-type': 'application/json; charset=utf-8',
     'content-length': Buffer.byteLength(body)
   });

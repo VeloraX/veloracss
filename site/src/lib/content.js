@@ -1,6 +1,7 @@
 export const siteNavigation = [
   { href: '/', label: 'Home' },
   { href: '/docs', label: 'Docs' },
+  { href: '/tracker', label: 'Tracker' },
   { href: '/examples', label: 'Examples' },
   { href: '/proof', label: 'Proof' }
 ];
@@ -11,6 +12,12 @@ export const docsCards = [
     title: 'Install, API rules, and runtime hooks',
     copy: 'Read the frozen 0.1 contract, selector families, package outputs, and practical usage guidance.',
     href: '/docs'
+  },
+  {
+    eyebrow: 'Tracker',
+    title: 'Follow the live planning board',
+    copy: 'Open the public tracker page for the current GitHub Project, lane health, and the cards the Discord surface is reading from.',
+    href: '/tracker'
   },
   {
     eyebrow: 'Examples',

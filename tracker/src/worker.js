@@ -32,6 +32,7 @@ export default {
     return new Response(JSON.stringify(result.payload, null, 2), {
       status: result.statusCode,
       headers: {
+        ...(result.headers ?? {}),
         'content-type': 'application/json; charset=utf-8'
       }
     });

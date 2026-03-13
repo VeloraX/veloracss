@@ -1,4 +1,5 @@
 <script>
+  import { base } from '$app/paths';
   import { page } from '$app/state';
   import { siteNavigation } from '$lib/content.js';
 
@@ -6,9 +7,18 @@
 
   const githubHref = 'https://github.com/VeloraX/veloracss';
   const footerLinks = siteNavigation.filter((item) => item.href !== '/');
+  const homeHref = base || '/';
+  const brandLockupSrc = `${base}/brand/velora_text_and_logo.png`;
+
+  function withBase(href) {
+    return href === '/' ? homeHref : `${base}${href}`;
+  }
 
   function isCurrent(href) {
-    return page.url.pathname === href || page.url.pathname.startsWith(`${href}/`);
+    const currentPath = page.url.pathname.replace(/\/$/, '') || '/';
+    const targetPath = withBase(href).replace(/\/$/, '') || '/';
+
+    return currentPath === targetPath || currentPath.startsWith(`${targetPath}/`);
   }
 </script>
 
@@ -16,8 +26,8 @@
   <div class="site-footer-chrome">
     <div class="site-footer-brand">
       <div class="docs-brand-cluster">
-        <a class="docs-brand-link" href="/" aria-label="VeloraCSS home">
-          <img class="docs-brand-lockup site-footer-lockup" src="/brand/velora_text_and_logo.png" alt="VeloraCSS" />
+        <a class="docs-brand-link" href={homeHref} aria-label="VeloraCSS home">
+          <img class="docs-brand-lockup site-footer-lockup" src={brandLockupSrc} alt="VeloraCSS" />
         </a>
         <span class="docs-version">v0.1</span>
       </div>
@@ -29,7 +39,7 @@
         <a
           class:docs-header-link-current={isCurrent(link.href)}
           class="docs-header-link"
-          href={link.href}
+          href={withBase(link.href)}
           aria-current={isCurrent(link.href) ? 'page' : undefined}
         >
           {link.label}

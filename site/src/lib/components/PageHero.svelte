@@ -1,4 +1,6 @@
 <script>
+  import { base } from '$app/paths';
+
   export let kicker = '';
   export let current = '';
   export let eyebrow = '';
@@ -6,6 +8,8 @@
   export let description = '';
   export let titleClass = 'vel-headline';
   export let heroClass = '';
+
+  const homeHref = base || '/';
 </script>
 
 <section class={`site-hero ${heroClass}`.trim()}>
@@ -16,7 +20,7 @@
 
     {#if current}
       <div class="vel-breadcrumb" aria-label="Breadcrumb">
-        <a class="vel-breadcrumb-link" href="/">Home</a>
+        <a class="vel-breadcrumb-link" href={homeHref}>Home</a>
         <span class="vel-breadcrumb-separator">/</span>
         <span class="vel-breadcrumb-current">{current}</span>
       </div>

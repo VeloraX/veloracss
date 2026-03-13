@@ -1,4 +1,5 @@
 <script>
+  import { base } from '$app/paths';
   import { onMount } from 'svelte';
 
   import CodeWindow from '$lib/components/CodeWindow.svelte';
@@ -20,6 +21,12 @@
   const githubHref = 'https://github.com/VeloraX/veloracss';
   const docsFooterCopy = 'Setup, contract rules, examples, and proof now live in a docs shell that behaves more like a framework manual than a marketing page.';
   const docsRouteCards = docsCards.filter((card) => card.href !== '/docs');
+  const docsHref = `${base}/docs`;
+
+  function withBase(href) {
+    return href.startsWith('/') ? `${base}${href}` : href;
+  }
+
   const docsSetupSections = [
     {
       id: 'install-package',
@@ -177,7 +184,7 @@
                   <a
                     class:docs-sidebar-link-current={isActiveSectionLink(link.href)}
                     class="docs-sidebar-link"
-                    href={link.href}
+                    href={withBase(link.href)}
                     aria-current={isActiveSectionLink(link.href) ? 'location' : undefined}
                     on:click={() => handleSectionLinkClick(link.href)}
                   >
@@ -193,7 +200,7 @@
       <main class="docs-main">
         <article class="docs-article">
           <div class="docs-breadcrumb" aria-label="Breadcrumb">
-            <a class="docs-breadcrumb-link" href="/docs">Documentation</a>
+            <a class="docs-breadcrumb-link" href={docsHref}>Documentation</a>
             <span class="docs-breadcrumb-separator">/</span>
             <span class="docs-breadcrumb-current">Installation</span>
           </div>
@@ -423,18 +430,18 @@
                   <p class="docs-family-eyebrow">{card.eyebrow}</p>
                   <h3 class="docs-definition-title">{card.title}</h3>
                   <p class="docs-definition-copy">{card.copy}</p>
-                  <a class="docs-inline-link" href={card.href}>{card.href === '/examples' ? 'Open examples route' : 'Open proof route'}</a>
+                  <a class="docs-inline-link" href={withBase(card.href)}>{card.href === '/examples' ? 'Open examples route' : 'Open proof route'}</a>
                 </article>
               {/each}
             </div>
           </section>
 
           <nav class="docs-next-nav" aria-label="Documentation pagination">
-            <a class="docs-next-link" href="/examples">
+            <a class="docs-next-link" href={`${base}/examples`}>
               <span class="docs-next-label">Next</span>
               <span class="docs-next-title">Browse examples</span>
             </a>
-            <a class="docs-next-link" href="/proof">
+            <a class="docs-next-link" href={`${base}/proof`}>
               <span class="docs-next-label">Reference surface</span>
               <span class="docs-next-title">Inspect proof harness</span>
             </a>

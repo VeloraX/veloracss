@@ -1,4 +1,5 @@
 <script>
+  import { base } from '$app/paths';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import { onMount } from 'svelte';
@@ -10,25 +11,34 @@
   const githubHref = 'https://github.com/VeloraX/veloracss';
   const defaultSearchResultCount = 6;
   const headerLinks = siteNavigation.filter((item) => item.href !== '/');
+  const homeHref = base || '/';
+  const brandLockupSrc = `${base}/brand/velora_text_and_logo.png`;
+
+  function withBase(href) {
+    return href === '/' ? homeHref : `${base}${href}`;
+  }
 
   let isSearchOpen = false;
   let searchQuery = '';
   let searchInput;
 
   function isCurrent(href) {
-    return page.url.pathname === href || page.url.pathname.startsWith(`${href}/`);
+    const currentPath = page.url.pathname.replace(/\/$/, '') || '/';
+    const targetPath = withBase(href).replace(/\/$/, '') || '/';
+
+    return currentPath === targetPath || currentPath.startsWith(`${targetPath}/`);
   }
 
   function resolveSearchHref(href) {
-    return href.startsWith('#') ? `/docs${href}` : href;
+    return href.startsWith('#') ? withBase(`/docs${href}`) : withBase(href);
   }
 
   function isActiveSearchResult(href) {
     if (href.startsWith('#')) {
-      return page.url.pathname === '/docs' && page.url.hash === href;
+      return page.url.pathname === withBase('/docs') && page.url.hash === href;
     }
 
-    return page.url.pathname === href;
+    return page.url.pathname === withBase(href);
   }
 
   function focusSearchInput() {
@@ -95,8 +105,8 @@
 <header class="docs-header">
   <div class="docs-header-inner">
     <div class="docs-brand-cluster">
-      <a class="docs-brand-link" href="/" aria-label="VeloraCSS home">
-        <img class="docs-brand-lockup site-brand-lockup" src="/brand/velora_text_and_logo.png" alt="VeloraCSS" />
+      <a class="docs-brand-link" href={homeHref} aria-label="VeloraCSS home">
+        <img class="docs-brand-lockup site-brand-lockup" src={brandLockupSrc} alt="VeloraCSS" />
       </a>
       <span class="docs-version">v0.1</span>
     </div>
@@ -158,7 +168,7 @@
         <a
           class:docs-header-link-current={isCurrent(link.href)}
           class="docs-header-link"
-          href={link.href}
+          href={withBase(link.href)}
           aria-current={isCurrent(link.href) ? 'page' : undefined}
         >
           {link.label}

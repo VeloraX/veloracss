@@ -1,4 +1,5 @@
 <script>
+  import { base } from '$app/paths';
   import SiteShell from '$lib/SiteShell.svelte';
   import PageHero from '$lib/components/PageHero.svelte';
   import SectionHeader from '$lib/components/SectionHeader.svelte';
@@ -9,6 +10,9 @@
     launchChecklistSteps,
     exampleMenuItems
   } from '$lib/examplesContent.js';
+
+  const proofHref = `${base}/proof`;
+  const runtimeDocsHref = `${base}/docs#optional-runtime`;
 </script>
 
 <SiteShell title="VeloraCSS Examples" footerCopy="The examples route now exercises real release, form, flow, and overlay patterns inside the Svelte app.">
@@ -189,8 +193,8 @@
           <p class="vel-body vel-text-muted">This tray keeps the release queue, proof links, and status notes available without forcing the user into a blocking dialog.</p>
 
           <div class="vel-stack-sm">
-            <a class="vel-button vel-button-secondary vel-justify-start" href="/proof">Open proof route</a>
-            <a class="vel-button vel-button-ghost vel-justify-start" href="/docs#optional-runtime">Review runtime hooks</a>
+            <a class="vel-button vel-button-secondary vel-justify-start" href={proofHref}>Open proof route</a>
+            <a class="vel-button vel-button-ghost vel-justify-start" href={runtimeDocsHref}>Review runtime hooks</a>
           </div>
         </div>
 
