@@ -35,6 +35,7 @@
 - [x] Upgrade the Discord project view into a dashboard-style message with lane summaries and filter controls
 - [x] Add a Discord writer panel with modal-based create/edit/delete flows for GitHub Project items
 - [x] Add a repo-owned always-on hosting blueprint for the tracker service
+- [x] Make the tracker runtime Cloudflare Worker-ready without relying on in-memory Discord sessions
 - [ ] Persist tracker mappings and audit logs beyond memory
 
 

@@ -49,6 +49,13 @@ cd tracker
 npm run dev
 ```
 
+To run the Cloudflare Worker locally once Wrangler is installed:
+
+```bash
+cd tracker
+npm run worker:dev
+```
+
 To inspect the current Discord command payloads without starting the server:
 
 ```bash
@@ -69,29 +76,33 @@ Current command names:
 
 ## Always-on hosting
 
-If you do not want to keep a local terminal and `cloudflared` open, deploy `tracker/` as a small web service.
+If you do not want to keep a local terminal and `cloudflared` open, deploy `tracker/` as a Cloudflare Worker.
 
-This repo now includes [render.yaml](../render.yaml), which is a repo-owned Render blueprint for the tracker service.
+This repo now includes `tracker/wrangler.toml` and `tracker/src/worker.js`, which run the same tracker handler used by the local Node service.
 
-One-time setup in Render:
+Recommended Cloudflare setup:
 
-1. Create a new Blueprint service from this GitHub repo.
-2. Render will read [render.yaml](../render.yaml) and create the `veloracss-tracker` web service from `tracker/`.
-3. In the Render service settings, add these secret values:
+1. In Cloudflare Workers, create a Worker from this GitHub repo instead of deploying the Hello World sample.
+2. Point the Worker at the `tracker/` directory.
+3. Add these environment variables to the Worker:
 	- `GITHUB_WEBHOOK_SECRET`
 	- `GITHUB_TOKEN`
+	- `GITHUB_ORG`
+	- `GITHUB_PROJECT_NUMBER`
 	- `DISCORD_PUBLIC_KEY`
 	- `DISCORD_APPLICATION_ID`
 	- `DISCORD_BOT_TOKEN`
 	- `DISCORD_GUILD_ID`
 	- `DISCORD_OPERATOR_ROLE_IDS` (optional)
-4. Deploy the service.
-5. Copy the Render service URL and set Discord Interactions URL to:
-	- `<render-url>/discord/interactions`
+4. Deploy the Worker.
+5. Set Discord Interactions URL to:
+	- `<worker-url>/discord/interactions`
 6. Optionally set the GitHub webhook target to:
-	- `<render-url>/github/webhook`
+	- `<worker-url>/github/webhook`
 
-After that, every push to GitHub auto-deploys the tracker service. No local `cloudflared` process is needed.
+After that, Cloudflare keeps the tracker online without a local tunnel.
+
+The repo still includes [render.yaml](../render.yaml) as a fallback web-service path, but Cloudflare is now the preferred no-card deployment target for the tracker.
 
 ## HTTP endpoints
 
@@ -141,11 +152,14 @@ The writer panel currently supports:
 - editing title, notes, driver, and target date for draft items
 - deleting draft items from the GitHub Project board
 
+Manager controls are now stateless across Discord component interactions, so the same writer flow works in the local Node server and the Cloudflare Worker runtime.
+
 Readers can still view the shared dashboard without getting write access to GitHub.
 
 ## Current limitations
 
 - mapping and audit state resets on process restart
+- mapping and audit state still reset on Worker cold starts because persistence is not wired yet
 - the shared public dashboard does not auto-refresh itself yet after write actions; use Refresh until message mapping is added
 - outbound GitHub Project mutations exist for the first manager-panel slice, but iteration, size, linked issue title edits, and automatic shared-dashboard refresh are still incomplete
 - Discord message mapping and loop prevention are not implemented yet

@@ -38,8 +38,9 @@ It focuses on the foundation needed for the full framework merge:
 
 - Root package: builds the framework, proof surface, manifest, and release verification flow
 - `site/`: SvelteKit docs app with home, docs, examples, and proof routes
-- `tracker/`: Node 20 service scaffold for GitHub Projects <-> Discord sync work, now able to render a shared dashboard-style Team Planning view in Discord and open a private writer panel with modal-based create/edit/delete actions while loop-safe message mapping remains unfinished
-- `render.yaml`: repo-owned auto-deploy blueprint for hosting the tracker as an always-on web service instead of requiring a local Cloudflare tunnel
+- `tracker/`: shared tracker runtime that now boots as both a local Node 20 service and a Cloudflare Worker, renders a shared dashboard-style Team Planning view in Discord, and opens a private writer panel with modal-based create/edit/delete actions while loop-safe message mapping remains unfinished
+- `tracker/wrangler.toml`: Cloudflare Worker configuration for the no-card always-on deployment path
+- `render.yaml`: repo-owned fallback web-service blueprint for the tracker if a traditional host is needed later
 
 ## Next focus
 
@@ -52,7 +53,7 @@ It focuses on the foundation needed for the full framework merge:
 
 - next: extend the runtime from collapse, dropdown, modal, offcanvas, tabs, toast, and tooltip into popover, carousel, and scrollspy
 - next after that: rebuild Bootstrap-scale component coverage on top of the generated utility and plugin layers
-- later: move the tracker sync work forward again once the framework foundation is stable enough not to thrash the roadmap
+- later: move the tracker sync work forward again after the Cloudflare-hosted Discord control plane is live and persistence is no longer in-memory only
 
 ## Product requirement
 
