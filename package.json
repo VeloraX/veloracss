@@ -46,7 +46,17 @@
     },
     "./css": "./dist/velora.css",
     "./js": "./dist/velora.js",
-    "./manifest": "./dist/velora.manifest.json"
+    "./manifest": "./dist/velora.manifest.json",
+    "./compat": {
+      "style": "./dist/vel-compat.css",
+      "default": "./dist/vel-compat.css"
+    },
+    "./compat/css": "./dist/vel-compat.css",
+    "./compat/js": "./dist/vel-compat.js",
+    "./themes/elevated": {
+      "style": "./dist/vel-elevated.css",
+      "default": "./dist/vel-elevated.css"
+    }
   },
   "scripts": {
     "build": "node build.mjs",
